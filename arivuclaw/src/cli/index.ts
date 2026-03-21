@@ -93,6 +93,9 @@ async function main(): Promise<void> {
 async function startGateway(): Promise<void> {
   console.log(BANNER);
 
+  // Load .env file if present
+  try { require("dotenv").config(); } catch { /* dotenv optional */ }
+
   const config = loadConfig();
   Logger.setLevel(config.logging.level);
 
@@ -130,6 +133,95 @@ async function startGateway(): Promise<void> {
   // Start gateway
   await gateway.start();
 
+  // Start Web UI Dashboard
+  const dashPort = Number(config.gateway.port) || 7890;
+  try {
+    const http = require("http");
+    const { generateDashboardHTML } = require("../ui/dashboard");
+
+    const dashServer = http.createServer((req: any, res: any) => {
+      const url = req.url || "/";
+
+      if (url === "/" || url === "/dashboard") {
+        res.writeHead(200, { "Content-Type": "text/html" });
+        res.end(generateDashboardHTML());
+        return;
+      }
+
+      if (url === "/api/health") {
+        res.writeHead(200, { "Content-Type": "application/json" });
+        res.end(JSON.stringify(gateway.getHealth()));
+        return;
+      }
+
+      if (url === "/api/skills") {
+        res.writeHead(200, { "Content-Type": "application/json" });
+        res.end(JSON.stringify(skillRegistry.getAllSkills().map((s: any) => ({ name: s.name, description: s.manifest.description, tools: s.manifest.tools.length, loaded: s.loaded }))));
+        return;
+      }
+
+      if (url === "/api/channels") {
+        res.writeHead(200, { "Content-Type": "application/json" });
+        res.end(JSON.stringify(gateway.getActiveChannels()));
+        return;
+      }
+
+      if (url === "/api/config") {
+        res.writeHead(200, { "Content-Type": "application/json" });
+        res.end(JSON.stringify({ provider: config.defaultProvider, model: config.defaultModel, mode: config.mode }));
+        return;
+      }
+
+      res.writeHead(404);
+      res.end("Not found");
+    });
+
+    dashServer.listen(dashPort, () => {
+      console.log(`\n  🌐 Dashboard: http://localhost:${dashPort}`);
+      console.log(`  📡 API:       http://localhost:${dashPort}/api/health\n`);
+    });
+  } catch (err) {
+    log.warn(`Dashboard failed to start: ${err}`);
+  }
+
+  // Wire up additional modules
+  try {
+    // MCP Server — expose skills as MCP tools
+    const { MCPServer, MCPBridge } = require("../mcp/server");
+    const mcpServer = new MCPServer("arivumaiyam", "1.0.0");
+    const mcpBridge = new MCPBridge(mcpServer);
+    log.info(`MCP Server ready (${mcpServer.getTools().length} tools exposed)`);
+
+    // Telemetry & Health
+    const { HealthDashboard } = require("../observability/health-dashboard");
+    const healthDash = new HealthDashboard();
+    log.info("Health dashboard initialized");
+
+    // i18n
+    const { I18n } = require("../i18n/locales");
+    const i18n = new I18n();
+    log.info(`i18n initialized (${i18n.getSupportedLocales().length} locales)`);
+
+    // Guardrails (auto-approve all in unrestricted)
+    const { GuardrailManager } = require("../core/guardrails");
+    const guardrails = new GuardrailManager(config.mode === "unrestricted");
+    log.info(`Guardrails: auto-approve=${guardrails.isAutoApproveAll()}`);
+
+    // Backup Manager
+    const { BackupManager } = require("../backup/manager");
+    const backupMgr = new BackupManager();
+    log.info("Backup manager ready");
+
+    // Model Tiering
+    const { ModelTierManager } = require("../core/model-tiering");
+    const tierMgr = new ModelTierManager();
+    log.info("Model tiering initialized");
+
+    console.log("  ✅ All modules wired and ready\n");
+  } catch (err) {
+    log.warn(`Some optional modules failed to load: ${err}`);
+  }
+
   // Graceful shutdown
   const shutdown = async () => {
     log.info("Shutting down...");
@@ -143,6 +235,8 @@ async function startGateway(): Promise<void> {
 
 async function startChat(): Promise<void> {
   console.log(BANNER);
+
+  try { require("dotenv").config(); } catch { /* dotenv optional */ }
 
   const config = loadConfig();
   Logger.setLevel("warn"); // Quiet mode for chat
