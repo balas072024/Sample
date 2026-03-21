@@ -121,12 +121,24 @@ async function startGateway(): Promise<void> {
   gateway.setAgentRuntime(runtime);
 
   // Register configured channels
-  for (const channelConfig of config.channels) {
-    if (!channelConfig.enabled) continue;
+  log.info(`Configured channels: ${config.channels.map(c => `${c.type}(enabled=${c.enabled})`).join(", ")}`);
 
-    const adapter = createChannelAdapter(channelConfig.type);
-    if (adapter) {
-      await gateway.registerChannel(adapter);
+  for (const channelConfig of config.channels) {
+    if (!channelConfig.enabled) {
+      log.info(`Skipping channel ${channelConfig.type} (disabled)`);
+      continue;
+    }
+
+    log.info(`Starting channel: ${channelConfig.type} (token=${channelConfig.credentials?.botToken ? "present" : "missing"})`);
+    try {
+      const adapter = createChannelAdapter(channelConfig.type);
+      if (adapter) {
+        await gateway.registerChannel(adapter);
+      } else {
+        log.warn(`No adapter found for channel type: ${channelConfig.type}`);
+      }
+    } catch (err: any) {
+      log.error(`Failed to register channel ${channelConfig.type}: ${err.message || err}`);
     }
   }
 
