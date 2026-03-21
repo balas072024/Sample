@@ -285,7 +285,7 @@ async function startGateway(): Promise<void> {
     const ROUTES: Record<string, number> = {
       // Arivumaiyam AI core services
       "chat.arivumaiyam.com": 3000,           // Web chat (WebSocket + REST)
-      "arivumaiyam.com": dashPort,            // Main site → dashboard
+      "arivumaiyam.com": 3000,               // Main site — beautiful website
       // Other apps — mapped from actual running processes on laptop
       "family.arivumaiyam.com": 8080,         // IIS (Windows System PID 4)
       "neuralbrain.arivumaiyam.com": 8200,    // Python app (port 8200)
