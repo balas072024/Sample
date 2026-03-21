@@ -141,7 +141,7 @@ export function loadConfig(): ArivuClawConfig {
       try {
         const raw = fs.readFileSync(configPath, "utf-8");
         const userConfig = JSON.parse(raw) as Partial<ArivuClawConfig>;
-        config = deepMerge(DEFAULT_CONFIG, userConfig) as ArivuClawConfig;
+        config = deepMerge(DEFAULT_CONFIG as unknown as Record<string, unknown>, userConfig as unknown as Record<string, unknown>) as unknown as ArivuClawConfig;
         break;
       } catch (error) {
         console.warn(`Failed to load config from ${configPath}: ${error}`);

@@ -50,7 +50,6 @@ export class NeuralBrainProvider implements LLMProvider {
 
   constructor(config: NeuralBrainConfig, backboneProvider?: LLMProvider) {
     this.config = {
-      neuralMode: "simulate",
       plasticityRate: 0.1,
       associativeMemorySize: 100,
       ...config,

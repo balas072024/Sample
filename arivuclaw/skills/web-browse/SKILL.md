@@ -25,7 +25,7 @@ tools:
         format:
           type: string
           enum: [text, html, markdown]
-          description: Output format (default: markdown)
+          description: "Output format (default: markdown)"
       required:
         - url
   - name: search_web
@@ -40,7 +40,7 @@ tools:
           description: Search query
         maxResults:
           type: number
-          description: Maximum results to return (default: 5)
+          description: "Maximum results to return (default: 5)"
       required:
         - query
 triggers:

@@ -139,7 +139,13 @@ export class SkillRegistry {
       return { frontmatter: {}, body: raw };
     }
 
-    const frontmatter = parseYaml(fmMatch[1]) as Record<string, unknown>;
+    let frontmatter: Record<string, unknown>;
+    try {
+      frontmatter = parseYaml(fmMatch[1]) as Record<string, unknown>;
+    } catch {
+      // Fallback for compact YAML flow notation that strict parser rejects
+      frontmatter = parseYaml(fmMatch[1], { strict: false }) as Record<string, unknown>;
+    }
     const body = fmMatch[2].trim();
 
     return { frontmatter, body };

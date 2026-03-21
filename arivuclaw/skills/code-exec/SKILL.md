@@ -28,7 +28,7 @@ tools:
           description: Working directory (defaults to session workdir)
         timeout:
           type: number
-          description: Timeout in milliseconds (default: 15000)
+          description: "Timeout in milliseconds (default: 15000)"
       required:
         - command
   - name: run_script
@@ -45,8 +45,6 @@ tools:
           description: Path to the script file
         args:
           type: array
-          items:
-            type: string
           description: Command-line arguments
         runtime:
           type: string
