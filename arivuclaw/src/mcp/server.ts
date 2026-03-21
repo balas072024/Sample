@@ -252,7 +252,7 @@ export class MCPBridge {
   exposeNativeTools(tools: ToolDefinition[], executor: (call: ToolCall) => Promise<ToolResult>): void {
     for (const tool of tools) {
       this.server.registerTool(
-        { name: tool.name, description: tool.description, inputSchema: tool.inputSchema as Record<string, unknown> },
+        { name: tool.name, description: tool.description, inputSchema: tool.inputSchema as unknown as Record<string, unknown> },
         async (input) => {
           const result = await executor({ id: uuid(), name: tool.name, input });
           return result.output || result.error || "";

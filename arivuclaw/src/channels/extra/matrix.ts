@@ -110,7 +110,7 @@ export class MatrixChannel extends BaseChannel {
 
     try {
       // Dynamically import matrix-js-sdk to avoid hard dependency
-      const sdk = await import("matrix-js-sdk");
+      const sdk = await import("matrix-js-sdk" as string) as any;
 
       const clientOpts: Record<string, unknown> = {
         baseUrl: this.matrixConfig.homeserverUrl,

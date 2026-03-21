@@ -455,7 +455,7 @@ export class TelemetryService {
    * @param details - Additional structured details.
    */
   logAudit(action: string, userId: string, details: Record<string, unknown>): void {
-    void this.auditLogger.write({ action, userId, details });
+    void this.auditLogger.write({ action, userId, details, level: "info" as const });
     this.log.debug(`Audit: ${action} by ${userId}`);
   }
 

@@ -131,7 +131,7 @@ export class TeamsChannel extends BaseChannel {
 
     try {
       // Dynamically import botbuilder to avoid hard dependency
-      const botbuilder = await import("botbuilder");
+      const botbuilder = await import("botbuilder" as string) as any;
 
       const credentials = new botbuilder.MicrosoftAppCredentials(
         this.teamsConfig.appId,
