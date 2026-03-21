@@ -107,6 +107,10 @@ export class Gateway extends EventEmitter<Record<string, (...args: unknown[]) =>
         return;
       }
 
+      // Handle system commands before routing to AI
+      const handled = await this.handleSystemCommand(incoming);
+      if (handled) return;
+
       this.emitEvent({ type: "message.received", data: incoming });
 
       // Resolve or create user identity
@@ -177,6 +181,48 @@ export class Gateway extends EventEmitter<Record<string, (...args: unknown[]) =>
         // Silent fallback — channel may be down
       }
     }
+  }
+
+  /**
+   * Handle built-in system commands from any channel.
+   * Returns true if the message was a system command (and was handled).
+   */
+  private async handleSystemCommand(incoming: IncomingMessage): Promise<boolean> {
+    const text = incoming.content.trim().toLowerCase();
+
+    // /restart or "restart gateway"
+    if (text === "/restart" || text === "restart gateway" || text === "/restart gateway") {
+      await this.sendToChannel(incoming.channelType, incoming.channelUserId,
+        "🔄 Restarting gateway... Hold on.");
+      try {
+        await this.restart();
+        await this.sendToChannel(incoming.channelType, incoming.channelUserId,
+          "✅ Gateway restarted successfully! All channels reconnected.");
+      } catch (err) {
+        await this.sendToChannel(incoming.channelType, incoming.channelUserId,
+          `❌ Restart failed: ${err instanceof Error ? err.message : String(err)}`);
+      }
+      return true;
+    }
+
+    // /status
+    if (text === "/status" || text === "gateway status") {
+      const health = this.getHealth();
+      const channelList = health.channels
+        .map(c => `  ${c.type}: ${c.connected ? "✅ Connected" : "❌ Offline"}`)
+        .join("\n");
+      await this.sendToChannel(incoming.channelType, incoming.channelUserId,
+        `🦀 Arivumaiyam AI Status\n\nRunning: ${health.running ? "Yes" : "No"}\nSessions: ${health.activeSessions}\nUsers: ${health.totalUsers}\n\nChannels:\n${channelList}`);
+      return true;
+    }
+
+    // /ping
+    if (text === "/ping") {
+      await this.sendToChannel(incoming.channelType, incoming.channelUserId, "🏓 Pong! Gateway is alive.");
+      return true;
+    }
+
+    return false;
   }
 
   private async sendToChannel(
