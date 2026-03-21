@@ -17,7 +17,7 @@ permissions:
   - unrestricted
 tools:
   - name: responder_start
-    description: Start Responder LLMNR/NBT-NS/MDNS poisoner
+    description: Start the Responder poisoner on a network interface
     inputSchema:
       type: object
       properties:
@@ -32,7 +32,7 @@ tools:
           description: Enable WPAD rogue proxy
         fingerprint:
           type: boolean
-          description: Fingerprint hosts that respond
+          description: Enable OS fingerprinting
         verbose:
           type: boolean
           description: Enable verbose output
@@ -45,7 +45,7 @@ tools:
       properties:
         logDir:
           type: string
-          description: Path to the Responder logs directory
+          description: Path to Responder log directory
   - name: ntlmrelay
     description: Start an NTLM relay attack
     inputSchema:
@@ -59,7 +59,7 @@ tools:
           description: Enable SMB-to-SMB relay
         socks:
           type: boolean
-          description: Enable SOCKS proxy for relayed connections
+          description: Enable SOCKS proxy for relayed sessions
         command:
           type: string
           description: Command to execute on successful relay
@@ -67,16 +67,16 @@ tools:
         - targetFile
 triggers:
   - type: keyword
-    value: "responder"
+    pattern: "responder"
     priority: 9
   - type: keyword
-    value: "ntlm"
+    pattern: "ntlm"
     priority: 7
   - type: keyword
-    value: "relay"
+    pattern: "relay"
     priority: 5
   - type: keyword
-    value: "poisoning"
+    pattern: "poisoning"
     priority: 7
 environment:
   binaries:
@@ -85,23 +85,22 @@ environment:
 
 # Responder MITM & NTLM Relay
 
-This skill provides an interface to Responder, a powerful LLMNR, NBT-NS, and MDNS poisoner used for capturing network credentials, and ntlmrelayx for relaying NTLM authentication to target systems.
-
-## Capabilities
-
-- **Protocol Poisoning**: Poison LLMNR, NBT-NS, and MDNS requests to redirect authentication.
-- **Credential Capture**: Capture NTLMv1/v2 hashes, HTTP Basic credentials, and more.
-- **WPAD Proxy**: Deploy a rogue WPAD proxy for credential interception.
-- **NTLM Relay**: Relay captured NTLM authentication to other systems for lateral movement.
-- **Analyze Mode**: Passive mode to observe name resolution traffic without poisoning.
+This skill provides an interface to Responder for LLMNR/NBT-NS/MDNS poisoning and NTLM relay attacks for network credential capture during penetration testing.
 
 ## Usage
 
-1. Use `responder_start` with `analyze: true` first to observe traffic passively.
-2. Use `responder_start` to begin active poisoning and credential capture.
-3. Use `responder_logs` to review captured hashes and credentials.
-4. Use `ntlmrelay` to relay captured authentication to target systems.
+- **responder_start** — Launch Responder to poison name resolution requests and capture credential hashes.
+- **responder_logs** — Review captured NTLMv1/NTLMv2 hashes and cleartext credentials.
+- **ntlmrelay** — Relay captured NTLM authentication to target hosts for lateral movement.
+
+## Instructions
+
+1. Start Responder in analyze mode first to passively observe network traffic and identify targets.
+2. When ready, run Responder with poisoning enabled to capture NTLM hashes.
+3. Use `responder_logs` to review and export captured hashes for offline cracking.
+4. Use `ntlmrelay` to relay captured authentication to other hosts in the network.
+5. Enable SOCKS proxy mode with ntlmrelay for persistent access through relayed sessions.
 
 ## Authorized Testing Only
 
-This skill is intended exclusively for authorized security testing and educational purposes. Only use these tools on networks you have explicit written permission to test. LLMNR/NBT-NS poisoning and NTLM relay attacks can disrupt network services and intercept credentials. Unauthorized use is illegal and may result in criminal prosecution. Always obtain proper authorization and coordinate with network administrators before conducting any MITM testing.
+This skill is intended exclusively for use in authorized security testing and penetration testing engagements. You must have explicit written permission from the network owner before running any poisoning or relay operations. Unauthorized interception of network credentials or man-in-the-middle attacks is illegal and unethical. Always operate within the scope of your engagement and applicable laws.

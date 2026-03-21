@@ -17,7 +17,7 @@ permissions:
   - unrestricted
 tools:
   - name: reaver_wps
-    description: WPS brute-force attack against a wireless access point
+    description: WPS brute-force attack using Reaver
     inputSchema:
       type: object
       properties:
@@ -52,13 +52,13 @@ tools:
           description: Target BSSID or ESSID
         attackWpa:
           type: boolean
-          description: Enable WPA/WPA2 attacks
+          description: Attack WPA/WPA2 networks
         attackWep:
           type: boolean
-          description: Enable WEP attacks
+          description: Attack WEP networks
         attackWps:
           type: boolean
-          description: Enable WPS attacks
+          description: Attack WPS-enabled networks
       required:
         - interface
   - name: kismet_scan
@@ -71,14 +71,14 @@ tools:
           description: Wireless interface to use
         outputPrefix:
           type: string
-          description: Output file prefix for scan results
+          description: Output file prefix
         duration:
           type: number
           description: Scan duration in seconds
       required:
         - interface
   - name: wifi_deauth
-    description: Send targeted deauthentication frames
+    description: Targeted deauthentication attack
     inputSchema:
       type: object
       properties:
@@ -90,7 +90,7 @@ tools:
           description: Target access point BSSID
         client:
           type: string
-          description: Target client MAC address (omit for broadcast)
+          description: Specific client MAC to deauthenticate
         count:
           type: number
           description: Number of deauth frames to send
@@ -102,37 +102,40 @@ tools:
         - bssid
 triggers:
   - type: keyword
-    value: "reaver"
+    pattern: "reaver"
     priority: 9
   - type: keyword
-    value: "wps"
+    pattern: "wps"
     priority: 7
   - type: keyword
-    value: "wifite"
+    pattern: "wifite"
     priority: 9
   - type: keyword
-    value: "kismet"
+    pattern: "kismet"
     priority: 9
+environment:
+  binaries: []
 ---
 
 # Extended Wireless Testing Tools
 
-This skill provides an interface to advanced wireless security testing tools including Reaver, WiFite, and Kismet for WPS attacks, automated wireless assessments, and passive reconnaissance.
-
-## Capabilities
-
-- **WPS Brute-Force**: Attack WPS-enabled access points with Reaver, including Pixie Dust offline attacks.
-- **Automated Attacks**: Run fully automated wireless attacks with WiFite against WPA, WEP, and WPS targets.
-- **Passive Reconnaissance**: Discover and catalog wireless networks with Kismet without active probing.
-- **Targeted Deauthentication**: Send deauth frames to specific clients or broadcast to all clients on a network.
+This skill provides an interface to extended wireless testing tools including Reaver for WPS attacks, WiFite for automated wireless attacks, and Kismet for passive reconnaissance.
 
 ## Usage
 
-1. Use `reaver_wps` to attack WPS-enabled access points with PIN brute-force or Pixie Dust.
-2. Use `wifite_auto` for automated wireless attacks against multiple targets.
-3. Use `kismet_scan` for passive wireless network discovery and reconnaissance.
-4. Use `wifi_deauth` to send targeted deauthentication frames.
+- **reaver_wps** — Brute-force WPS PINs or use Pixie Dust for offline WPS cracking.
+- **wifite_auto** — Run automated wireless attacks against WPA, WEP, and WPS networks.
+- **kismet_scan** — Perform passive wireless reconnaissance and network discovery.
+- **wifi_deauth** — Send targeted deauthentication frames to specific clients or broadcast.
+
+## Instructions
+
+1. Ensure the wireless interface is in monitor mode before using these tools.
+2. Use `kismet_scan` for passive reconnaissance to identify targets without transmitting.
+3. Use `reaver_wps` with the `pixieDust` option first for faster WPS attacks before falling back to brute-force.
+4. Use `wifite_auto` for fully automated attack workflows against multiple network types.
+5. Use `wifi_deauth` sparingly and only as needed for handshake capture or testing.
 
 ## Authorized Testing Only
 
-This skill is intended exclusively for authorized security testing and educational purposes. Only use these tools against wireless networks you own or have explicit written permission to test. Unauthorized wireless testing is illegal and may violate federal and local laws. Always obtain proper authorization before conducting any wireless security assessments.
+This skill is intended exclusively for use in authorized security testing and penetration testing engagements. You must have explicit written permission from the network owner before performing any wireless testing operations. Unauthorized interception of wireless communications or attacks against networks you do not own or have permission to test is illegal and unethical. Always operate within the scope of your engagement and applicable laws.

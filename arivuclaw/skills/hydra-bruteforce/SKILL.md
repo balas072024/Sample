@@ -26,20 +26,7 @@ tools:
           description: Target host or IP address
         service:
           type: string
-          enum:
-            - ssh
-            - ftp
-            - http-get
-            - http-post
-            - smb
-            - rdp
-            - mysql
-            - postgres
-            - vnc
-            - telnet
-            - smtp
-            - pop3
-            - imap
+          enum: [ssh, ftp, http-get, http-post, smb, rdp, mysql, postgres, vnc, telnet, smtp, pop3, imap]
           description: Target service/protocol to attack
         username:
           type: string
@@ -58,7 +45,7 @@ tools:
           description: Number of parallel threads
         port:
           type: number
-          description: Target port number (overrides default)
+          description: Custom port number for the service
         options:
           type: string
           description: Additional Hydra options
@@ -78,7 +65,7 @@ tools:
           description: URL path of the login form
         formData:
           type: string
-          description: "POST data with ^USER^ and ^PASS^ placeholders"
+          description: "Form data string with ^USER^ and ^PASS^ placeholders"
         failString:
           type: string
           description: String that indicates a failed login attempt
@@ -95,13 +82,13 @@ tools:
         - failString
 triggers:
   - type: keyword
-    value: "hydra"
+    pattern: "hydra"
     priority: 9
   - type: keyword
-    value: "brute force"
+    pattern: "brute force"
     priority: 7
   - type: keyword
-    value: "login attack"
+    pattern: "login attack"
     priority: 7
 environment:
   binaries:
@@ -110,20 +97,20 @@ environment:
 
 # Hydra Network Login Brute-Forcer
 
-This skill provides an interface to THC-Hydra, a fast and flexible online password cracking tool. It supports brute-force attacks against more than 50 network protocols including SSH, FTP, HTTP, SMB, RDP, and database services.
-
-## Capabilities
-
-- **Multi-Protocol Support**: Attack SSH, FTP, HTTP, SMB, RDP, MySQL, PostgreSQL, VNC, and many more.
-- **HTTP Form Attacks**: Brute-force web application login forms with custom POST data.
-- **Parallel Connections**: Configurable thread count for faster attacks.
-- **Flexible Input**: Support for single credentials or wordlist files.
+This skill provides an interface to THC-Hydra, a fast and flexible network login brute-forcer supporting SSH, FTP, HTTP, SMB, RDP, MySQL, and 50+ protocols.
 
 ## Usage
 
-1. Use `hydra_attack` to brute-force a network service with username/password lists.
-2. Use `hydra_http_form` to attack web login forms with custom parameters.
+- **hydra_attack** — Launch a brute-force or dictionary attack against a network service.
+- **hydra_http_form** — Brute-force HTTP form-based authentication pages.
+
+## Instructions
+
+1. Specify the target host and service protocol for the attack.
+2. Provide either a single username/password or a wordlist file for each.
+3. Adjust thread count and port as needed for the target environment.
+4. For HTTP form attacks, supply the form URL, POST data with placeholders, and a failure indicator string.
 
 ## Authorized Testing Only
 
-This skill is intended exclusively for authorized security testing and educational purposes. Only use these tools against systems and accounts you have explicit written permission to test. Unauthorized brute-force attacks are illegal and may cause service disruption. Always obtain proper authorization before conducting any login testing activities.
+This skill is intended exclusively for use in authorized security testing and penetration testing engagements. You must have explicit written permission from the system owner before running any brute-force operations. Unauthorized use of this tool against systems you do not own or have permission to test is illegal and unethical. Always operate within the scope of your engagement and applicable laws.

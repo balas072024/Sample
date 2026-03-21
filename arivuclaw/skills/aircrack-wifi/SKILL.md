@@ -26,7 +26,7 @@ tools:
           description: Wireless interface name (e.g., wlan0)
         channel:
           type: number
-          description: Lock to a specific wireless channel
+          description: Specific channel to monitor
       required:
         - interface
   - name: airodump_scan
@@ -39,17 +39,17 @@ tools:
           description: Monitor mode interface (e.g., wlan0mon)
         channel:
           type: number
-          description: Specific channel to monitor
+          description: Specific channel to scan
         bssid:
           type: string
-          description: Filter by target access point BSSID
+          description: Target BSSID to filter on
         outputPrefix:
           type: string
           description: Output file prefix for captured data
       required:
         - interface
   - name: aireplay_deauth
-    description: Send deauthentication packets to force handshake capture
+    description: Send deauthentication packets to capture WPA handshake
     inputSchema:
       type: object
       properties:
@@ -64,7 +64,7 @@ tools:
           description: Target client station MAC address
         count:
           type: number
-          description: Number of deauthentication packets to send
+          description: Number of deauth packets to send
       required:
         - interface
         - bssid
@@ -81,32 +81,32 @@ tools:
           description: Path to the wordlist file
         bssid:
           type: string
-          description: Target access point BSSID
+          description: Target BSSID to crack
       required:
         - capFile
         - wordlist
   - name: aircrack_wep
-    description: Crack a WEP key from captured initialization vectors
+    description: Crack a WEP key from captured IVs
     inputSchema:
       type: object
       properties:
         capFile:
           type: string
-          description: Path to the capture file containing IVs
+          description: Path to the capture file containing WEP IVs
       required:
         - capFile
 triggers:
   - type: keyword
-    value: "aircrack"
+    pattern: "aircrack"
     priority: 9
   - type: keyword
-    value: "wifi crack"
+    pattern: "wifi crack"
     priority: 8
   - type: keyword
-    value: "wireless"
+    pattern: "wireless"
     priority: 5
   - type: keyword
-    value: "wpa"
+    pattern: "wpa"
     priority: 8
 environment:
   binaries:
@@ -115,24 +115,23 @@ environment:
 
 # Aircrack-ng Wireless Security Testing
 
-This skill provides an interface to the Aircrack-ng suite, a complete set of tools for assessing wireless network security. It covers monitoring, attacking, testing, and cracking Wi-Fi networks.
-
-## Capabilities
-
-- **Monitor Mode**: Enable monitor mode on wireless interfaces for packet capture.
-- **Network Discovery**: Scan and discover nearby wireless networks and clients.
-- **Deauthentication**: Send deauth packets to capture WPA/WPA2 handshakes.
-- **WPA/WPA2 Cracking**: Crack captured handshakes using wordlist attacks.
-- **WEP Cracking**: Recover WEP keys from captured initialization vectors.
+This skill provides an interface to the Aircrack-ng suite for wireless network security testing, including packet capture, deauthentication, and WPA/WPA2/WEP key cracking.
 
 ## Usage
 
-1. Use `airmon_start` to enable monitor mode on your wireless interface.
-2. Use `airodump_scan` to discover networks and capture packets.
-3. Use `aireplay_deauth` to force a client to reconnect and capture the handshake.
-4. Use `aircrack_crack` to crack the WPA/WPA2 handshake with a wordlist.
-5. Use `aircrack_wep` to crack WEP keys from captured IVs.
+- **airmon_start** — Enable monitor mode on a wireless interface.
+- **airodump_scan** — Discover wireless networks and capture packets.
+- **aireplay_deauth** — Send deauthentication packets to force handshake capture.
+- **aircrack_crack** — Crack WPA/WPA2 handshakes with a wordlist.
+- **aircrack_wep** — Crack WEP keys from captured initialization vectors.
+
+## Instructions
+
+1. Start by enabling monitor mode on the wireless interface with `airmon_start`.
+2. Use `airodump_scan` to discover target networks and capture traffic.
+3. If needed, use `aireplay_deauth` to force a client reconnection and capture the WPA handshake.
+4. Crack the captured handshake with `aircrack_crack` using a wordlist, or crack WEP with `aircrack_wep`.
 
 ## Authorized Testing Only
 
-This skill is intended exclusively for authorized security testing and educational purposes. Only use these tools against wireless networks you own or have explicit written permission to test. Unauthorized wireless network testing is illegal and may violate federal and local laws. Always obtain proper authorization before conducting any wireless security assessments.
+This skill is intended exclusively for use in authorized security testing and penetration testing engagements. You must have explicit written permission from the network owner before performing any wireless testing operations. Unauthorized interception of wireless communications or attacks against networks you do not own or have permission to test is illegal and unethical. Always operate within the scope of your engagement and applicable laws.

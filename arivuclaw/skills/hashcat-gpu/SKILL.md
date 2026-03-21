@@ -25,7 +25,7 @@ tools:
           description: Path to the file containing password hashes
         hashType:
           type: number
-          description: "Hashcat hash type code (e.g., 0=MD5, 1000=NTLM, 2500=WPA)"
+          description: Hashcat hash type code (e.g., 0 for MD5, 1000 for NTLM)
         attackMode:
           type: number
           enum: [0, 1, 3, 6, 7]
@@ -38,10 +38,10 @@ tools:
           description: Mask pattern for brute-force or hybrid attacks
         rules:
           type: string
-          description: Path to the rules file
+          description: Path to a rules file
         device:
           type: string
-          description: Device to use for cracking (e.g., GPU ID)
+          description: Device(s) to use for cracking
         workload:
           type: number
           enum: [1, 2, 3, 4]
@@ -50,13 +50,13 @@ tools:
         - hashFile
         - hashType
   - name: hashcat_benchmark
-    description: Benchmark hash cracking speed on available hardware
+    description: Benchmark hash cracking speed on available devices
     inputSchema:
       type: object
       properties:
         hashType:
           type: number
-          description: Specific hash type to benchmark (omit for all)
+          description: Specific hash type to benchmark (omit for all types)
   - name: hashcat_identify
     description: Identify the type of a given hash
     inputSchema:
@@ -68,13 +68,13 @@ tools:
       required:
         - hash
   - name: hashcat_show
-    description: Show cracked results from a previous session
+    description: Show cracked results from a previous Hashcat run
     inputSchema:
       type: object
       properties:
         hashFile:
           type: string
-          description: Path to the file containing password hashes
+          description: Path to the hash file
         hashType:
           type: number
           description: Hashcat hash type code
@@ -82,21 +82,21 @@ tools:
         - hashFile
         - hashType
   - name: hashcat_restore
-    description: Restore a previous Hashcat session
+    description: Restore a previously saved Hashcat session
     inputSchema:
       type: object
       properties:
         session:
           type: string
-          description: Session name to restore
+          description: Name of the session to restore
       required:
         - session
 triggers:
   - type: keyword
-    value: "hashcat"
+    pattern: "hashcat"
     priority: 9
   - type: keyword
-    value: "gpu crack"
+    pattern: "gpu crack"
     priority: 8
 environment:
   binaries:
@@ -105,24 +105,24 @@ environment:
 
 # Hashcat GPU-Accelerated Password Cracker
 
-This skill provides an interface to Hashcat, the world's fastest and most advanced password recovery utility. It leverages GPU acceleration to achieve extremely high cracking speeds across over 300 hash types.
-
-## Capabilities
-
-- **GPU-Accelerated Cracking**: Leverage NVIDIA and AMD GPUs for maximum performance.
-- **Multiple Attack Modes**: Dictionary, combinator, brute-force, and hybrid attacks.
-- **Hash Identification**: Identify unknown hash types automatically.
-- **Benchmarking**: Measure cracking speed on available hardware.
-- **Session Management**: Save and restore long-running cracking sessions.
+This skill provides an interface to Hashcat, the world's fastest password recovery tool leveraging GPU acceleration for high-speed hash cracking.
 
 ## Usage
 
-1. Use `hashcat_identify` to determine the hash type code.
-2. Use `hashcat_crack` with the appropriate hash type and attack mode.
-3. Use `hashcat_show` to display cracked passwords.
-4. Use `hashcat_benchmark` to test hardware performance.
-5. Use `hashcat_restore` to resume an interrupted session.
+- **hashcat_crack** — Run dictionary, combinator, brute-force, or hybrid attacks against hash files.
+- **hashcat_benchmark** — Benchmark cracking speed for specific or all hash types.
+- **hashcat_identify** — Identify an unknown hash type.
+- **hashcat_show** — Display previously cracked results.
+- **hashcat_restore** — Resume a previously interrupted session.
+
+## Instructions
+
+1. Provide the hash file and the corresponding hash type code for cracking operations.
+2. Select the appropriate attack mode: dictionary (0), combinator (1), brute-force (3), or hybrid (6/7).
+3. Optionally specify wordlists, masks, rules, devices, and workload profiles.
+4. Use session names for long-running jobs so they can be restored if interrupted.
+5. Run benchmarks to evaluate hardware performance before launching large-scale attacks.
 
 ## Authorized Testing Only
 
-This skill is intended exclusively for authorized security testing and educational purposes. Only use these tools against systems and credentials you have explicit written permission to test. Unauthorized password cracking is illegal and unethical. Always obtain proper authorization before conducting any password auditing activities.
+This skill is intended exclusively for use in authorized security testing and penetration testing engagements. You must have explicit written permission from the system owner before running any password cracking operations. Unauthorized use of this tool against systems you do not own or have permission to test is illegal and unethical. Always operate within the scope of your engagement and applicable laws.

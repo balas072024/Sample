@@ -23,14 +23,11 @@ tools:
       properties:
         tool:
           type: string
-          enum:
-            - cupp
-            - cewl
-            - crunch
+          enum: [cupp, cewl, crunch]
           description: Wordlist generation tool to use
         options:
           type: object
-          description: Tool-specific options and configuration
+          description: Tool-specific options and parameters
         output:
           type: string
           description: Output file path for the generated wordlist
@@ -47,10 +44,10 @@ tools:
           description: Target host or IP address
         service:
           type: string
-          description: Target service (e.g., smb, ldap, ssh, owa)
+          description: Target service/protocol
         users:
           type: string
-          description: Path to the user list file
+          description: Path to user list file
         password:
           type: string
           description: Single password to spray across all users
@@ -72,10 +69,10 @@ tools:
           description: Target host or IP address
         service:
           type: string
-          description: Target service to test credentials against
+          description: Target service/protocol
         credentialFile:
           type: string
-          description: "Path to credentials file (user:pass format)"
+          description: "Path to credential file (user:pass format)"
         threads:
           type: number
           description: Number of parallel threads
@@ -84,7 +81,7 @@ tools:
         - service
         - credentialFile
   - name: hash_identify
-    description: Identify the type of a given hash string
+    description: Identify the hash type from a hash string
     inputSchema:
       type: object
       properties:
@@ -103,52 +100,46 @@ tools:
           description: The plaintext string to hash
         algorithm:
           type: string
-          enum:
-            - md5
-            - sha1
-            - sha256
-            - sha512
-            - ntlm
-            - bcrypt
-            - argon2
+          enum: [md5, sha1, sha256, sha512, ntlm, bcrypt, argon2]
           description: Hashing algorithm to use
       required:
         - plaintext
 triggers:
   - type: keyword
-    value: "password attack"
+    pattern: "password attack"
     priority: 8
   - type: keyword
-    value: "wordlist"
+    pattern: "wordlist"
     priority: 7
   - type: keyword
-    value: "credential"
+    pattern: "credential"
     priority: 5
   - type: keyword
-    value: "spray"
+    pattern: "spray"
     priority: 7
+environment:
+  binaries: []
 ---
 
 # Password Attacks Toolkit
 
-This skill provides a comprehensive set of password attack tools covering wordlist generation, password spraying, credential stuffing, and hash operations.
-
-## Capabilities
-
-- **Wordlist Generation**: Create custom wordlists with CUPP (profiling-based), CeWL (web scraping), or crunch (pattern-based).
-- **Password Spraying**: Test a single password against many user accounts with configurable delays to avoid lockout.
-- **Credential Stuffing**: Validate leaked or collected credentials against target services.
-- **Hash Identification**: Determine the algorithm used to produce a given hash.
-- **Hash Generation**: Generate hashes in various formats for testing and comparison.
+This skill provides a comprehensive password attack toolkit for wordlist generation, password spraying, credential stuffing, and hash identification/generation.
 
 ## Usage
 
-1. Use `wordlist_generate` to create targeted wordlists for an engagement.
-2. Use `password_spray` to test common passwords across many accounts.
-3. Use `credential_check` to validate credential lists against a service.
-4. Use `hash_identify` to determine unknown hash types.
-5. Use `hash_generate` to create test hashes in supported formats.
+- **wordlist_generate** — Generate custom wordlists using CUPP (profile-based), CeWL (web scraping), or crunch (pattern-based).
+- **password_spray** — Spray a single password across many user accounts with configurable delay.
+- **credential_check** — Test credential pairs against a target service.
+- **hash_identify** — Identify the algorithm of an unknown hash string.
+- **hash_generate** — Generate hashes in various algorithms for testing.
+
+## Instructions
+
+1. Use `wordlist_generate` to create targeted wordlists based on target intelligence.
+2. Use `password_spray` with appropriate delays to avoid account lockout policies.
+3. Use `credential_check` to validate leaked or discovered credential pairs.
+4. Use `hash_identify` and `hash_generate` for hash analysis during engagements.
 
 ## Authorized Testing Only
 
-This skill is intended exclusively for authorized security testing and educational purposes. Only use these tools against systems and accounts you have explicit written permission to test. Unauthorized password attacks are illegal and may result in criminal prosecution. Always obtain proper authorization and follow rules of engagement before conducting any password testing activities.
+This skill is intended exclusively for use in authorized security testing and penetration testing engagements. You must have explicit written permission from the system owner before running any password attack operations. Unauthorized use of this tool against systems you do not own or have permission to test is illegal and unethical. Always operate within the scope of your engagement and applicable laws.
