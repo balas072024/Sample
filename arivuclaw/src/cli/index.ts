@@ -60,8 +60,17 @@ async function main(): Promise<void> {
       await startChat();
       break;
     case "onboard":
-      await runOnboard();
+    case "setup":
+    case "init": {
+      const { runOnboardWizard } = require("./onboard");
+      await runOnboardWizard();
       break;
+    }
+    case "config": {
+      const { runConfigCommand } = require("./onboard");
+      await runConfigCommand(args.slice(1));
+      break;
+    }
     case "skills":
       await handleSkills(args.slice(1));
       break;

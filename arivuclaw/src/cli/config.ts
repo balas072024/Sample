@@ -129,9 +129,11 @@ const DEFAULT_CONFIG: ArivumaiyamConfig = {
 export function loadConfig(): ArivumaiyamConfig {
   // Try loading from multiple locations (precedence: local > user > default)
   const configPaths = [
+    path.resolve("arivumaiyam.config.json"),
+    path.resolve(".arivumaiyam/config.json"),
     path.resolve("arivuclaw.config.json"),
     path.resolve(".arivuclaw/config.json"),
-    path.join(process.env.HOME || "~", ".arivuclaw", "config.json"),
+    path.join(process.env.HOME || process.env.USERPROFILE || "~", ".arivumaiyam", "config.json"),
   ];
 
   let config = DEFAULT_CONFIG;
