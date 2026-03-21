@@ -15,7 +15,7 @@ if [ "$confirm" != "y" ]; then
 fi
 
 # Remove config directories
-for dir in ~/.arivuclaw ~/.arivuclaw .arivuclaw .arivuclaw; do
+for dir in ~/.arivuclaw .arivuclaw; do
     if [ -d "$dir" ]; then
         echo "  Removing $dir ..."
         rm -rf "$dir"

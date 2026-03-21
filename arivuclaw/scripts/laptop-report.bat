@@ -125,7 +125,7 @@ for %%L in ("%USERPROFILE%\Documents" "%USERPROFILE%\Projects" "%USERPROFILE%\re
 echo.
 echo [11/12] ArivuClaw config...
 echo. >> "%REPORT%"
-echo === ARIVUMAIYAM AI CONFIG === >> "%REPORT%"
+echo === ARIVUCLAW CONFIG === >> "%REPORT%"
 if exist "%USERPROFILE%\Desktop\Sample\arivuclaw\.env" (
     echo .env file (keys redacted): >> "%REPORT%"
     powershell -Command "Get-Content '%USERPROFILE%\Desktop\Sample\arivuclaw\.env' | ForEach-Object { if($_ -match '=') { $parts = $_.Split('=',2); if($parts[1].Length -gt 8) { $parts[0] + '=' + $parts[1].Substring(0,4) + '***' + $parts[1].Substring($parts[1].Length-4) } else { $_ } } else { $_ } }" >> "%REPORT%" 2>nul

@@ -16,8 +16,6 @@ if ($confirm -ne "y") {
 # Remove config
 $configDirs = @(
     "$env:USERPROFILE\.arivuclaw",
-    "$env:USERPROFILE\.arivuclaw",
-    ".arivuclaw",
     ".arivuclaw"
 )
 
