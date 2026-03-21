@@ -9,7 +9,7 @@ export class SlackChannel extends BaseChannel {
   readonly type: ChannelType = "slack";
   readonly name = "Slack (Bolt)";
 
-  private app: unknown = null;
+  private app: any = null;
 
   protected async connect(): Promise<void> {
     const { botToken, appToken, signingSecret } = this.config.credentials;
@@ -17,34 +17,35 @@ export class SlackChannel extends BaseChannel {
 
     this.log.info("Starting Slack app...");
 
-    // In production:
-    // const { App } = await import("@slack/bolt");
-    // this.app = new App({
-    //   token: botToken,
-    //   appToken: appToken,
-    //   signingSecret: signingSecret,
-    //   socketMode: true,
-    // });
-    //
-    // this.app.message(async ({ message, say }) => {
-    //   if (message.subtype) return;
-    //   await this.emitMessage({
-    //     channelType: "slack",
-    //     channelUserId: message.user,
-    //     channelMessageId: message.ts,
-    //     content: message.text || "",
-    //     timestamp: new Date(parseFloat(message.ts) * 1000),
-    //     raw: message,
-    //   });
-    // });
-    //
-    // await this.app.start();
+    const { App } = await import("@slack/bolt");
+    this.app = new App({
+      token: botToken,
+      appToken: appToken,
+      signingSecret: signingSecret,
+      socketMode: !!appToken,
+    });
 
-    this.log.info("Slack app started");
+    this.app.message(async ({ message, say }: any) => {
+      if (message.subtype) return;
+      await this.emitMessage({
+        channelType: "slack",
+        channelUserId: message.user,
+        channelMessageId: message.ts,
+        content: message.text || "",
+        timestamp: new Date(parseFloat(message.ts) * 1000),
+        raw: message,
+      });
+    });
+
+    await this.app.start();
+
+    this.log.info("Slack app started successfully — listening for messages");
   }
 
   protected async disconnect(): Promise<void> {
-    // await this.app?.stop();
+    if (this.app) {
+      await this.app.stop();
+    }
     this.app = null;
   }
 
@@ -55,11 +56,11 @@ export class SlackChannel extends BaseChannel {
   ): Promise<void> {
     if (!this.app) throw new Error("Slack app not connected");
 
-    // await this.app.client.chat.postMessage({
-    //   channel: channelUserId,
-    //   text: content,
-    // });
+    await this.app.client.chat.postMessage({
+      channel: channelUserId,
+      text: content,
+    });
 
-    this.log.info(`Sent message to Slack user ${channelUserId}`);
+    this.log.info(`Sent message to Slack channel ${channelUserId}`);
   }
 }

@@ -10,31 +10,32 @@ export class WhatsAppChannel extends BaseChannel {
   readonly type: ChannelType = "whatsapp";
   readonly name = "WhatsApp (Baileys)";
 
-  private client: unknown = null;
+  private client: any = null;
 
   protected async connect(): Promise<void> {
     this.log.info("Connecting to WhatsApp Web...");
 
-    // In production, this initializes the Baileys client:
-    // const { default: makeWASocket, useMultiFileAuthState } = await import("baileys");
-    // const { state, saveCreds } = await useMultiFileAuthState("./auth/whatsapp");
-    // this.client = makeWASocket({ auth: state, printQRInTerminal: true });
-    // this.client.ev.on("creds.update", saveCreds);
+    const { default: makeWASocket, useMultiFileAuthState } = await import("baileys") as any;
+    const { state, saveCreds } = await useMultiFileAuthState("./auth/whatsapp");
+    this.client = makeWASocket({ auth: state, printQRInTerminal: true });
+    this.client.ev.on("creds.update", saveCreds);
 
     // Register message listener
-    // this.client.ev.on("messages.upsert", async ({ messages }) => {
-    //   for (const msg of messages) {
-    //     if (!msg.key.fromMe && msg.message) {
-    //       await this.emitMessage(this.parseMessage(msg));
-    //     }
-    //   }
-    // });
+    this.client.ev.on("messages.upsert", async ({ messages }: any) => {
+      for (const msg of messages) {
+        if (!msg.key.fromMe && msg.message) {
+          await this.emitMessage(this.parseMessage(msg));
+        }
+      }
+    });
 
     this.log.info("WhatsApp channel ready (pair via QR code)");
   }
 
   protected async disconnect(): Promise<void> {
-    // this.client?.end();
+    if (this.client) {
+      this.client.end();
+    }
     this.client = null;
   }
 
@@ -45,15 +46,15 @@ export class WhatsAppChannel extends BaseChannel {
   ): Promise<void> {
     if (!this.client) throw new Error("WhatsApp not connected");
 
-    // await this.client.sendMessage(channelUserId, { text: content });
+    await this.client.sendMessage(channelUserId, { text: content });
 
     if (attachments) {
       for (const attachment of attachments) {
-        // await this.client.sendMessage(channelUserId, {
-        //   [attachment.type]: attachment.data || { url: attachment.url },
-        //   mimetype: attachment.mimeType,
-        //   fileName: attachment.filename,
-        // });
+        await this.client.sendMessage(channelUserId, {
+          [attachment.type]: attachment.data || { url: attachment.url },
+          mimetype: attachment.mimeType,
+          fileName: attachment.filename,
+        });
       }
     }
 
@@ -61,7 +62,6 @@ export class WhatsAppChannel extends BaseChannel {
   }
 
   private parseMessage(raw: unknown): IncomingMessage {
-    // Parse Baileys message format into Arivumaiyam AI format
     const msg = raw as Record<string, unknown>;
     const key = msg.key as Record<string, string>;
     const message = msg.message as Record<string, unknown>;
