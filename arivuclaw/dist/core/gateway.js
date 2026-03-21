@@ -132,9 +132,26 @@ class Gateway extends eventemitter3_1.EventEmitter {
             const errMsg = error instanceof Error ? error.message : String(error);
             log.error(`Error handling message: ${errMsg}`);
             this.emitEvent({ type: "error", data: { message: errMsg } });
+            // Build a helpful error message for the user
+            let userError = "Sorry, I encountered an error processing your message.";
+            if (errMsg.includes("401") || errMsg.includes("authentication") || errMsg.includes("api_key")) {
+                userError += "\n\n**Cause:** Invalid or missing API key. Check your .env file and make sure your ANTHROPIC_API_KEY (or other provider key) is set correctly.";
+            }
+            else if (errMsg.includes("429") || errMsg.includes("rate")) {
+                userError += "\n\n**Cause:** API rate limit reached. Wait a moment and try again.";
+            }
+            else if (errMsg.includes("fetch") || errMsg.includes("ECONNREFUSED") || errMsg.includes("network")) {
+                userError += "\n\n**Cause:** Cannot reach the AI provider. Check your internet connection.";
+            }
+            else if (errMsg.includes("insufficient_quota") || errMsg.includes("billing")) {
+                userError += "\n\n**Cause:** API quota exceeded. Check your billing/credits with your provider.";
+            }
+            else {
+                userError += `\n\n**Error:** ${errMsg}`;
+            }
             // Send error feedback to user
             try {
-                await this.sendToChannel(incoming.channelType, incoming.channelUserId, "Sorry, I encountered an error processing your message. Please try again.");
+                await this.sendToChannel(incoming.channelType, incoming.channelUserId, userError);
             }
             catch {
                 // Silent fallback — channel may be down

@@ -6,10 +6,10 @@
  * API: https://api.minimax.chat
  *
  * Models:
- * - abab6.5s-chat  — Fast, lightweight
- * - abab6.5-chat   — Balanced
- * - abab5.5s-chat  — Legacy
- * - MiniMax-Text-01 — Latest flagship
+ * - MiniMax-M2        — Latest flagship
+ * - MiniMax-M2-Stable — Stable version
+ * - abab6.5s-chat     — Fast, lightweight (legacy)
+ * - abab6.5-chat      — Balanced (legacy)
  */
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.MiniMaxProvider = void 0;
@@ -28,7 +28,7 @@ class MiniMaxProvider {
         this.baseUrl = config.baseUrl || "https://api.minimax.io/v1";
     }
     async chat(request) {
-        const model = request.model || "MiniMax-Text-01";
+        const model = request.model || "MiniMax-M2";
         const messages = [
             {
                 sender_type: "BOT",
@@ -122,7 +122,7 @@ class MiniMaxProvider {
         return this.parseLegacyResponse(data);
     }
     async *streamChat(request) {
-        const model = request.model || "MiniMax-Text-01";
+        const model = request.model || "MiniMax-M2";
         const response = await fetch(`${this.baseUrl}/text/chatcompletion_v2`, {
             method: "POST",
             headers: {
@@ -191,11 +191,10 @@ class MiniMaxProvider {
      */
     getAvailableModels() {
         return [
-            "MiniMax-Text-01",
+            "MiniMax-M2",
+            "MiniMax-M2-Stable",
             "abab6.5s-chat",
             "abab6.5-chat",
-            "abab5.5s-chat",
-            "abab5.5-chat",
         ];
     }
     parseOpenAIResponse(data, model) {

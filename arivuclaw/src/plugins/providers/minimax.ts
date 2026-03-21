@@ -5,10 +5,10 @@
  * API: https://api.minimax.chat
  *
  * Models:
- * - abab6.5s-chat  — Fast, lightweight
- * - abab6.5-chat   — Balanced
- * - abab5.5s-chat  — Legacy
- * - MiniMax-Text-01 — Latest flagship
+ * - MiniMax-M2        — Latest flagship
+ * - MiniMax-M2-Stable — Stable version
+ * - abab6.5s-chat     — Fast, lightweight (legacy)
+ * - abab6.5-chat      — Balanced (legacy)
  */
 
 import type {
@@ -38,7 +38,7 @@ export class MiniMaxProvider implements LLMProvider {
   }
 
   async chat(request: LLMRequest): Promise<LLMResponse> {
-    const model = request.model || "MiniMax-Text-01";
+    const model = request.model || "MiniMax-M2";
 
     const messages = [
       {
@@ -145,7 +145,7 @@ export class MiniMaxProvider implements LLMProvider {
   }
 
   async *streamChat(request: LLMRequest): AsyncGenerator<LLMStreamChunk> {
-    const model = request.model || "MiniMax-Text-01";
+    const model = request.model || "MiniMax-M2";
 
     const response = await fetch(`${this.baseUrl}/text/chatcompletion_v2`, {
       method: "POST",
@@ -218,11 +218,10 @@ export class MiniMaxProvider implements LLMProvider {
    */
   getAvailableModels(): string[] {
     return [
-      "MiniMax-Text-01",
+      "MiniMax-M2",
+      "MiniMax-M2-Stable",
       "abab6.5s-chat",
       "abab6.5-chat",
-      "abab5.5s-chat",
-      "abab5.5-chat",
     ];
   }
 

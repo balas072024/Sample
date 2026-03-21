@@ -5,10 +5,10 @@
  * API: https://api.minimax.chat
  *
  * Models:
- * - abab6.5s-chat  — Fast, lightweight
- * - abab6.5-chat   — Balanced
- * - abab5.5s-chat  — Legacy
- * - MiniMax-Text-01 — Latest flagship
+ * - MiniMax-M2        — Latest flagship
+ * - MiniMax-M2-Stable — Stable version
+ * - abab6.5s-chat     — Fast, lightweight (legacy)
+ * - abab6.5-chat      — Balanced (legacy)
  */
 import type { LLMProvider, LLMRequest, LLMResponse, LLMStreamChunk, ProviderType } from "../../core/types";
 export declare class MiniMaxProvider implements LLMProvider {

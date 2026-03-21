@@ -33,7 +33,7 @@ const DEFAULT_CONFIG: ArivuClawConfig = {
     },
     minimax: {
       apiKey: process.env.MINIMAX_API_KEY || "",
-      defaultModel: "MiniMax-Text-01",
+      defaultModel: "MiniMax-M2",
     },
     deepseek: {
       apiKey: process.env.DEEPSEEK_API_KEY || "",

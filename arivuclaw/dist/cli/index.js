@@ -95,7 +95,8 @@ async function startGateway() {
     logger_1.Logger.setLevel(config.logging.level);
     // Initialize memory store
     const memoryStore = new vector_store_1.VectorMemoryStore(config.memory);
-    // Initialize LLM provider
+    // Initialize LLM provider — validate API key first
+    validateProviderKey(config);
     const provider = createProvider(config);
     // Initialize skill registry
     const skillRegistry = new registry_1.SkillRegistry(config.skills.directories);
@@ -419,6 +420,34 @@ Examples:
   arivuclaw skills list        List installed skills
   arivuclaw onboard            First-time setup
 `);
+}
+function validateProviderKey(config) {
+    const provider = config.defaultProvider;
+    const keyMap = {
+        anthropic: "ANTHROPIC_API_KEY",
+        openai: "OPENAI_API_KEY",
+        minimax: "MINIMAX_API_KEY",
+        deepseek: "DEEPSEEK_API_KEY",
+        groq: "GROQ_API_KEY",
+        google: "GOOGLE_API_KEY",
+    };
+    const envVar = keyMap[provider];
+    if (!envVar)
+        return; // ollama, custom, neural-brain don't need keys
+    const providerConfig = config.providers[provider];
+    const key = providerConfig?.apiKey || process.env[envVar] || "";
+    if (!key || key.includes("your-key") || key.includes("your-") || key.length < 10) {
+        console.log("");
+        console.log("  ⚠️  WARNING: No valid API key for provider: " + provider);
+        console.log("  ⚠️  Set " + envVar + " in your .env file");
+        console.log("  ⚠️  Without it, all messages will fail with an error.");
+        console.log("");
+        console.log("  Free alternatives (no API key needed):");
+        console.log("    • Groq:     Set ARIVUCLAW_PROVIDER=groq     (free at console.groq.com)");
+        console.log("    • DeepSeek: Set ARIVUCLAW_PROVIDER=deepseek (free at platform.deepseek.com)");
+        console.log("    • Ollama:   Set ARIVUCLAW_PROVIDER=ollama   (run locally, no key)");
+        console.log("");
+    }
 }
 function createProvider(config) {
     const providerConfig = config.providers[config.defaultProvider];
