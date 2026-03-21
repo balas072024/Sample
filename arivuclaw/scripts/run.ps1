@@ -126,4 +126,11 @@ Write-Host "  Starting ArivuClaw..." -ForegroundColor Cyan
 Write-Host "  Press Ctrl+C to stop." -ForegroundColor Gray
 Write-Host ""
 
-npx ts-node src/cli/index.ts start
+# Build if needed
+if (-not (Test-Path "dist")) {
+    Write-Host "  Building TypeScript..." -ForegroundColor Yellow
+    npx tsc
+    Write-Host "  Build complete." -ForegroundColor Green
+}
+
+node dist/cli/index.js start

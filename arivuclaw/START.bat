@@ -1,52 +1,83 @@
 @echo off
-title ArivuClaw — Fresh Start
+title ArivuClaw
 cd /d "%~dp0"
 
 echo.
 echo ==============================================
-echo   ArivuClaw — Fresh Start
+echo   ArivuClaw — Starting Up
 echo ==============================================
 echo.
 
-echo [1/5] Pulling latest changes...
-git fetch --all
-git pull origin main
+:: ── Step 1: Check Node.js ────────────────────────────────
+where node >nul 2>nul
 if errorlevel 1 (
-    for /f "tokens=*" %%b in ('git rev-parse --abbrev-ref HEAD') do (
-        git pull origin %%b
-    )
-)
-echo   Done.
-
-echo.
-echo [2/5] Cleaning old install...
-if exist node_modules rmdir /s /q node_modules
-if exist dist rmdir /s /q dist
-if exist .env del /f /q .env
-if exist arivuclaw.config.json del /f /q arivuclaw.config.json
-if exist .arivuclaw\config.json del /f /q .arivuclaw\config.json
-if exist package-lock.json del /f /q package-lock.json
-echo   Done.
-
-echo.
-echo [3/5] Clearing npm cache...
-call npm cache clean --force 2>nul
-echo   Done.
-
-echo.
-echo [4/5] Installing dependencies...
-call npm install --legacy-peer-deps
-if errorlevel 1 (
-    echo   npm install failed! Need Node.js v22+ from https://nodejs.org
+    echo   [ERROR] Node.js is not installed!
+    echo   Download from: https://nodejs.org -- v22 or higher required
     pause
     exit /b 1
 )
-echo   Done.
+echo   Node.js found.
 
+:: ── Step 2: Install dependencies if needed ───────────────
+if not exist node_modules (
+    echo.
+    echo [1/3] Installing dependencies (first time only)...
+    call npm install --legacy-peer-deps
+    if errorlevel 1 (
+        echo   npm install failed!
+        pause
+        exit /b 1
+    )
+    echo   Done.
+) else (
+    echo   Dependencies already installed.
+)
+
+:: ── Step 3: Build TypeScript if needed ───────────────────
+if not exist dist (
+    echo.
+    echo [2/3] Building TypeScript...
+    call npx tsc
+    if errorlevel 1 (
+        echo   Build failed!
+        pause
+        exit /b 1
+    )
+    echo   Done.
+) else (
+    echo   Build already exists.
+)
+
+:: ── Step 4: Check .env ───────────────────────────────────
+if not exist .env (
+    echo.
+    echo   ── Configuration Required ──
+    echo.
+    echo   No .env file found. Creating from template...
+    if exist .env.example (
+        copy .env.example .env >nul
+        echo   .env created from .env.example
+        echo   Please edit .env and add your TELEGRAM_BOT_TOKEN
+        echo   Then run START.bat again.
+        echo.
+        start notepad .env
+        pause
+        exit /b 0
+    ) else (
+        echo   No .env.example found either!
+        echo   Create a .env file with at least:
+        echo     TELEGRAM_BOT_TOKEN=your-bot-token-here
+        pause
+        exit /b 1
+    )
+)
+
+:: ── Step 5: Start ArivuClaw ──────────────────────────────
 echo.
-echo [5/5] Starting ArivuClaw in unrestricted mode...
+echo [3/3] Starting ArivuClaw...
+echo   Press Ctrl+C to stop.
 echo.
 
 set ARIVUCLAW_MODE=unrestricted
-powershell -ExecutionPolicy Bypass -File scripts\run.ps1
+node dist/cli/index.js start
 pause
