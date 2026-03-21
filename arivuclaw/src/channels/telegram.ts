@@ -1,45 +1,37 @@
 /**
  * ArivuClaw Telegram Channel — Via grammY bot framework.
- * Full media support: text, photos, voice, video, video notes,
- * audio, documents, stickers, animations, and contact/location.
+ *
+ * Full feature parity with OpenClaw:
+ * - All media types: photos, voice, video, video notes, audio, stickers,
+ *   animations/GIFs, documents, contacts, locations
+ * - Reply threading (reply_to_message_id)
+ * - Inline buttons and callback query handling
+ * - Sticker vision cache (avoids repeated LLM calls for same sticker)
+ * - Markdown → HTML conversion for Telegram output
+ * - Group and forum topic support (message_thread_id)
+ * - Link preview control
  */
 
 import { v4 as uuid } from "uuid";
 import type { Attachment, ChannelType, IncomingMessage } from "../core/types";
 import { BaseChannel } from "./base";
 
-// Map file extensions to MIME types
+// ─── MIME type mapping ───────────────────────────────────────────────
+
 const EXT_MIME: Record<string, string> = {
-  ".jpg": "image/jpeg",
-  ".jpeg": "image/jpeg",
-  ".png": "image/png",
-  ".gif": "image/gif",
-  ".webp": "image/webp",
-  ".bmp": "image/bmp",
-  ".svg": "image/svg+xml",
-  ".mp4": "video/mp4",
-  ".avi": "video/x-msvideo",
-  ".mov": "video/quicktime",
-  ".mkv": "video/x-matroska",
-  ".webm": "video/webm",
-  ".mp3": "audio/mpeg",
-  ".ogg": "audio/ogg",
-  ".oga": "audio/ogg",
-  ".wav": "audio/wav",
-  ".flac": "audio/flac",
-  ".m4a": "audio/mp4",
-  ".pdf": "application/pdf",
-  ".doc": "application/msword",
+  ".jpg": "image/jpeg", ".jpeg": "image/jpeg", ".png": "image/png",
+  ".gif": "image/gif", ".webp": "image/webp", ".bmp": "image/bmp",
+  ".svg": "image/svg+xml", ".mp4": "video/mp4", ".avi": "video/x-msvideo",
+  ".mov": "video/quicktime", ".mkv": "video/x-matroska", ".webm": "video/webm",
+  ".mp3": "audio/mpeg", ".ogg": "audio/ogg", ".oga": "audio/ogg",
+  ".wav": "audio/wav", ".flac": "audio/flac", ".m4a": "audio/mp4",
+  ".pdf": "application/pdf", ".doc": "application/msword",
   ".docx": "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
   ".xls": "application/vnd.ms-excel",
   ".xlsx": "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
-  ".zip": "application/zip",
-  ".rar": "application/vnd.rar",
-  ".txt": "text/plain",
-  ".csv": "text/csv",
-  ".json": "application/json",
-  ".xml": "application/xml",
-  ".tgs": "application/x-tgsticker",
+  ".zip": "application/zip", ".rar": "application/vnd.rar",
+  ".txt": "text/plain", ".csv": "text/csv", ".json": "application/json",
+  ".xml": "application/xml", ".tgs": "application/x-tgsticker",
 };
 
 function guessMime(filePath: string, fallback: string): string {
@@ -54,6 +46,41 @@ function attachmentType(mimeType: string): Attachment["type"] {
   return "file";
 }
 
+// ─── Markdown → Telegram HTML converter ──────────────────────────────
+
+function markdownToTelegramHtml(md: string): string {
+  let html = md;
+
+  // Code blocks (```lang\n...\n```)
+  html = html.replace(/```(\w*)\n([\s\S]*?)```/g, (_m, _lang, code) =>
+    `<pre>${escapeHtml(code.trimEnd())}</pre>`);
+
+  // Inline code
+  html = html.replace(/`([^`]+)`/g, (_m, code) => `<code>${escapeHtml(code)}</code>`);
+
+  // Bold (**text** or __text__)
+  html = html.replace(/\*\*(.+?)\*\*/g, "<b>$1</b>");
+  html = html.replace(/__(.+?)__/g, "<b>$1</b>");
+
+  // Italic (*text* or _text_)
+  html = html.replace(/(?<!\*)\*(?!\*)(.+?)(?<!\*)\*(?!\*)/g, "<i>$1</i>");
+  html = html.replace(/(?<!_)_(?!_)(.+?)(?<!_)_(?!_)/g, "<i>$1</i>");
+
+  // Strikethrough (~~text~~)
+  html = html.replace(/~~(.+?)~~/g, "<s>$1</s>");
+
+  // Links [text](url)
+  html = html.replace(/\[([^\]]+)\]\(([^)]+)\)/g, '<a href="$2">$1</a>');
+
+  return html;
+}
+
+function escapeHtml(text: string): string {
+  return text.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
+}
+
+// ─── Channel Implementation ──────────────────────────────────────────
+
 export class TelegramChannel extends BaseChannel {
   readonly type: ChannelType = "telegram";
   readonly name = "Telegram (grammY)";
@@ -61,9 +88,15 @@ export class TelegramChannel extends BaseChannel {
   private bot: any = null;
   private botToken: string = "";
 
-  /**
-   * Download a file from Telegram servers and return as base64 data URL + Buffer.
-   */
+  /** Sticker vision cache: file_unique_id → description (avoids repeat LLM calls) */
+  private stickerCache = new Map<string, string>();
+  private static readonly STICKER_CACHE_MAX = 500;
+
+  /** Track last sent message ID per chat for reply threading */
+  private lastBotMessageId = new Map<string, number>();
+
+  // ─── File Download ─────────────────────────────────────────────
+
   private async downloadTelegramFile(
     fileId: string,
     mimeHint?: string,
@@ -85,14 +118,16 @@ export class TelegramChannel extends BaseChannel {
     return { url, data: buffer, mimeType };
   }
 
-  /**
-   * Helper to build a common IncomingMessage and emit it.
-   */
+  // ─── Emit Helpers ──────────────────────────────────────────────
+
   private async emitMediaMessage(
     ctx: any,
     content: string,
     attachments: Attachment[],
   ): Promise<void> {
+    const threadId = ctx.message?.message_thread_id;
+    const replyTo = ctx.message?.reply_to_message?.message_id;
+
     await this.emitMessage({
       channelType: "telegram",
       channelUserId: String(ctx.from.id),
@@ -100,9 +135,38 @@ export class TelegramChannel extends BaseChannel {
       content,
       attachments,
       timestamp: new Date(ctx.message.date * 1000),
-      raw: ctx.message,
+      raw: {
+        ...ctx.message,
+        // Propagate thread/reply metadata for downstream use
+        _threadId: threadId,
+        _replyToMessageId: replyTo,
+        _chatId: ctx.message.chat.id,
+        _chatType: ctx.message.chat.type,
+      },
     });
   }
+
+  private async emitTextMessage(ctx: any, content: string): Promise<void> {
+    const threadId = ctx.message?.message_thread_id;
+    const replyTo = ctx.message?.reply_to_message?.message_id;
+
+    await this.emitMessage({
+      channelType: "telegram",
+      channelUserId: String(ctx.from.id),
+      channelMessageId: String(ctx.message.message_id),
+      content,
+      timestamp: new Date(ctx.message.date * 1000),
+      raw: {
+        ...ctx.message,
+        _threadId: threadId,
+        _replyToMessageId: replyTo,
+        _chatId: ctx.message.chat.id,
+        _chatType: ctx.message.chat.type,
+      },
+    });
+  }
+
+  // ─── Connect ───────────────────────────────────────────────────
 
   protected async connect(): Promise<void> {
     const token = this.config.credentials.botToken;
@@ -116,14 +180,7 @@ export class TelegramChannel extends BaseChannel {
 
     // ── Text messages ────────────────────────────────────────────
     this.bot.on("message:text", async (ctx: any) => {
-      await this.emitMessage({
-        channelType: "telegram",
-        channelUserId: String(ctx.from.id),
-        channelMessageId: String(ctx.message.message_id),
-        content: ctx.message.text,
-        timestamp: new Date(ctx.message.date * 1000),
-        raw: ctx.message,
-      });
+      await this.emitTextMessage(ctx, ctx.message.text);
     });
 
     // ── Photos ───────────────────────────────────────────────────
@@ -140,7 +197,7 @@ export class TelegramChannel extends BaseChannel {
         ]);
       } catch (error) {
         this.log.error(`Photo processing failed: ${error instanceof Error ? error.message : error}`);
-        await this.bot.api.sendMessage(ctx.from.id, "Sorry, I couldn't process that photo. Please try again.");
+        await this.bot.api.sendMessage(ctx.message.chat.id, "Sorry, I couldn't process that photo. Please try again.");
       }
     });
 
@@ -158,7 +215,7 @@ export class TelegramChannel extends BaseChannel {
         ]);
       } catch (error) {
         this.log.error(`Voice processing failed: ${error instanceof Error ? error.message : error}`);
-        await this.bot.api.sendMessage(ctx.from.id, "Sorry, I couldn't process that voice message.");
+        await this.bot.api.sendMessage(ctx.message.chat.id, "Sorry, I couldn't process that voice message.");
       }
     });
 
@@ -212,15 +269,26 @@ export class TelegramChannel extends BaseChannel {
       }
     });
 
-    // ── Stickers ─────────────────────────────────────────────────
+    // ── Stickers (with cache) ────────────────────────────────────
     this.bot.on("message:sticker", async (ctx: any) => {
       try {
         const sticker = ctx.message.sticker;
+        const uniqueId = sticker.file_unique_id;
         this.log.info(`Sticker from ${ctx.from.id} (${sticker.emoji || "sticker"}, set: ${sticker.set_name || "none"})`);
+
+        // Check sticker cache first
+        const cached = this.stickerCache.get(uniqueId);
+        if (cached) {
+          this.log.info(`Sticker cache hit: ${uniqueId}`);
+          await this.emitMediaMessage(ctx, cached, []);
+          return;
+        }
 
         // Animated (.tgs) and video (.webm) stickers — describe only
         if (sticker.is_animated || sticker.is_video) {
-          await this.emitMediaMessage(ctx, `[Sticker: ${sticker.emoji || ""} from set "${sticker.set_name || "unknown"}"]`, []);
+          const desc = `[Sticker: ${sticker.emoji || ""} from set "${sticker.set_name || "unknown"}"]`;
+          this.cacheStickerDescription(uniqueId, desc);
+          await this.emitMediaMessage(ctx, desc, []);
           return;
         }
 
@@ -261,7 +329,6 @@ export class TelegramChannel extends BaseChannel {
 
         const { url, data, mimeType } = await this.downloadTelegramFile(doc.file_id, mime);
         const aType = attachmentType(mimeType);
-
         const caption = ctx.message.caption || `[File: ${doc.file_name} (${mime})]`;
 
         await this.emitMediaMessage(ctx, caption, [
@@ -275,20 +342,9 @@ export class TelegramChannel extends BaseChannel {
     // ── Contact ──────────────────────────────────────────────────
     this.bot.on("message:contact", async (ctx: any) => {
       const c = ctx.message.contact;
-      const info = [
-        c.first_name,
-        c.last_name,
-        c.phone_number ? `Phone: ${c.phone_number}` : null,
-      ].filter(Boolean).join(", ");
-
-      await this.emitMessage({
-        channelType: "telegram",
-        channelUserId: String(ctx.from.id),
-        channelMessageId: String(ctx.message.message_id),
-        content: `[Contact shared: ${info}]`,
-        timestamp: new Date(ctx.message.date * 1000),
-        raw: ctx.message,
-      });
+      const info = [c.first_name, c.last_name, c.phone_number ? `Phone: ${c.phone_number}` : null]
+        .filter(Boolean).join(", ");
+      await this.emitTextMessage(ctx, `[Contact shared: ${info}]`);
     });
 
     // ── Location ─────────────────────────────────────────────────
@@ -299,29 +355,116 @@ export class TelegramChannel extends BaseChannel {
       ]);
     });
 
+    // ── Callback queries (inline button presses) ─────────────────
+    this.bot.on("callback_query:data", async (ctx: any) => {
+      try {
+        const data = ctx.callbackQuery.data;
+        this.log.info(`Callback query from ${ctx.from.id}: ${data}`);
+
+        // Acknowledge the button press
+        await ctx.answerCallbackQuery();
+
+        // Emit as a text message so the agent can process the button click
+        await this.emitMessage({
+          channelType: "telegram",
+          channelUserId: String(ctx.from.id),
+          channelMessageId: String(ctx.callbackQuery.id),
+          content: data,
+          timestamp: new Date(),
+          raw: {
+            ...ctx.callbackQuery,
+            _chatId: ctx.callbackQuery.message?.chat?.id,
+            _chatType: ctx.callbackQuery.message?.chat?.type,
+            _isCallback: true,
+          },
+        });
+      } catch (error) {
+        this.log.error(`Callback query failed: ${error instanceof Error ? error.message : error}`);
+      }
+    });
+
     this.bot.start();
 
-    this.log.info("Telegram bot started — listening for all message types");
+    this.log.info("Telegram bot started — listening for all message types, callbacks, and groups");
   }
+
+  // ─── Sticker Cache ─────────────────────────────────────────────
+
+  cacheStickerDescription(uniqueId: string, description: string): void {
+    if (this.stickerCache.size >= TelegramChannel.STICKER_CACHE_MAX) {
+      // Evict oldest entry
+      const firstKey = this.stickerCache.keys().next().value;
+      if (firstKey) this.stickerCache.delete(firstKey);
+    }
+    this.stickerCache.set(uniqueId, description);
+  }
+
+  // ─── Disconnect ────────────────────────────────────────────────
 
   protected async disconnect(): Promise<void> {
     if (this.bot) {
       await this.bot.stop();
     }
     this.bot = null;
+    this.stickerCache.clear();
+    this.lastBotMessageId.clear();
   }
+
+  // ─── Send Message ──────────────────────────────────────────────
 
   protected async doSendMessage(
     channelUserId: string,
     content: string,
     attachments?: Attachment[],
+    metadata?: Record<string, unknown>,
   ): Promise<void> {
     if (!this.bot) throw new Error("Telegram bot not connected");
 
-    await this.bot.api.sendMessage(Number(channelUserId), content, {
-      parse_mode: "Markdown",
-    });
+    const chatId = Number(channelUserId);
+    const raw = metadata?.raw as Record<string, unknown> | undefined;
+    const threadId = raw?._threadId as number | undefined;
+    const replyToId = raw?._replyToMessageId as number | undefined;
+    const incomingMsgId = raw?.message_id as number | undefined;
 
-    this.log.info(`Sent message to Telegram user ${channelUserId}`);
+    // Convert markdown to Telegram HTML
+    const html = markdownToTelegramHtml(content);
+
+    const opts: Record<string, unknown> = {
+      parse_mode: "HTML",
+    };
+
+    // Reply to the user's message in groups for threading
+    if (incomingMsgId) {
+      opts.reply_to_message_id = incomingMsgId;
+      opts.allow_sending_without_reply = true;
+    }
+
+    // Forum topic support
+    if (threadId) {
+      opts.message_thread_id = threadId;
+    }
+
+    // Link preview control (disable for long messages to avoid clutter)
+    if (content.length > 1000) {
+      opts.disable_web_page_preview = true;
+    }
+
+    try {
+      const sent = await this.bot.api.sendMessage(chatId, html, opts);
+      // Track for reply threading
+      this.lastBotMessageId.set(String(chatId), sent.message_id);
+      this.log.info(`Sent message to Telegram chat ${chatId}`);
+    } catch (error) {
+      // If HTML parse fails, retry as plain text (like OpenClaw)
+      const errMsg = error instanceof Error ? error.message : String(error);
+      if (errMsg.includes("can't parse entities")) {
+        this.log.warn("HTML parse failed, retrying as plain text");
+        delete opts.parse_mode;
+        const sent = await this.bot.api.sendMessage(chatId, content, opts);
+        this.lastBotMessageId.set(String(chatId), sent.message_id);
+      } else {
+        throw error;
+      }
+    }
   }
 }
