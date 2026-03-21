@@ -12,6 +12,7 @@
 import { v4 as uuid } from "uuid";
 import type {
   ArivuClawConfig,
+  LLMContentBlock,
   LLMMessage,
   LLMProvider,
   LLMRequest,
@@ -297,16 +298,54 @@ export class AgentRuntime {
 
     const messages: LLMMessage[] = recentMessages.map((msg) => ({
       role: msg.role === "tool" ? "user" : (msg.role as "user" | "assistant"),
-      content: msg.content,
+      content: this.buildMessageContent(msg),
     }));
 
     // Add current message
     messages.push({
       role: "user",
-      content: currentMessage.content,
+      content: this.buildMessageContent(currentMessage),
     });
 
     return messages;
+  }
+
+  /**
+   * Build message content — returns string for text-only, or LLMContentBlock[]
+   * when the message has image/media attachments.
+   */
+  private buildMessageContent(message: Message): string | LLMContentBlock[] {
+    const attachments = message.attachments;
+
+    // No attachments — return plain text
+    if (!attachments || attachments.length === 0) {
+      return message.content;
+    }
+
+    // Build multimodal content blocks
+    const blocks: LLMContentBlock[] = [];
+
+    // Add text first
+    if (message.content) {
+      blocks.push({ type: "text", text: message.content });
+    }
+
+    // Add each attachment as a content block
+    for (const att of attachments) {
+      if (att.type === "image" && att.url) {
+        blocks.push({ type: "image", imageUrl: att.url });
+      } else if (att.url) {
+        // Non-image media — describe it in text since LLMs can't play audio/video
+        blocks.push({
+          type: "text",
+          text: `[Attached ${att.type}: ${att.filename || "file"} (${att.mimeType})]`,
+        });
+      }
+    }
+
+    return blocks.length === 1 && blocks[0].type === "text"
+      ? blocks[0].text || message.content
+      : blocks;
   }
 
   private formatAssistantWithToolCalls(response: LLMResponse): string {

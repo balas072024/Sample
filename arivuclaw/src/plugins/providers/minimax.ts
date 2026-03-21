@@ -12,6 +12,8 @@
  */
 
 import type {
+  LLMContentBlock,
+  LLMMessage,
   LLMProvider,
   LLMRequest,
   LLMResponse,
@@ -66,6 +68,14 @@ export class MiniMaxProvider implements LLMProvider {
 
     // MiniMax also supports OpenAI-compatible endpoint
     // Try the ChatCompletion-compatible API first
+    const formattedMessages = [
+      { role: "system", content: request.systemPrompt },
+      ...request.messages.map((m) => ({
+        role: m.role,
+        content: this.formatMessageContent(m.content),
+      })),
+    ];
+
     const response = await fetch(`${this.baseUrl}/text/chatcompletion_v2`, {
       method: "POST",
       headers: {
@@ -74,13 +84,7 @@ export class MiniMaxProvider implements LLMProvider {
       },
       body: JSON.stringify({
         model,
-        messages: [
-          { role: "system", content: request.systemPrompt },
-          ...request.messages.map((m) => ({
-            role: m.role,
-            content: typeof m.content === "string" ? m.content : JSON.stringify(m.content),
-          })),
-        ],
+        messages: formattedMessages,
         max_tokens: Math.min(request.maxTokens || 4096, 8192),
         temperature: request.temperature || 0.7,
       }),
@@ -98,13 +102,7 @@ export class MiniMaxProvider implements LLMProvider {
         },
         body: JSON.stringify({
           model,
-          messages: [
-            { role: "system", content: request.systemPrompt },
-            ...request.messages.map((m) => ({
-              role: m.role,
-              content: typeof m.content === "string" ? m.content : JSON.stringify(m.content),
-            })),
-          ],
+          messages: formattedMessages,
           max_tokens: Math.min(request.maxTokens || 4096, 8192),
           temperature: request.temperature || 0.7,
         }),
@@ -162,7 +160,7 @@ export class MiniMaxProvider implements LLMProvider {
           { role: "system", content: request.systemPrompt },
           ...request.messages.map((m) => ({
             role: m.role,
-            content: typeof m.content === "string" ? m.content : JSON.stringify(m.content),
+            content: this.formatMessageContent(m.content),
           })),
         ],
         max_tokens: Math.min(request.maxTokens || 4096, 8192),
@@ -258,6 +256,32 @@ export class MiniMaxProvider implements LLMProvider {
     // Last resort: stringify whatever came back
     log.error(`Unexpected MiniMax response format: ${JSON.stringify(data).slice(0, 500)}`);
     throw new Error(`Unexpected MiniMax response: ${JSON.stringify(data).slice(0, 200)}`);
+  }
+
+  /**
+   * Convert LLMMessage content to OpenAI-compatible format.
+   * Handles both plain text and multimodal content blocks (images).
+   */
+  private formatMessageContent(content: string | LLMContentBlock[]): string | Array<Record<string, unknown>> {
+    if (typeof content === "string") {
+      return content;
+    }
+
+    // Convert LLMContentBlock[] to OpenAI vision format
+    const parts: Array<Record<string, unknown>> = [];
+
+    for (const block of content) {
+      if (block.type === "text" && block.text) {
+        parts.push({ type: "text", text: block.text });
+      } else if (block.type === "image" && block.imageUrl) {
+        parts.push({
+          type: "image_url",
+          image_url: { url: block.imageUrl },
+        });
+      }
+    }
+
+    return parts.length > 0 ? parts : (content as unknown as string);
   }
 
   private parseOpenAIResponseOld(data: Record<string, unknown>, model: string): LLMResponse {
