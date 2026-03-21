@@ -8,9 +8,13 @@ Write-Host "  ArivuClaw - Revert and Clean" -ForegroundColor Cyan
 Write-Host "==============================================" -ForegroundColor Cyan
 Write-Host ""
 
-$projectRoot = Split-Path -Parent (Split-Path -Parent $MyInvocation.MyCommand.Path)
+# projectRoot = repo root (Sample), arivuclawDir = arivuclaw subfolder
+$scriptDir = Split-Path -Parent $MyInvocation.MyCommand.Path
+$arivuclawDir = Split-Path -Parent $scriptDir
+$projectRoot = Split-Path -Parent $arivuclawDir
 Set-Location $projectRoot
-Write-Host "  Working directory: $projectRoot" -ForegroundColor Gray
+Write-Host "  Repo root: $projectRoot" -ForegroundColor Gray
+Write-Host "  ArivuClaw: $arivuclawDir" -ForegroundColor Gray
 
 # -- 1. Pull latest reverted code --
 Write-Host ""
@@ -60,8 +64,11 @@ Write-Host ""
 Write-Host "[3/6] Stopping old processes..." -ForegroundColor Yellow
 
 # Stop pm2 process if running under old name
-pm2 stop arivumaiyam 2>$null
-pm2 delete arivumaiyam 2>$null
+$hasPm2 = Get-Command pm2 -ErrorAction SilentlyContinue
+if ($hasPm2) {
+    pm2 stop arivumaiyam 2>$null
+    pm2 delete arivumaiyam 2>$null
+}
 
 # Uninstall old global npm package if exists
 npm uninstall -g arivumaiyam 2>$null
@@ -74,7 +81,7 @@ Write-Host "[4/6] Cleaning build artifacts..." -ForegroundColor Yellow
 
 $cleanDirs = @("dist", "node_modules\.cache")
 foreach ($dir in $cleanDirs) {
-    $fullPath = Join-Path $projectRoot "arivuclaw\$dir"
+    $fullPath = Join-Path $arivuclawDir $dir
     if (Test-Path $fullPath) {
         Write-Host "  Removing arivuclaw\$dir" -ForegroundColor Gray
         Remove-Item -Recurse -Force $fullPath
@@ -82,7 +89,7 @@ foreach ($dir in $cleanDirs) {
 }
 
 # Remove old log files with arivumaiyam in name
-$logDir = Join-Path $projectRoot "arivuclaw\logs"
+$logDir = Join-Path $arivuclawDir "logs"
 if (Test-Path $logDir) {
     Get-ChildItem $logDir -Filter "*arivumaiyam*" | ForEach-Object {
         Write-Host "  Removing log: $($_.Name)" -ForegroundColor Gray
@@ -96,7 +103,7 @@ Write-Host "  Build artifacts cleaned." -ForegroundColor Green
 Write-Host ""
 Write-Host "[5/6] Reinstalling dependencies..." -ForegroundColor Yellow
 
-Set-Location (Join-Path $projectRoot "arivuclaw")
+Set-Location $arivuclawDir
 npm install --legacy-peer-deps
 if ($LASTEXITCODE -ne 0) {
     Write-Host "  npm install failed!" -ForegroundColor Red
@@ -109,10 +116,10 @@ Set-Location $projectRoot
 Write-Host ""
 Write-Host "[6/6] Verifying clean state..." -ForegroundColor Yellow
 
-$searchPaths = @("arivuclaw\src", "arivuclaw\config", "arivuclaw\scripts")
+$searchPaths = @("src", "config", "scripts")
 $filesToCheck = @()
 foreach ($sp in $searchPaths) {
-    $fullSp = Join-Path $projectRoot $sp
+    $fullSp = Join-Path $arivuclawDir $sp
     if (Test-Path $fullSp) {
         $filesToCheck += Get-ChildItem -Path $fullSp -Recurse -Include *.ts,*.json,*.ps1,*.sh,*.bat -ErrorAction SilentlyContinue
     }
