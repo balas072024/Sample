@@ -27,10 +27,10 @@ tools:
           description: Path to the wordlist file
         rules:
           type: string
-          description: Rule set to apply for mangling passwords
+          description: Rule set to apply for word mangling
         format:
           type: string
-          description: Hash format to use (e.g., raw-md5, bcrypt, ntlm)
+          description: Hash format to use (e.g., raw-md5, sha256crypt, ntlm)
         incremental:
           type: boolean
           description: Enable incremental (brute-force) mode
@@ -49,7 +49,7 @@ tools:
           description: Path to the file containing password hashes
         format:
           type: string
-          description: Hash format used
+          description: Hash format to use
       required:
         - hashFile
   - name: john_identify
@@ -69,18 +69,18 @@ tools:
       properties:
         session:
           type: string
-          description: Session name to restore
+          description: Name of the session to restore
       required:
         - session
 triggers:
   - type: keyword
-    value: "john"
+    pattern: "john"
     priority: 7
   - type: keyword
-    value: "crack password"
+    pattern: "crack password"
     priority: 8
   - type: keyword
-    value: "hash crack"
+    pattern: "hash crack"
     priority: 8
 environment:
   binaries:
@@ -89,22 +89,22 @@ environment:
 
 # John the Ripper Password Cracker
 
-This skill provides an interface to John the Ripper, a widely used open-source password security auditing and recovery tool. It supports hundreds of hash and cipher types, including Unix flavors, Windows LM/NTLM, Kerberos, and database hashes.
-
-## Capabilities
-
-- **Hash Cracking**: Crack password hashes using wordlist, rule-based, or incremental attacks.
-- **Format Detection**: Automatically identify or manually specify hash formats.
-- **Session Management**: Save and restore cracking sessions for long-running attacks.
-- **Rule-Based Attacks**: Apply word mangling rules to expand wordlist coverage.
+This skill provides an interface to John the Ripper, a powerful password cracking tool capable of hash cracking, wordlist attacks, rule-based attacks, and automatic hash format detection.
 
 ## Usage
 
-1. Use `john_identify` to determine the hash format.
-2. Use `john_crack` with a wordlist and optional rules to crack hashes.
-3. Use `john_show` to display cracked passwords.
-4. Use `john_restore` to resume an interrupted session.
+- **john_crack** — Crack password hashes using wordlist, rules, or incremental mode.
+- **john_show** — Display previously cracked passwords for a given hash file.
+- **john_identify** — Identify the hash format of an unknown hash string.
+- **john_restore** — Resume a previously interrupted cracking session.
+
+## Instructions
+
+1. Provide a valid hash file as input for cracking operations.
+2. Optionally specify a wordlist, rule set, or enable incremental mode for different attack strategies.
+3. Use session names to save and restore long-running cracking jobs.
+4. Use `john_show` to retrieve results after cracking completes.
 
 ## Authorized Testing Only
 
-This skill is intended exclusively for authorized security testing and educational purposes. Only use these tools against systems and credentials you have explicit written permission to test. Unauthorized password cracking is illegal and unethical. Always obtain proper authorization before conducting any password auditing activities.
+This skill is intended exclusively for use in authorized security testing and penetration testing engagements. You must have explicit written permission from the system owner before running any password cracking operations. Unauthorized use of this tool against systems you do not own or have permission to test is illegal and unethical. Always operate within the scope of your engagement and applicable laws.
