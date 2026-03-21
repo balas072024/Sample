@@ -5,14 +5,14 @@
  * Supports end-to-end encryption, rooms, and threads.
  */
 
-import { BaseChannel } from "../base.js";
+import { BaseChannel } from "../base";
 import type {
   Attachment,
   ChannelConfig,
   ChannelType,
   IncomingMessage,
-} from "../../core/types.js";
-import { Logger } from "../../utils/logger.js";
+} from "../../core/types";
+import { Logger } from "../../utils/logger";
 
 const log = Logger.create("channel:matrix");
 

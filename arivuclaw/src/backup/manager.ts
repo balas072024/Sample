@@ -6,7 +6,7 @@
 import * as fs from "fs";
 import * as path from "path";
 import { execSync } from "child_process";
-import { Logger } from "../utils/logger.js";
+import { Logger } from "../utils/logger";
 
 const log = Logger.create("backup");
 

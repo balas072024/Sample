@@ -7,8 +7,8 @@
  * - Token budget awareness
  */
 
-import type { SkillManifest, ToolDefinition } from "../core/types.js";
-import type { SkillRegistry } from "./registry.js";
+import type { SkillManifest, ToolDefinition } from "../core/types";
+import type { SkillRegistry } from "./registry";
 
 export class SkillLoader {
   constructor(private registry: SkillRegistry) {}

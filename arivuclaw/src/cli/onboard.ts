@@ -5,7 +5,7 @@
 import * as fs from "fs";
 import * as path from "path";
 import * as readline from "readline";
-import { Logger } from "../utils/logger.js";
+import { Logger } from "../utils/logger";
 
 const log = Logger.create("onboard");
 

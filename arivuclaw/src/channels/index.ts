@@ -1,7 +1,7 @@
-export { BaseChannel } from "./base.js";
-export { WhatsAppChannel } from "./whatsapp.js";
-export { TelegramChannel } from "./telegram.js";
-export { DiscordChannel } from "./discord.js";
-export { SlackChannel } from "./slack.js";
-export { WebChannel } from "./web.js";
-export { CLIChannel } from "./cli.js";
+export { BaseChannel } from "./base";
+export { WhatsAppChannel } from "./whatsapp";
+export { TelegramChannel } from "./telegram";
+export { DiscordChannel } from "./discord";
+export { SlackChannel } from "./slack";
+export { WebChannel } from "./web";
+export { CLIChannel } from "./cli";

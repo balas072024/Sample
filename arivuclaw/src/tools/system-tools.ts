@@ -8,7 +8,7 @@ import { execSync, exec } from "child_process";
 import * as os from "os";
 import * as fs from "fs";
 import * as path from "path";
-import { Logger } from "../utils/logger.js";
+import { Logger } from "../utils/logger";
 
 const log = Logger.create("system-tools");
 

@@ -9,7 +9,7 @@ import { execFile, spawn } from "child_process";
 import * as fs from "fs";
 import * as path from "path";
 import { promisify } from "util";
-import { Logger } from "../utils/logger.js";
+import { Logger } from "../utils/logger";
 
 const log = Logger.create("container-sandbox");
 const execFileAsync = promisify(execFile);

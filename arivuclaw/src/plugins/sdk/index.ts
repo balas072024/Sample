@@ -17,8 +17,8 @@ import type {
   MemoryStore,
   ToolDefinition,
   ToolResult,
-} from "../../core/types.js";
-import { Logger } from "../../utils/logger.js";
+} from "../../core/types";
+import { Logger } from "../../utils/logger";
 
 // ─── Plugin Extension Point Types ────────────────────────────────────
 

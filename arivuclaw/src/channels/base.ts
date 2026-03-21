@@ -15,8 +15,8 @@ import type {
   ChannelStatus,
   ChannelType,
   IncomingMessage,
-} from "../core/types.js";
-import { Logger } from "../utils/logger.js";
+} from "../core/types";
+import { Logger } from "../utils/logger";
 
 export abstract class BaseChannel implements ChannelAdapter {
   abstract readonly type: ChannelType;

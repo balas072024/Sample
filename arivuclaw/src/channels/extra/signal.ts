@@ -9,14 +9,14 @@ import { execFile, type ChildProcess, spawn } from "child_process";
 import * as fs from "fs";
 import * as path from "path";
 import { promisify } from "util";
-import { BaseChannel } from "../base.js";
+import { BaseChannel } from "../base";
 import type {
   Attachment,
   ChannelConfig,
   ChannelType,
   IncomingMessage,
-} from "../../core/types.js";
-import { Logger } from "../../utils/logger.js";
+} from "../../core/types";
+import { Logger } from "../../utils/logger";
 
 const log = Logger.create("channel:signal");
 const execFileAsync = promisify(execFile);

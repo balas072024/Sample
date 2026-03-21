@@ -4,8 +4,8 @@
 
 import * as fs from "fs";
 import * as path from "path";
-import type { ArivumaiyamConfig } from "../core/types.js";
-import { getSecurityPolicyForMode } from "../security/unrestricted.js";
+import type { ArivumaiyamConfig } from "../core/types";
+import { getSecurityPolicyForMode } from "../security/unrestricted";
 
 const DEFAULT_CONFIG: ArivumaiyamConfig = {
   mode: "unrestricted",  // Default to unrestricted for local laptop use

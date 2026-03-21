@@ -3,7 +3,7 @@
  * Gap #20: 10 languages with system message translations.
  */
 
-import { Logger } from "../utils/logger.js";
+import { Logger } from "../utils/logger";
 const log = Logger.create("i18n");
 
 type Translations = Record<string, string>;

@@ -11,8 +11,8 @@
  * @module marketplace/registry
  */
 
-import type { SkillManifest } from "../core/types.js";
-import { Logger } from "../utils/logger.js";
+import type { SkillManifest } from "../core/types";
+import { Logger } from "../utils/logger";
 
 // ─── Types ───────────────────────────────────────────────────────────
 

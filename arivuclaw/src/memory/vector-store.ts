@@ -18,8 +18,8 @@ import type {
   MemoryStore,
   MemoryStoreConfig,
   UserFact,
-} from "../core/types.js";
-import { Logger } from "../utils/logger.js";
+} from "../core/types";
+import { Logger } from "../utils/logger";
 
 const log = Logger.create("memory");
 

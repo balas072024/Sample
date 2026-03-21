@@ -8,7 +8,7 @@
  * - Discord/Slack: edit a single message progressively
  */
 
-import { Logger } from "../utils/logger.js";
+import { Logger } from "../utils/logger";
 
 const log = Logger.create("channel-streamer");
 

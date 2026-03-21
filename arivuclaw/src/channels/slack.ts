@@ -2,8 +2,8 @@
  * Arivumaiyam AI Slack Channel — Via @slack/bolt
  */
 
-import type { Attachment, ChannelType, IncomingMessage } from "../core/types.js";
-import { BaseChannel } from "./base.js";
+import type { Attachment, ChannelType, IncomingMessage } from "../core/types";
+import { BaseChannel } from "./base";
 
 export class SlackChannel extends BaseChannel {
   readonly type: ChannelType = "slack";

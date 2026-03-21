@@ -12,8 +12,8 @@
  * @module automations/engine
  */
 
-import type { ChannelType } from "../core/types.js";
-import { Logger } from "../utils/logger.js";
+import type { ChannelType } from "../core/types";
+import { Logger } from "../utils/logger";
 
 // ─── Trigger Types ───────────────────────────────────────────────────
 

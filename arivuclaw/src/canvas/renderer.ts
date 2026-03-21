@@ -3,7 +3,7 @@
  * Gap #18: Render Mermaid diagrams, tables, charts in chat.
  */
 
-import { Logger } from "../utils/logger.js";
+import { Logger } from "../utils/logger";
 const log = Logger.create("canvas");
 
 export class CanvasRenderer {

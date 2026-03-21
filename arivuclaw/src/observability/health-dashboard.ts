@@ -3,7 +3,7 @@
  * Gap #21: Track uptime, response times, tokens, errors.
  */
 
-import { Logger } from "../utils/logger.js";
+import { Logger } from "../utils/logger";
 const log = Logger.create("health");
 
 interface MetricPoint { timestamp: number; value: number; }

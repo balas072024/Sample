@@ -6,8 +6,8 @@
 
 import * as fs from "fs";
 import * as path from "path";
-import type { LLMProvider } from "../core/types.js";
-import { Logger } from "../utils/logger.js";
+import type { LLMProvider } from "../core/types";
+import { Logger } from "../utils/logger";
 
 const log = Logger.create("vision");
 

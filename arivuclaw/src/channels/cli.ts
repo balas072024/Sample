@@ -4,8 +4,8 @@
 
 import * as readline from "readline";
 import { v4 as uuid } from "uuid";
-import type { Attachment, ChannelType, IncomingMessage } from "../core/types.js";
-import { BaseChannel } from "./base.js";
+import type { Attachment, ChannelType, IncomingMessage } from "../core/types";
+import { BaseChannel } from "./base";
 
 export class CLIChannel extends BaseChannel {
   readonly type: ChannelType = "cli";

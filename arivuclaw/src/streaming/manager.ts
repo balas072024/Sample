@@ -14,8 +14,8 @@ import type {
   LLMProvider,
   LLMRequest,
   LLMStreamChunk,
-} from "../core/types.js";
-import { Logger } from "../utils/logger.js";
+} from "../core/types";
+import { Logger } from "../utils/logger";
 
 // ─── Types ───────────────────────────────────────────────────────────
 

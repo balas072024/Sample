@@ -10,8 +10,8 @@
 
 import { EventEmitter } from "eventemitter3";
 import { v4 as uuid } from "uuid";
-import type { ToolDefinition, ToolCall, ToolResult } from "../core/types.js";
-import { Logger } from "../utils/logger.js";
+import type { ToolDefinition, ToolCall, ToolResult } from "../core/types";
+import { Logger } from "../utils/logger";
 
 const log = Logger.create("mcp");
 

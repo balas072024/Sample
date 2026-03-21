@@ -12,7 +12,7 @@ module.exports = {
     "^@security/(.*)$": "<rootDir>/src/security/$1",
     "^@utils/(.*)$": "<rootDir>/src/utils/$1",
     "^@tools/(.*)$": "<rootDir>/src/tools/$1",
-    // Strip .js extensions for ts-jest (Node16 module resolution)
+    // Strip .js extensions for CommonJS resolution
     "^(\\.{1,2}/.*)\\.js$": "$1",
   },
   transform: {
@@ -20,9 +20,6 @@ module.exports = {
       "ts-jest",
       {
         tsconfig: "tsconfig.json",
-        diagnostics: {
-          ignoreCodes: [151002],
-        },
       },
     ],
   },

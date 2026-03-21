@@ -13,8 +13,8 @@
  * @module core/model-tiering
  */
 
-import type { ProviderType } from "../core/types.js";
-import { Logger } from "../utils/logger.js";
+import type { ProviderType } from "../core/types";
+import { Logger } from "../utils/logger";
 
 // ─── Types ───────────────────────────────────────────────────────────
 

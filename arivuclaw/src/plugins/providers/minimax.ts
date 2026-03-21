@@ -17,8 +17,8 @@ import type {
   LLMResponse,
   LLMStreamChunk,
   ProviderType,
-} from "../../core/types.js";
-import { Logger } from "../../utils/logger.js";
+} from "../../core/types";
+import { Logger } from "../../utils/logger";
 
 const log = Logger.create("provider:minimax");
 

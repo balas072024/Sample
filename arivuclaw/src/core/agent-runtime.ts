@@ -23,11 +23,11 @@ import type {
   ToolCall,
   ToolResult,
   UserIdentity,
-} from "./types.js";
-import type { SkillRegistry } from "../skills/registry.js";
-import { SecurityGuard } from "../security/guard.js";
-import { SandboxExecutor } from "../security/sandbox.js";
-import { Logger } from "../utils/logger.js";
+} from "./types";
+import type { SkillRegistry } from "../skills/registry";
+import { SecurityGuard } from "../security/guard";
+import { SandboxExecutor } from "../security/sandbox";
+import { Logger } from "../utils/logger";
 
 const log = Logger.create("agent-runtime");
 

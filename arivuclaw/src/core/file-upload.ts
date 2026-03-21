@@ -6,8 +6,8 @@
 import * as fs from "fs";
 import * as path from "path";
 import { v4 as uuid } from "uuid";
-import type { Attachment, Session } from "./types.js";
-import { Logger } from "../utils/logger.js";
+import type { Attachment, Session } from "./types";
+import { Logger } from "../utils/logger";
 
 const log = Logger.create("file-upload");
 

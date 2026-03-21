@@ -7,7 +7,7 @@
  */
 
 import { v4 as uuid } from "uuid";
-import { Logger } from "../utils/logger.js";
+import { Logger } from "../utils/logger";
 
 const log = Logger.create("guardrails");
 

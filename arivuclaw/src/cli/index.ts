@@ -13,27 +13,27 @@
  *   arivuclaw config           — Edit configuration
  */
 
-import { Gateway } from "../core/gateway.js";
-import { AgentRuntime } from "../core/agent-runtime.js";
-import { SkillRegistry } from "../skills/registry.js";
-import { VectorMemoryStore } from "../memory/vector-store.js";
-import { AnthropicProvider } from "../plugins/providers/anthropic.js";
-import { OpenAIProvider } from "../plugins/providers/openai.js";
-import { OllamaProvider } from "../plugins/providers/ollama.js";
-import { MiniMaxProvider } from "../plugins/providers/minimax.js";
-import { DeepSeekProvider } from "../plugins/providers/deepseek.js";
-import { GroqProvider } from "../plugins/providers/groq.js";
-import { NeuralBrainProvider } from "../plugins/providers/neural-brain.js";
-import { CLIChannel } from "../channels/cli.js";
-import { WhatsAppChannel } from "../channels/whatsapp.js";
-import { TelegramChannel } from "../channels/telegram.js";
-import { DiscordChannel } from "../channels/discord.js";
-import { SlackChannel } from "../channels/slack.js";
-import { WebChannel } from "../channels/web.js";
-import { SystemTools } from "../tools/system-tools.js";
-import { loadConfig } from "./config.js";
-import { Logger } from "../utils/logger.js";
-import type { ArivumaiyamConfig, LLMProvider } from "../core/types.js";
+import { Gateway } from "../core/gateway";
+import { AgentRuntime } from "../core/agent-runtime";
+import { SkillRegistry } from "../skills/registry";
+import { VectorMemoryStore } from "../memory/vector-store";
+import { AnthropicProvider } from "../plugins/providers/anthropic";
+import { OpenAIProvider } from "../plugins/providers/openai";
+import { OllamaProvider } from "../plugins/providers/ollama";
+import { MiniMaxProvider } from "../plugins/providers/minimax";
+import { DeepSeekProvider } from "../plugins/providers/deepseek";
+import { GroqProvider } from "../plugins/providers/groq";
+import { NeuralBrainProvider } from "../plugins/providers/neural-brain";
+import { CLIChannel } from "../channels/cli";
+import { WhatsAppChannel } from "../channels/whatsapp";
+import { TelegramChannel } from "../channels/telegram";
+import { DiscordChannel } from "../channels/discord";
+import { SlackChannel } from "../channels/slack";
+import { WebChannel } from "../channels/web";
+import { SystemTools } from "../tools/system-tools";
+import { loadConfig } from "./config";
+import { Logger } from "../utils/logger";
+import type { ArivumaiyamConfig, LLMProvider } from "../core/types";
 
 const log = Logger.create("cli");
 

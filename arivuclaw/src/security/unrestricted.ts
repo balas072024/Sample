@@ -19,8 +19,8 @@ import type {
   SecurityPolicy,
   ToolPermission,
   UserRole,
-} from "../core/types.js";
-import { Logger } from "../utils/logger.js";
+} from "../core/types";
+import { Logger } from "../utils/logger";
 
 const log = Logger.create("unrestricted");
 

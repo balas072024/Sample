@@ -20,11 +20,11 @@ import type {
   Message,
   Session,
   UserIdentity,
-} from "./types.js";
-import type { AgentRuntime } from "./agent-runtime.js";
-import type { MemoryStore } from "./types.js";
-import { SecurityGuard } from "../security/guard.js";
-import { Logger } from "../utils/logger.js";
+} from "./types";
+import type { AgentRuntime } from "./agent-runtime";
+import type { MemoryStore } from "./types";
+import { SecurityGuard } from "../security/guard";
+import { Logger } from "../utils/logger";
 
 const log = Logger.create("gateway");
 
