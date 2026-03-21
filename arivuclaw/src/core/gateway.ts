@@ -320,6 +320,50 @@ export class Gateway extends EventEmitter<Record<string, (...args: unknown[]) =>
     log.info("Arivumaiyam AI Gateway stopped");
   }
 
+  /**
+   * Restart the gateway — shuts down all channels and re-initializes them.
+   * Preserves sessions and user identities across restarts.
+   */
+  async restart(): Promise<void> {
+    log.info("Arivumaiyam AI Gateway restarting...");
+
+    // Save channel adapters before shutdown clears them
+    const adapters = new Map(this.channels);
+
+    // Shut down all channels gracefully
+    for (const [type, adapter] of adapters) {
+      try {
+        await adapter.shutdown();
+        log.info(`  Channel ${type}: disconnected for restart`);
+      } catch (error) {
+        log.error(`  Error shutting down channel ${type}: ${error}`);
+      }
+    }
+
+    this.channels.clear();
+    this.isRunning = false;
+
+    // Re-register and reconnect all channels
+    for (const [type, adapter] of adapters) {
+      try {
+        const channelConfig = this.config.channels.find((c) => c.type === type);
+        if (channelConfig && channelConfig.enabled) {
+          adapter.onMessage(async (msg) => this.handleIncomingMessage(msg));
+          await adapter.initialize(channelConfig);
+          this.channels.set(type, adapter);
+          log.info(`  Channel ${type}: reconnected`);
+        }
+      } catch (error) {
+        log.error(`  Failed to restart channel ${type}: ${error}`);
+      }
+    }
+
+    await this.memoryStore.initialize();
+    this.isRunning = true;
+    this.emitEvent({ type: "gateway.restarted", data: {} });
+    log.info("Arivumaiyam AI Gateway restarted successfully 🦀");
+  }
+
   // ─── Health ──────────────────────────────────────────────────────
 
   getHealth(): {

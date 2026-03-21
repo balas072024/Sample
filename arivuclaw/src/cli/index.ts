@@ -206,6 +206,13 @@ async function startGateway(): Promise<void> {
         return;
       }
 
+      if (url === "/api/restart" && req.method === "POST") {
+        res.writeHead(200, { "Content-Type": "application/json" });
+        res.end(JSON.stringify({ status: "restarting" }));
+        gateway.restart().catch((err: any) => log.error(`Restart failed: ${err}`));
+        return;
+      }
+
       res.writeHead(404);
       res.end("Not found");
     });
@@ -267,6 +274,45 @@ async function startGateway(): Promise<void> {
   } catch (err) {
     log.warn(`Some optional modules failed to load: ${err}`);
   }
+
+  // Auto-restart gateway on channel errors
+  let restartAttempts = 0;
+  const MAX_RESTART_ATTEMPTS = 5;
+
+  gateway.on("error", async (data: any) => {
+    log.error(`Gateway error: ${data?.message || data}`);
+    if (restartAttempts < MAX_RESTART_ATTEMPTS) {
+      restartAttempts++;
+      const delay = Math.min(2000 * Math.pow(2, restartAttempts - 1), 30000);
+      log.info(`Auto-restarting gateway in ${delay / 1000}s (attempt ${restartAttempts}/${MAX_RESTART_ATTEMPTS})...`);
+      setTimeout(async () => {
+        try {
+          await gateway.restart();
+          restartAttempts = 0; // Reset on successful restart
+          log.info("Gateway auto-restart successful");
+        } catch (err) {
+          log.error(`Auto-restart failed: ${err}`);
+        }
+      }, delay);
+    } else {
+      log.error(`Max restart attempts (${MAX_RESTART_ATTEMPTS}) reached. Manual intervention required.`);
+    }
+  });
+
+  // Handle uncaught errors — restart instead of crashing
+  process.on("uncaughtException", async (err) => {
+    log.error(`Uncaught exception: ${err.message}`);
+    if (restartAttempts < MAX_RESTART_ATTEMPTS) {
+      restartAttempts++;
+      log.info(`Attempting gateway restart after uncaught exception...`);
+      try {
+        await gateway.restart();
+        restartAttempts = 0;
+      } catch (restartErr) {
+        log.error(`Restart after exception failed: ${restartErr}`);
+      }
+    }
+  });
 
   // Graceful shutdown
   const shutdown = async () => {
