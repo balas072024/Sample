@@ -11,6 +11,16 @@
       "type": "cli",
       "enabled": true,
       "credentials": {}
+    },
+    {
+      "type": "telegram",
+      "enabled": true,
+      "credentials": {}
+    },
+    {
+      "type": "web",
+      "enabled": true,
+      "credentials": {}
     }
   ],
   "security": {

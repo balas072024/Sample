@@ -154,6 +154,27 @@ export function loadConfig(): ArivuClawConfig {
   // Apply environment overrides
   config = applyEnvOverrides(config);
 
+  // Inject env-based credentials for channels that don't have them in config
+  for (const ch of config.channels) {
+    if (ch.type === "telegram" && !ch.credentials?.botToken && process.env.TELEGRAM_BOT_TOKEN) {
+      ch.credentials = { ...ch.credentials, botToken: process.env.TELEGRAM_BOT_TOKEN };
+    }
+    if (ch.type === "discord" && !ch.credentials?.botToken && process.env.DISCORD_BOT_TOKEN) {
+      ch.credentials = { ...ch.credentials, botToken: process.env.DISCORD_BOT_TOKEN };
+    }
+    if (ch.type === "slack") {
+      if (!ch.credentials?.botToken && process.env.SLACK_BOT_TOKEN) {
+        ch.credentials = { ...ch.credentials, botToken: process.env.SLACK_BOT_TOKEN };
+      }
+      if (!ch.credentials?.appToken && process.env.SLACK_APP_TOKEN) {
+        ch.credentials = { ...ch.credentials, appToken: process.env.SLACK_APP_TOKEN };
+      }
+      if (!ch.credentials?.signingSecret && process.env.SLACK_SIGNING_SECRET) {
+        ch.credentials = { ...ch.credentials, signingSecret: process.env.SLACK_SIGNING_SECRET };
+      }
+    }
+  }
+
   // Apply mode-based security policy
   config.security = getSecurityPolicyForMode(config.mode, config.security);
 
