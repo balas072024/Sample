@@ -26,7 +26,7 @@ try { $nodeVersion = (node --version 2>$null) } catch {}
 
 if (-not $nodeVersion) {
     Write-Host "  [ERROR] Node.js is not installed!" -ForegroundColor Red
-    Write-Host "  Download from: https://nodejs.org (v22+ required)" -ForegroundColor Yellow
+    Write-Host "  Download from: https://nodejs.org -- v22 or higher required" -ForegroundColor Yellow
     Write-Host ""
     Read-Host "  Press Enter to exit"
     exit 1
@@ -44,7 +44,7 @@ Write-Host "  Node.js: $nodeVersion" -ForegroundColor Green
 
 if (-not (Test-Path "node_modules")) {
     Write-Host ""
-    Write-Host "  Installing dependencies (first time only)..." -ForegroundColor Yellow
+    Write-Host "  Installing dependencies -- first time only..." -ForegroundColor Yellow
     npm install --no-fund --no-audit 2>&1 | Out-Null
     Write-Host "  Dependencies installed." -ForegroundColor Green
 }
@@ -69,7 +69,7 @@ if ($needsConfig) {
     Write-Host "  ── Configuration Required ──" -ForegroundColor Yellow
     Write-Host ""
     Write-Host "  1. Get Telegram bot token from @BotFather" -ForegroundColor Gray
-    Write-Host "     (Open Telegram > search @BotFather > /newbot)" -ForegroundColor Gray
+    Write-Host "     Open Telegram, search @BotFather, send /newbot" -ForegroundColor Gray
     Write-Host ""
     $telegramToken = Read-Host "  Telegram Bot Token"
 
@@ -116,7 +116,7 @@ if (-not (Test-Path $configFile)) {
 }
 "@
     Set-Content -Path $configFile -Value $configJson -Encoding UTF8
-    Write-Host "  Config created (Telegram + CLI enabled)." -ForegroundColor Green
+    Write-Host "  Config created -- Telegram + CLI enabled." -ForegroundColor Green
 }
 
 # ── Step 5: Start ArivuClaw ───────────────────────────────────
