@@ -154,13 +154,24 @@ export function loadConfig(): ArivuClawConfig {
   // Apply environment overrides
   config = applyEnvOverrides(config);
 
-  // Inject env-based credentials for channels that don't have them in config
+  // Inject env-based credentials and auto-enable channels when tokens are present
   for (const ch of config.channels) {
-    if (ch.type === "telegram" && !ch.credentials?.botToken && process.env.TELEGRAM_BOT_TOKEN) {
-      ch.credentials = { ...ch.credentials, botToken: process.env.TELEGRAM_BOT_TOKEN };
+    if (ch.type === "telegram") {
+      if (!ch.credentials?.botToken && process.env.TELEGRAM_BOT_TOKEN) {
+        ch.credentials = { ...ch.credentials, botToken: process.env.TELEGRAM_BOT_TOKEN };
+      }
+      // Auto-enable when bot token is available
+      if (ch.credentials?.botToken) {
+        ch.enabled = true;
+      }
     }
-    if (ch.type === "discord" && !ch.credentials?.botToken && process.env.DISCORD_BOT_TOKEN) {
-      ch.credentials = { ...ch.credentials, botToken: process.env.DISCORD_BOT_TOKEN };
+    if (ch.type === "discord") {
+      if (!ch.credentials?.botToken && process.env.DISCORD_BOT_TOKEN) {
+        ch.credentials = { ...ch.credentials, botToken: process.env.DISCORD_BOT_TOKEN };
+      }
+      if (ch.credentials?.botToken) {
+        ch.enabled = true;
+      }
     }
     if (ch.type === "slack") {
       if (!ch.credentials?.botToken && process.env.SLACK_BOT_TOKEN) {
@@ -171,6 +182,9 @@ export function loadConfig(): ArivuClawConfig {
       }
       if (!ch.credentials?.signingSecret && process.env.SLACK_SIGNING_SECRET) {
         ch.credentials = { ...ch.credentials, signingSecret: process.env.SLACK_SIGNING_SECRET };
+      }
+      if (ch.credentials?.botToken && ch.credentials?.appToken) {
+        ch.enabled = true;
       }
     }
   }
