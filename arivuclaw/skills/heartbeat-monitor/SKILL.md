@@ -1,130 +1,60 @@
 ---
 name: heartbeat-monitor
-version: 1.0.0
-description: Runs background health checks, recurring tasks, and heartbeat monitoring for services and processes.
+version: "1.0.0"
+description: Background health checks and recurring monitoring for pinging URLs, checking services, and alerting on failures.
 author: ArivuClaw
-tags:
-  - system
-  - monitoring
-  - health-check
-  - scheduler
-permissions:
-  - network_access
-  - execute_commands
-  - read_files
-  - write_files
+tags: [monitoring, health, heartbeat, uptime, alerts]
+permissions: [network.fetch, filesystem.write]
 tools:
-  - name: register_heartbeat
-    description: Registers a recurring health check for a service or endpoint.
-    permissions:
-      - network_access
-      - write_files
+  - name: heartbeat_add
+    description: Add a new endpoint or service to monitor with a health check
+    permissions: [network.fetch, filesystem.write]
     inputSchema:
       type: object
       properties:
-        name:
-          type: string
-          description: Name identifier for this heartbeat check.
-        target:
-          type: string
-          description: URL endpoint or command to check.
-        type:
-          type: string
-          enum: [http, tcp, command, process]
-          description: Type of health check.
-          default: http
-        interval_seconds:
-          type: integer
-          description: Check interval in seconds.
-          default: 60
-        timeout_ms:
-          type: integer
-          description: Timeout per check in milliseconds.
-          default: 5000
-        alert_after:
-          type: integer
-          description: Number of consecutive failures before alerting.
-          default: 3
-      required:
-        - name
-        - target
-  - name: list_heartbeats
-    description: Lists all registered heartbeat checks and their current status.
-    permissions:
-      - read_files
+        name: { type: string, description: "Friendly name for this monitor" }
+        url: { type: string, description: "URL or endpoint to monitor" }
+        interval: { type: number, description: "Check interval in seconds" }
+        method: { type: string, enum: [GET, POST, HEAD], description: "HTTP method to use" }
+        expected_status: { type: number, description: "Expected HTTP status code" }
+        timeout: { type: number, description: "Request timeout in milliseconds" }
+      required: [name, url, interval]
+  - name: heartbeat_list
+    description: List all configured monitors and their current status
+    permissions: [filesystem.read]
     inputSchema:
       type: object
       properties:
-        status_filter:
-          type: string
-          enum: [all, healthy, unhealthy, unknown]
-          default: all
+        filter: { type: string, enum: [all, healthy, unhealthy, paused], description: "Filter monitors by status" }
+        sort_by: { type: string, enum: [name, status, last_check], description: "Sort order for the list" }
       required: []
-  - name: schedule_task
-    description: Schedules a recurring background task.
-    permissions:
-      - execute_commands
-      - write_files
+  - name: heartbeat_remove
+    description: Remove a monitor by name or ID
+    permissions: [filesystem.write]
     inputSchema:
       type: object
       properties:
-        name:
-          type: string
-          description: Task name.
-        command:
-          type: string
-          description: Command or script to execute.
-        cron:
-          type: string
-          description: Cron expression for scheduling (e.g., "*/5 * * * *").
-        enabled:
-          type: boolean
-          default: true
-      required:
-        - name
-        - command
-        - cron
-  - name: get_health_report
-    description: Generates a health report across all monitored services.
-    permissions:
-      - read_files
+        name: { type: string, description: "Name of the monitor to remove" }
+        confirm: { type: boolean, description: "Confirm the removal" }
+      required: [name]
+  - name: heartbeat_status
+    description: Get detailed status and history for a specific monitor
+    permissions: [filesystem.read, network.fetch]
     inputSchema:
       type: object
       properties:
-        time_range:
-          type: string
-          enum: [1h, 6h, 24h, 7d]
-          default: 24h
-        include_history:
-          type: boolean
-          description: Include check history in the report.
-          default: false
-      required: []
+        name: { type: string, description: "Name of the monitor to check" }
+        history_count: { type: number, description: "Number of recent checks to include" }
+        include_response_times: { type: boolean, description: "Whether to include response time metrics" }
+      required: [name]
 triggers:
-  - pattern: "monitor {service}"
-  - pattern: "check health of {service}"
-  - pattern: "schedule task {name}"
-  - pattern: "show health report"
-  - pattern: "list heartbeats"
+  - type: keyword
+    pattern: "monitor|heartbeat|health check|uptime|ping|status check"
+    priority: 6
 ---
 
 # Heartbeat Monitor
 
-Runs background health checks, recurring tasks, and heartbeat monitoring for services and processes.
+You are a service health monitoring assistant.
 
-## Usage
-
-```
-monitor auth-service
-check health of database
-schedule task cleanup-logs
-show health report
-list heartbeats
-```
-
-## Features
-
-- Multi-type health checks: HTTP, TCP, command, process
-- Configurable intervals and failure thresholds
-- Cron-based recurring task scheduling
-- Health reports with uptime history
+Help the user set up and manage health checks for their services and endpoints. When adding monitors, suggest sensible defaults for intervals and timeouts. Present status information with clear indicators for healthy and unhealthy services. When reporting failures, include response times, error codes, and timestamps. Suggest alert thresholds based on the service type. Always show uptime percentages when displaying historical data.

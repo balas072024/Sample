@@ -1,129 +1,60 @@
 ---
 name: context-manager
-version: 1.0.0
-description: Manages conversation context, memory optimization, and session state for long-running interactions.
+version: "1.0.0"
+description: Manage conversation context and memory by saving, recalling, clearing, and summarizing context windows.
 author: ArivuClaw
-tags:
-  - system
-  - context
-  - memory
-  - session
-permissions:
-  - read_files
-  - write_files
+tags: [context, memory, conversation, history, management]
+permissions: [filesystem.read, filesystem.write]
 tools:
-  - name: save_context
-    description: Saves the current conversation context or a named memory to persistent storage.
-    permissions:
-      - write_files
+  - name: context_save
+    description: Save a named piece of context or memory for later recall
+    permissions: [filesystem.write]
     inputSchema:
       type: object
       properties:
-        key:
-          type: string
-          description: Unique identifier for this context entry.
-        content:
-          type: string
-          description: The context content to save.
-        category:
-          type: string
-          enum: [conversation, fact, preference, project, custom]
-          description: Category for organizing context entries.
-          default: conversation
-        ttl_hours:
-          type: integer
-          description: Time-to-live in hours. Entry expires after this duration. 0 for permanent.
-          default: 0
-      required:
-        - key
-        - content
-  - name: recall_context
-    description: Retrieves saved context entries by key, category, or search query.
-    permissions:
-      - read_files
+        key: { type: string, description: "Unique identifier for this context entry" }
+        content: { type: string, description: "The content to save" }
+        tags: { type: array, items: { type: string }, description: "Tags for categorizing the context" }
+        ttl: { type: number, description: "Time-to-live in seconds before auto-expiry" }
+      required: [key, content]
+  - name: context_recall
+    description: Retrieve previously saved context by key or search by tags
+    permissions: [filesystem.read]
     inputSchema:
       type: object
       properties:
-        key:
-          type: string
-          description: Exact key to retrieve.
-        category:
-          type: string
-          enum: [conversation, fact, preference, project, custom, all]
-          default: all
-        query:
-          type: string
-          description: Fuzzy search query across all context entries.
-        limit:
-          type: integer
-          description: Maximum number of entries to return.
-          default: 10
+        key: { type: string, description: "The key of the context entry to recall" }
+        tags: { type: array, items: { type: string }, description: "Filter context entries by tags" }
+        limit: { type: number, description: "Maximum number of entries to return" }
       required: []
-  - name: optimize_context
-    description: Compresses or summarizes context to reduce token usage while preserving key information.
-    permissions:
-      - read_files
-      - write_files
+  - name: context_clear
+    description: Clear context entries by key, tags, or clear all
+    permissions: [filesystem.write]
     inputSchema:
       type: object
       properties:
-        strategy:
-          type: string
-          enum: [summarize, prune_old, compress, deduplicate]
-          description: Optimization strategy to apply.
-        max_tokens:
-          type: integer
-          description: Target maximum token count after optimization.
-        preserve_keys:
-          type: array
-          items:
-            type: string
-          description: Context keys to never prune or compress.
-      required:
-        - strategy
-  - name: clear_context
-    description: Clears context entries by key, category, or all.
-    permissions:
-      - write_files
-    inputSchema:
-      type: object
-      properties:
-        key:
-          type: string
-          description: Specific key to clear.
-        category:
-          type: string
-          description: Clear all entries in a category.
-        clear_all:
-          type: boolean
-          description: Clear all context entries.
-          default: false
+        key: { type: string, description: "Specific context key to clear" }
+        tags: { type: array, items: { type: string }, description: "Clear all entries matching these tags" }
+        clear_all: { type: boolean, description: "Whether to clear all stored context" }
       required: []
+  - name: context_summarize
+    description: Generate a summary of the current conversation or stored context
+    permissions: [filesystem.read]
+    inputSchema:
+      type: object
+      properties:
+        scope: { type: string, enum: [conversation, stored, all], description: "What to summarize" }
+        max_length: { type: number, description: "Maximum length of the summary in tokens" }
+        focus: { type: string, description: "Topic or area to focus the summary on" }
+      required: [scope]
 triggers:
-  - pattern: "remember that {fact}"
-  - pattern: "recall {topic}"
-  - pattern: "optimize context"
-  - pattern: "clear memory"
-  - pattern: "what do you remember about {topic}"
+  - type: keyword
+    pattern: "context|remember|recall|memory|forget|summarize context"
+    priority: 6
 ---
 
 # Context Manager
 
-Manages conversation context, memory optimization, and session state for long-running interactions.
+You are a context and memory management assistant.
 
-## Usage
-
-```
-remember that the API key is in .env
-recall database setup
-optimize context
-clear memory
-what do you remember about deployment
-```
-
-## Features
-
-- Persistent context storage with categories and TTL
-- Fuzzy search across saved context entries
-- Memory optimization: summarize, prune, compress, deduplicate
-- Selective clearing by key, category, or full reset
+Help the user save important information for later recall, manage their conversation context window, and summarize past interactions. When saving context, suggest meaningful keys and tags. When recalling, present information clearly and indicate when entries were saved. Warn the user before clearing context and confirm destructive operations. When summarizing, focus on the most relevant and actionable information.

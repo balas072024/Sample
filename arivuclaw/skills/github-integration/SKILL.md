@@ -1,92 +1,81 @@
 ---
 name: github-integration
 version: "1.0.0"
-description: Full GitHub integration – repos, PRs, issues, actions, releases, code search
+description: Full GitHub integration for managing repos, pull requests, issues, actions, releases, and code search.
 author: ArivuClaw
-tags: [github, git, repository, pull-request, issues]
-permissions: [network.outbound, github.api]
+tags: [github, git, repository, pr, issues, actions]
+permissions: [network.fetch, filesystem.read]
 tools:
   - name: gh_repo
-    description: Manage GitHub repositories – create, list, clone, fork, or get repo info
-    permissions: [github.api]
+    description: Manage GitHub repositories including create, list, clone, and view details
+    permissions: [network.fetch]
     inputSchema:
       type: object
       properties:
-        action: { type: string, enum: [list, info, create, fork, clone], description: "Action to perform" }
-        owner: { type: string, description: "Repository owner or organization" }
-        repo: { type: string, description: "Repository name" }
-        visibility: { type: string, enum: [public, private, internal], description: "Visibility for new repos" }
+        action: { type: string, enum: [list, create, view, clone, delete, fork], description: "Repository action to perform" }
+        repo: { type: string, description: "Repository in owner/name format" }
+        visibility: { type: string, enum: [public, private, internal], description: "Repository visibility for create action" }
+        description: { type: string, description: "Repository description" }
       required: [action]
   - name: gh_pr
-    description: Manage pull requests – create, list, review, merge, or check status
-    permissions: [github.api]
+    description: Manage pull requests including create, list, review, merge, and diff
+    permissions: [network.fetch]
     inputSchema:
       type: object
       properties:
-        action: { type: string, enum: [list, create, view, merge, review, close], description: "Action to perform" }
-        owner: { type: string, description: "Repository owner" }
-        repo: { type: string, description: "Repository name" }
+        action: { type: string, enum: [list, create, view, merge, close, review, diff], description: "Pull request action to perform" }
+        repo: { type: string, description: "Repository in owner/name format" }
         pr_number: { type: number, description: "Pull request number" }
-        title: { type: string, description: "PR title for creation" }
+        title: { type: string, description: "PR title for create action" }
         body: { type: string, description: "PR body/description" }
-        base: { type: string, description: "Base branch for new PRs" }
-        head: { type: string, description: "Head branch for new PRs" }
-      required: [action, owner, repo]
+        base: { type: string, description: "Base branch for the PR" }
+        head: { type: string, description: "Head branch for the PR" }
+      required: [action, repo]
   - name: gh_issue
-    description: Manage issues – create, list, comment, close, or label
-    permissions: [github.api]
+    description: Manage GitHub issues including create, list, comment, close, and label
+    permissions: [network.fetch]
     inputSchema:
       type: object
       properties:
-        action: { type: string, enum: [list, create, view, comment, close, label], description: "Action to perform" }
-        owner: { type: string, description: "Repository owner" }
-        repo: { type: string, description: "Repository name" }
+        action: { type: string, enum: [list, create, view, close, comment, label], description: "Issue action to perform" }
+        repo: { type: string, description: "Repository in owner/name format" }
         issue_number: { type: number, description: "Issue number" }
-        title: { type: string, description: "Issue title for creation" }
-        body: { type: string, description: "Issue body or comment text" }
+        title: { type: string, description: "Issue title for create action" }
+        body: { type: string, description: "Issue body/description" }
         labels: { type: array, items: { type: string }, description: "Labels to apply" }
-      required: [action, owner, repo]
+      required: [action, repo]
   - name: gh_actions
-    description: Manage GitHub Actions – list workflows, trigger runs, view logs
-    permissions: [github.api]
+    description: View and manage GitHub Actions workflows and runs
+    permissions: [network.fetch]
     inputSchema:
       type: object
       properties:
-        action: { type: string, enum: [list_workflows, trigger, view_run, list_runs, cancel], description: "Action to perform" }
-        owner: { type: string, description: "Repository owner" }
-        repo: { type: string, description: "Repository name" }
+        action: { type: string, enum: [list_workflows, list_runs, view_run, trigger, cancel, logs], description: "Actions operation to perform" }
+        repo: { type: string, description: "Repository in owner/name format" }
         workflow_id: { type: string, description: "Workflow ID or filename" }
         run_id: { type: number, description: "Workflow run ID" }
-        ref: { type: string, description: "Git ref for triggering workflows" }
-      required: [action, owner, repo]
+        branch: { type: string, description: "Branch to filter by" }
+      required: [action, repo]
   - name: gh_search
-    description: Search GitHub for code, repositories, issues, or users
-    permissions: [github.api]
+    description: Search GitHub code, repositories, issues, and users
+    permissions: [network.fetch]
     inputSchema:
       type: object
       properties:
-        type: { type: string, enum: [code, repos, issues, users], description: "Type of search" }
         query: { type: string, description: "Search query string" }
+        scope: { type: string, enum: [code, repos, issues, users], description: "What to search" }
         language: { type: string, description: "Filter by programming language" }
-        sort: { type: string, description: "Sort field (e.g. stars, updated)" }
+        sort: { type: string, enum: [stars, forks, updated, best-match], description: "Sort order for results" }
         limit: { type: number, description: "Maximum number of results" }
-      required: [type, query]
+      required: [query, scope]
 triggers:
   - type: keyword
-    pattern: "github|repo|pull request|PR|issue|actions|workflow"
+    pattern: "github|repo|pull request|pr|issue|actions|workflow"
     priority: 8
 ---
 
 # GitHub Integration
 
-You are a GitHub integration assistant with full access to the GitHub API.
+You are a GitHub integration assistant.
 
-Use `gh_repo` for repository-level operations like listing repos, getting info, creating new repos, or forking. When the user mentions a repo, parse the owner and name from formats like "owner/repo" or full URLs.
-
-Use `gh_pr` for all pull request operations. When creating PRs, ask for the base and head branches if not provided. When reviewing, summarize the changes clearly.
-
-Use `gh_issue` for issue tracking. Support creating issues with labels, commenting on existing issues, and listing issues with filters.
-
-Use `gh_actions` to monitor CI/CD. Show workflow status clearly and help troubleshoot failed runs by fetching logs.
-
-Use `gh_search` to find code, repos, or issues across GitHub. Format results in a readable table or list.
+Help the user manage their GitHub repositories, pull requests, issues, and workflows. When listing items, present them in a clear tabular format. For PRs, always show the status, reviewers, and checks. When creating issues or PRs, suggest labels and assignees based on content. For actions, monitor workflow runs and report failures clearly. Always confirm destructive operations like deleting repos or closing issues before proceeding.

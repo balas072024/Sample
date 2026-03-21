@@ -1,176 +1,72 @@
 ---
 name: browser-automation
-version: 1.0.0
-description: Web browser automation for form filling, screenshots, scraping, and testing via Puppeteer or Playwright.
+version: "1.0.0"
+description: Web browser automation via Puppeteer/Playwright for navigating pages, clicking elements, filling forms, taking screenshots, and scraping data.
 author: ArivuClaw
-tags:
-  - automation
-  - browser
-  - scraping
-  - testing
-permissions:
-  - network_access
-  - execute_commands
-  - read_files
-  - write_files
+tags: [browser, automation, puppeteer, playwright, scraping]
+permissions: [network.fetch, filesystem.write]
 tools:
-  - name: navigate
-    description: Opens a URL in a headless browser and returns page content or a screenshot.
-    permissions:
-      - network_access
-      - execute_commands
-      - write_files
+  - name: browser_navigate
+    description: Navigate the browser to a specified URL
+    permissions: [network.fetch]
     inputSchema:
       type: object
       properties:
-        url:
-          type: string
-          description: URL to navigate to.
-        wait_for:
-          type: string
-          enum: [load, domcontentloaded, networkidle, selector]
-          description: Wait condition before capturing.
-          default: load
-        wait_selector:
-          type: string
-          description: CSS selector to wait for (when wait_for is "selector").
-        screenshot:
-          type: boolean
-          description: Capture a screenshot.
-          default: false
-        screenshot_path:
-          type: string
-          description: Path to save the screenshot.
-        viewport:
-          type: object
-          properties:
-            width:
-              type: integer
-              default: 1280
-            height:
-              type: integer
-              default: 720
-      required:
-        - url
-  - name: fill_form
-    description: Fills and submits a web form by mapping field selectors to values.
-    permissions:
-      - network_access
-      - execute_commands
+        url: { type: string, description: "The URL to navigate to" }
+        wait_until: { type: string, enum: [load, domcontentloaded, networkidle], description: "When to consider navigation complete" }
+        timeout: { type: number, description: "Navigation timeout in milliseconds" }
+      required: [url]
+  - name: browser_click
+    description: Click an element on the page using a CSS or XPath selector
+    permissions: [network.fetch]
     inputSchema:
       type: object
       properties:
-        url:
-          type: string
-          description: URL of the page containing the form.
-        fields:
-          type: array
-          items:
-            type: object
-            properties:
-              selector:
-                type: string
-                description: CSS selector for the input field.
-              value:
-                type: string
-                description: Value to enter.
-              type:
-                type: string
-                enum: [text, select, checkbox, radio, file]
-                default: text
-          description: Form fields to fill.
-        submit_selector:
-          type: string
-          description: CSS selector for the submit button.
-        submit:
-          type: boolean
-          description: Whether to submit the form after filling.
-          default: true
-      required:
-        - url
-        - fields
-  - name: scrape
-    description: Extracts structured data from a web page using CSS selectors.
-    permissions:
-      - network_access
-      - execute_commands
+        selector: { type: string, description: "CSS or XPath selector for the element to click" }
+        button: { type: string, enum: [left, right, middle], description: "Mouse button to use" }
+        double_click: { type: boolean, description: "Whether to double-click the element" }
+      required: [selector]
+  - name: browser_type
+    description: Type text into an input field identified by selector
+    permissions: [network.fetch]
     inputSchema:
       type: object
       properties:
-        url:
-          type: string
-          description: URL to scrape.
-        selectors:
-          type: object
-          description: Named CSS selectors mapping field names to selectors.
-        multiple:
-          type: boolean
-          description: Extract all matching elements (true) or just the first (false).
-          default: false
-        pagination:
-          type: object
-          properties:
-            next_selector:
-              type: string
-              description: CSS selector for the next page button.
-            max_pages:
-              type: integer
-              default: 5
-          description: Pagination settings for multi-page scraping.
-        output_format:
-          type: string
-          enum: [json, csv, text]
-          default: json
-      required:
-        - url
-        - selectors
-  - name: run_script
-    description: Executes custom JavaScript in the browser context.
-    permissions:
-      - network_access
-      - execute_commands
+        selector: { type: string, description: "CSS or XPath selector for the input field" }
+        text: { type: string, description: "Text to type into the field" }
+        clear_first: { type: boolean, description: "Whether to clear the field before typing" }
+        delay: { type: number, description: "Delay in milliseconds between keystrokes" }
+      required: [selector, text]
+  - name: browser_screenshot
+    description: Take a screenshot of the current page or a specific element
+    permissions: [network.fetch, filesystem.write]
     inputSchema:
       type: object
       properties:
-        url:
-          type: string
-          description: URL to navigate to before running the script.
-        script:
-          type: string
-          description: JavaScript code to execute in the page context.
-        return_result:
-          type: boolean
-          description: Whether to return the script's return value.
-          default: true
-      required:
-        - url
-        - script
+        output_path: { type: string, description: "File path to save the screenshot" }
+        selector: { type: string, description: "CSS selector to screenshot a specific element" }
+        full_page: { type: boolean, description: "Whether to capture the full scrollable page" }
+        format: { type: string, enum: [png, jpeg, webp], description: "Image format for the screenshot" }
+      required: [output_path]
+  - name: browser_scrape
+    description: Extract structured data from the current page using selectors
+    permissions: [network.fetch]
+    inputSchema:
+      type: object
+      properties:
+        selector: { type: string, description: "CSS selector for elements to scrape" }
+        attributes: { type: array, items: { type: string }, description: "HTML attributes to extract from each element" }
+        include_text: { type: boolean, description: "Whether to include inner text content" }
+        limit: { type: number, description: "Maximum number of elements to return" }
+      required: [selector]
 triggers:
-  - pattern: "open {url}"
-  - pattern: "screenshot {url}"
-  - pattern: "fill form on {url}"
-  - pattern: "scrape {url}"
-  - pattern: "automate browser {task}"
+  - type: keyword
+    pattern: "browser|automate|scrape|screenshot|navigate|puppeteer|playwright"
+    priority: 7
 ---
 
 # Browser Automation
 
-Web browser automation for form filling, screenshots, scraping, and testing via Puppeteer or Playwright.
+You are a browser automation assistant using Puppeteer/Playwright.
 
-## Usage
-
-```
-open https://example.com
-screenshot https://example.com/dashboard
-fill form on https://example.com/login
-scrape https://example.com/products
-automate browser checkout flow
-```
-
-## Features
-
-- Headless browser navigation with configurable viewports
-- Form filling with support for text, select, checkbox, radio, and file inputs
-- Structured data scraping with CSS selectors and pagination
-- Custom JavaScript execution in page context
-- Screenshot capture with wait conditions
+When the user asks you to interact with web pages, use the browser tools to navigate, click, type, screenshot, and scrape as needed. Always confirm navigation succeeded before performing actions on page elements. Use appropriate wait strategies to handle dynamic content. When scraping, return data in a structured format. Save screenshots to the user's preferred location or a sensible default.
