@@ -383,7 +383,34 @@ export class TelegramChannel extends BaseChannel {
       }
     });
 
-    this.bot.start();
+    // Global error handler — prevents silent polling failures
+    this.bot.catch((err: any) => {
+      this.log.error(`Telegram bot error: ${err.message || err}`);
+    });
+
+    // Delete any existing webhook so long polling works
+    // (Telegram blocks getUpdates while a webhook is active)
+    try {
+      await this.bot.api.deleteWebhook({ drop_pending_updates: false });
+      this.log.info("Cleared existing webhook (if any) — switching to long polling");
+    } catch (err: any) {
+      this.log.warn(`Could not delete webhook: ${err.message || err}`);
+    }
+
+    // Verify bot token is valid before starting
+    try {
+      const me = await this.bot.api.getMe();
+      this.log.info(`Telegram bot authenticated as @${me.username} (${me.first_name})`);
+    } catch (err: any) {
+      throw new Error(`Invalid Telegram bot token: ${err.message || err}`);
+    }
+
+    // Start long polling (runs in background, errors caught above)
+    this.bot.start({
+      onStart: () => {
+        this.log.info("Telegram long polling active — listening for messages");
+      },
+    });
 
     this.log.info("Telegram bot started — listening for all message types, callbacks, and groups");
   }
