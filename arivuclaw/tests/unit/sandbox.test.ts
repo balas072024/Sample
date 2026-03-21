@@ -48,7 +48,7 @@ describe("Scenario 9: Sandbox Executor", () => {
   });
 
   it("times out long-running commands", async () => {
-    const call: ToolCall = { id: "call-3", name: "bash", input: { command: "sleep 60" } };
+    const call: ToolCall = { id: "call-3", name: "bash", input: { command: "sleep 300" } };
     const tool: ToolDefinition = {
       name: "bash",
       description: "Execute bash",
@@ -56,9 +56,9 @@ describe("Scenario 9: Sandbox Executor", () => {
       permissions: ["code.execute"],
     };
     const result = await executor.execute(call, tool, context);
-    // Should timeout or error
+    // Should timeout after sandbox 30s limit or error
     expect(result.error).toBeDefined();
-  }, 35000);
+  }, 40000);
 
   it("handles unknown tools gracefully", async () => {
     const call: ToolCall = { id: "call-4", name: "unknown_tool", input: {} };

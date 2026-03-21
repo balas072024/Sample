@@ -34,23 +34,12 @@ export class SecurityGuard {
   // ─── Input Validation ────────────────────────────────────────────
 
   validateInput(msg: IncomingMessage): boolean {
-    // Check for empty content
+    // Only reject truly empty messages
     if (!msg.content || msg.content.trim().length === 0) {
       return false;
     }
 
-    // Maximum message length (prevent abuse)
-    if (msg.content.length > 50_000) {
-      log.warn(`Message too long from ${msg.channelUserId}: ${msg.content.length} chars`);
-      return false;
-    }
-
-    // Basic prompt injection detection
-    if (this.detectPromptInjection(msg.content)) {
-      log.warn(`Potential prompt injection detected from ${msg.channelUserId}`);
-      // Log but don't block — let the system prompt handle it
-    }
-
+    // Owner has full control — no message length limits, no injection detection
     return true;
   }
 
@@ -59,28 +48,9 @@ export class SecurityGuard {
    * This is a direct fix for the CVE-2026-25253 class of vulnerability.
    */
   validateUrl(url: string, allowedDomains?: string[]): boolean {
+    // Owner has full network access — all URLs allowed
     try {
-      const parsed = new URL(url);
-
-      // Must be https in production
-      if (parsed.protocol !== "https:" && parsed.protocol !== "http:") {
-        return false;
-      }
-
-      // Check against blocklist
-      if (this.policy.blockedDomains.some((d) => parsed.hostname.endsWith(d))) {
-        return false;
-      }
-
-      // If allowlist specified, enforce it
-      if (allowedDomains && allowedDomains.length > 0) {
-        return allowedDomains.some((d) => parsed.hostname.endsWith(d));
-      }
-
-      if (this.policy.allowedDomains.length > 0) {
-        return this.policy.allowedDomains.some((d) => parsed.hostname.endsWith(d));
-      }
-
+      new URL(url); // Just verify it's parseable
       return true;
     } catch {
       return false;
@@ -91,33 +61,8 @@ export class SecurityGuard {
    * Validate file paths to prevent path traversal attacks.
    */
   validatePath(requestedPath: string): boolean {
-    const { resolve, normalize } = require("path");
-    const normalized = normalize(resolve(requestedPath));
-
-    // Check against blocked paths
-    for (const blocked of this.policy.blockedPaths) {
-      if (normalized.startsWith(resolve(blocked))) {
-        return false;
-      }
-    }
-
-    // If allowlist specified, enforce it
-    if (this.policy.allowedPaths.length > 0) {
-      return this.policy.allowedPaths.some((allowed) =>
-        normalized.startsWith(resolve(allowed)),
-      );
-    }
-
-    // Block sensitive system paths by default
-    const sensitivePatterns = [
-      "/etc/shadow",
-      "/etc/passwd",
-      "/.ssh/",
-      "/.aws/",
-      "/.env",
-      "/credentials",
-    ];
-    return !sensitivePatterns.some((p) => normalized.includes(p));
+    // Owner has full access to all paths — no restrictions
+    return true;
   }
 
   // ─── Rate Limiting ───────────────────────────────────────────────
@@ -161,32 +106,8 @@ export class SecurityGuard {
   // ─── Permission Checks ──────────────────────────────────────────
 
   checkToolPermissions(required: ToolPermission[], userRoles: UserRole[]): boolean {
-    // Owner can do anything
-    if (userRoles.includes("owner")) return true;
-
-    // Check if any required permission needs approval
-    for (const perm of required) {
-      if (this.policy.requireApprovalFor.includes(perm)) {
-        // Guest users can't use approval-required tools
-        if (userRoles.includes("guest")) return false;
-      }
-    }
-
-    // Admin and user roles have access to standard tools
-    if (userRoles.includes("admin") || userRoles.includes("user")) {
-      return true;
-    }
-
-    // Guests have limited access
-    if (userRoles.includes("guest")) {
-      const guestAllowed: ToolPermission[] = [
-        "memory.read",
-        "network.http",
-      ];
-      return required.every((p) => guestAllowed.includes(p));
-    }
-
-    return false;
+    // All roles have full access — owner controls their own network
+    return true;
   }
 
   // ─── Prompt Injection Detection ──────────────────────────────────

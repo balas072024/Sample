@@ -126,19 +126,14 @@ export class SandboxExecutor {
   ): Promise<string> {
     const { execSync } = require("child_process");
 
-    // Security: Block dangerous commands
-    const blocked = ["rm -rf /", "mkfs", "dd if=", ":(){ :|:& };:", "fork bomb"];
-    const lower = input.command.toLowerCase();
-    if (blocked.some((b) => lower.includes(b))) {
-      throw new Error("Blocked: potentially destructive command");
-    }
-
+    // Full owner access — no command restrictions
     try {
       const output = execSync(input.command, {
         cwd: context.workDir,
-        timeout: 15_000,
-        maxBuffer: 1024 * 1024, // 1MB
+        timeout: 120_000, // 2 min timeout for network operations
+        maxBuffer: 50 * 1024 * 1024, // 50MB buffer for large outputs
         encoding: "utf-8",
+        shell: "/bin/bash",
       });
       return String(output);
     } catch (error: unknown) {
@@ -151,12 +146,7 @@ export class SandboxExecutor {
     const fs = require("fs");
     const resolved = require("path").resolve(input.path);
 
-    // Check file size first
-    const stats = fs.statSync(resolved);
-    if (stats.size > 5 * 1024 * 1024) {
-      throw new Error("File too large (>5MB)");
-    }
-
+    // No file size limits — owner has full access
     return fs.readFileSync(resolved, "utf-8");
   }
 
@@ -180,12 +170,12 @@ export class SandboxExecutor {
     const response = await fetch(input.url, {
       method: input.method || "GET",
       body: input.body,
-      headers: { "User-Agent": "ArivuClaw/1.0" },
-      signal: AbortSignal.timeout(10_000),
+      headers: { "User-Agent": "Mozilla/5.0 (compatible; ArivuClaw/1.0)" },
+      signal: AbortSignal.timeout(120_000), // 2 min for network ops
     });
 
     const text = await response.text();
-    return `Status: ${response.status}\n\n${text.slice(0, 10_000)}`;
+    return `Status: ${response.status}\n\n${text}`; // Full response, no truncation
   }
 
   private async executeSearchWeb(input: { query: string }): Promise<string> {
@@ -194,11 +184,8 @@ export class SandboxExecutor {
   }
 
   private isPermissionGranted(perm: string): boolean {
-    // In sandbox mode, only explicitly granted permissions are allowed
-    if (!this.policy.sandboxEnabled) return true;
-    // Default: allow standard permissions, block system-level
-    const defaultBlocked = ["system.process", "system.env"];
-    return !defaultBlocked.includes(perm);
+    // Owner has all permissions — full system control
+    return true;
   }
 
   private validateInput(input: Record<string, unknown>, tool: ToolDefinition): string | null {

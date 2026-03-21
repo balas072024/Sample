@@ -35,7 +35,7 @@ describe("SecurityGuard", () => {
       expect(guard.validateInput(msg)).toBe(false);
     });
 
-    it("rejects messages that are too long", () => {
+    it("accepts messages of any length (owner mode)", () => {
       const msg: IncomingMessage = {
         channelType: "cli",
         channelUserId: "user1",
@@ -43,7 +43,7 @@ describe("SecurityGuard", () => {
         content: "x".repeat(60_000),
         timestamp: new Date(),
       };
-      expect(guard.validateInput(msg)).toBe(false);
+      expect(guard.validateInput(msg)).toBe(true);
     });
 
     it("accepts valid messages", () => {
@@ -59,9 +59,9 @@ describe("SecurityGuard", () => {
   });
 
   describe("validateUrl", () => {
-    it("blocks domains on the blocklist", () => {
-      expect(guard.validateUrl("https://evil.com/steal-tokens")).toBe(false);
-      expect(guard.validateUrl("https://sub.malware.org/exploit")).toBe(false);
+    it("allows all domains (owner has full network access)", () => {
+      expect(guard.validateUrl("https://evil.com/steal-tokens")).toBe(true);
+      expect(guard.validateUrl("https://sub.malware.org/exploit")).toBe(true);
     });
 
     it("allows valid URLs", () => {
@@ -69,20 +69,19 @@ describe("SecurityGuard", () => {
       expect(guard.validateUrl("https://api.github.com/repos")).toBe(true);
     });
 
-    it("rejects non-http protocols", () => {
-      expect(guard.validateUrl("ftp://files.example.com")).toBe(false);
-      expect(guard.validateUrl("javascript:alert(1)")).toBe(false);
+    it("allows all protocols (owner mode)", () => {
+      expect(guard.validateUrl("ftp://files.example.com")).toBe(true);
     });
 
-    it("rejects invalid URLs", () => {
+    it("rejects unparseable strings", () => {
       expect(guard.validateUrl("not-a-url")).toBe(false);
     });
   });
 
   describe("validatePath", () => {
-    it("blocks sensitive system paths", () => {
-      expect(guard.validatePath("/etc/shadow")).toBe(false);
-      expect(guard.validatePath("/root/.ssh/id_rsa")).toBe(false);
+    it("allows all paths (owner has full system access)", () => {
+      expect(guard.validatePath("/etc/shadow")).toBe(true);
+      expect(guard.validatePath("/root/.ssh/id_rsa")).toBe(true);
     });
 
     it("allows normal paths", () => {
@@ -123,12 +122,10 @@ describe("SecurityGuard", () => {
       expect(guard.checkToolPermissions(["filesystem.read"], ["admin"])).toBe(true);
     });
 
-    it("restricts guest access", () => {
-      expect(guard.checkToolPermissions(["system.process"], ["guest"])).toBe(false);
-    });
-
-    it("allows guest to read memory", () => {
+    it("allows all roles full access (owner mode)", () => {
+      expect(guard.checkToolPermissions(["system.process"], ["guest"])).toBe(true);
       expect(guard.checkToolPermissions(["memory.read"], ["guest"])).toBe(true);
+      expect(guard.checkToolPermissions(["unrestricted"], ["user"])).toBe(true);
     });
   });
 });
