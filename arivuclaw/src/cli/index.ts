@@ -280,26 +280,13 @@ async function startGateway(): Promise<void> {
   try {
     const http = require("http");
     const PROXY_PORT = 5013;
-    // Load custom routes from config, merge with defaults
-    const configRoutes = (config.gateway as any)?.proxyRoutes || {};
     const ROUTES: Record<string, number> = {
-      // Arivumaiyam AI core services
-      "chat.arivumaiyam.com": 3000,           // Web chat (WebSocket + REST)
-      "arivumaiyam.com": 3000,               // Main site — beautiful website
-      // Other apps — mapped from actual running processes on laptop
-      "family.arivumaiyam.com": 8080,         // IIS (Windows System PID 4)
-      "neuralbrain.arivumaiyam.com": 8200,    // Python app (port 8200)
-      "kaasai.arivumaiyam.com": 18789,        // Node.js app (port 18789)
-      "valluvan.arivumaiyam.com": 18790,      // Node.js app (port 18790)
-      "opsshiftpro.arivumaiyam.com": 9090,    // ManageEngine AppManager
-      "opswatch.arivumaiyam.com": 12000,      // ManageEngine AppManager
-      "vault.arivumaiyam.com": 8443,          // ManageEngine AppManager (HTTPS)
-      "watch.arivumaiyam.com": 10099,         // ManageEngine AppManager
-      // Override with config file routes
-      ...configRoutes,
+      "chat.arivumaiyam.com": 3000,    // Web channel
+      "dash.arivumaiyam.com": dashPort, // Dashboard
+      "api.arivumaiyam.com": dashPort,  // API endpoints
     };
-    // Default fallback for unknown subdomains → dashboard
-    const DEFAULT_TARGET = dashPort;
+    // Default fallback for arivumaiyam.com or unknown subdomains
+    const DEFAULT_TARGET = 3000;
 
     const proxy = http.createServer((req: any, res: any) => {
       const host = (req.headers.host || "").split(":")[0].toLowerCase();
@@ -358,11 +345,10 @@ async function startGateway(): Promise<void> {
 
     proxy.listen(PROXY_PORT, () => {
       log.info(`Cloudflare reverse proxy listening on port ${PROXY_PORT}`);
-      console.log(`\n  🌐 Cloudflare Proxy on :${PROXY_PORT} — Subdomain Routing:`);
-      for (const [domain, port] of Object.entries(ROUTES)) {
-        console.log(`    ${domain.padEnd(35)} → localhost:${port}`);
-      }
-      console.log(`    ${"(default)".padEnd(35)} → localhost:${DEFAULT_TARGET}\n`);
+      console.log(`  🌐 Proxy:     http://localhost:${PROXY_PORT} → routing by subdomain`);
+      console.log(`    chat.arivumaiyam.com → localhost:3000 (Web Chat)`);
+      console.log(`    dash.arivumaiyam.com → localhost:${dashPort} (Dashboard)`);
+      console.log(`    api.arivumaiyam.com  → localhost:${dashPort} (API)\n`);
     });
   } catch (err) {
     log.warn(`Reverse proxy failed to start: ${err}`);
