@@ -12,14 +12,13 @@
  */
 
 import type {
-  LLMContentBlock,
-  LLMMessage,
   LLMProvider,
   LLMRequest,
   LLMResponse,
   LLMStreamChunk,
   ProviderType,
 } from "../../core/types";
+import { formatMessageContent } from "./format-content";
 import { Logger } from "../../utils/logger";
 
 const log = Logger.create("provider:minimax");
@@ -50,7 +49,7 @@ export class MiniMaxProvider implements LLMProvider {
       ...request.messages.map((m) => ({
         sender_type: m.role === "user" ? "USER" : "BOT",
         sender_name: m.role === "user" ? "User" : "ArivuClaw",
-        text: typeof m.content === "string" ? m.content : JSON.stringify(m.content),
+        text: typeof m.content === "string" ? m.content : String(formatMessageContent(m.content)),
       })),
     ];
 
@@ -72,7 +71,7 @@ export class MiniMaxProvider implements LLMProvider {
       { role: "system", content: request.systemPrompt },
       ...request.messages.map((m) => ({
         role: m.role,
-        content: this.formatMessageContent(m.content),
+        content: formatMessageContent(m.content),
       })),
     ];
 
@@ -160,7 +159,7 @@ export class MiniMaxProvider implements LLMProvider {
           { role: "system", content: request.systemPrompt },
           ...request.messages.map((m) => ({
             role: m.role,
-            content: this.formatMessageContent(m.content),
+            content: formatMessageContent(m.content),
           })),
         ],
         max_tokens: Math.min(request.maxTokens || 4096, 8192),
@@ -256,32 +255,6 @@ export class MiniMaxProvider implements LLMProvider {
     // Last resort: stringify whatever came back
     log.error(`Unexpected MiniMax response format: ${JSON.stringify(data).slice(0, 500)}`);
     throw new Error(`Unexpected MiniMax response: ${JSON.stringify(data).slice(0, 200)}`);
-  }
-
-  /**
-   * Convert LLMMessage content to OpenAI-compatible format.
-   * Handles both plain text and multimodal content blocks (images).
-   */
-  private formatMessageContent(content: string | LLMContentBlock[]): string | Array<Record<string, unknown>> {
-    if (typeof content === "string") {
-      return content;
-    }
-
-    // Convert LLMContentBlock[] to OpenAI vision format
-    const parts: Array<Record<string, unknown>> = [];
-
-    for (const block of content) {
-      if (block.type === "text" && block.text) {
-        parts.push({ type: "text", text: block.text });
-      } else if (block.type === "image" && block.imageUrl) {
-        parts.push({
-          type: "image_url",
-          image_url: { url: block.imageUrl },
-        });
-      }
-    }
-
-    return parts.length > 0 ? parts : (content as unknown as string);
   }
 
   private parseOpenAIResponseOld(data: Record<string, unknown>, model: string): LLMResponse {

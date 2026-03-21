@@ -20,6 +20,7 @@ import type {
   LLMStreamChunk,
   ProviderType,
 } from "../../core/types";
+import { formatMessageContent } from "./format-content";
 import { Logger } from "../../utils/logger";
 
 const log = Logger.create("provider:neural-brain");
@@ -93,7 +94,7 @@ export class NeuralBrainProvider implements LLMProvider {
       body: JSON.stringify({
         messages: request.messages.map((m) => ({
           role: m.role,
-          content: typeof m.content === "string" ? m.content : JSON.stringify(m.content),
+          content: formatMessageContent(m.content),
         })),
         neural_config: {
           plasticity_rate: this.config.plasticityRate,
