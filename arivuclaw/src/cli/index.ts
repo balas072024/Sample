@@ -275,6 +275,85 @@ async function startGateway(): Promise<void> {
     log.warn(`Some optional modules failed to load: ${err}`);
   }
 
+  // Cloudflare reverse proxy on port 5013
+  // Routes subdomains to internal services
+  try {
+    const http = require("http");
+    const PROXY_PORT = 5013;
+    const ROUTES: Record<string, number> = {
+      "chat.arivumaiyam.com": 3000,    // Web channel
+      "dash.arivumaiyam.com": dashPort, // Dashboard
+      "api.arivumaiyam.com": dashPort,  // API endpoints
+    };
+    // Default fallback for arivumaiyam.com or unknown subdomains
+    const DEFAULT_TARGET = 3000;
+
+    const proxy = http.createServer((req: any, res: any) => {
+      const host = (req.headers.host || "").split(":")[0].toLowerCase();
+      const targetPort = ROUTES[host] || DEFAULT_TARGET;
+
+      const proxyReq = http.request(
+        {
+          hostname: "127.0.0.1",
+          port: targetPort,
+          path: req.url,
+          method: req.method,
+          headers: { ...req.headers, host: `127.0.0.1:${targetPort}` },
+        },
+        (proxyRes: any) => {
+          res.writeHead(proxyRes.statusCode, proxyRes.headers);
+          proxyRes.pipe(res, { end: true });
+        },
+      );
+
+      proxyReq.on("error", (err: any) => {
+        log.warn(`Proxy error for ${host}: ${err.message}`);
+        res.writeHead(502, { "Content-Type": "text/plain" });
+        res.end("Bad Gateway");
+      });
+
+      req.pipe(proxyReq, { end: true });
+    });
+
+    // Handle WebSocket upgrades (for chat.arivumaiyam.com)
+    proxy.on("upgrade", (req: any, socket: any, head: any) => {
+      const host = (req.headers.host || "").split(":")[0].toLowerCase();
+      const targetPort = ROUTES[host] || DEFAULT_TARGET;
+
+      const net = require("net");
+      const upstream = net.connect(targetPort, "127.0.0.1", () => {
+        const reqLine = `${req.method} ${req.url} HTTP/1.1\r\n`;
+        const headers = Object.entries({ ...req.headers, host: `127.0.0.1:${targetPort}` })
+          .map(([k, v]) => `${k}: ${v}`)
+          .join("\r\n");
+        upstream.write(reqLine + headers + "\r\n\r\n");
+        if (head.length > 0) upstream.write(head);
+        socket.pipe(upstream).pipe(socket);
+      });
+
+      upstream.on("error", () => socket.destroy());
+      socket.on("error", () => upstream.destroy());
+    });
+
+    proxy.on("error", (err: any) => {
+      if (err.code === "EADDRINUSE") {
+        log.warn(`Proxy port ${PROXY_PORT} already in use — skipping`);
+      } else {
+        log.warn(`Proxy failed: ${err.message}`);
+      }
+    });
+
+    proxy.listen(PROXY_PORT, () => {
+      log.info(`Cloudflare reverse proxy listening on port ${PROXY_PORT}`);
+      console.log(`  🌐 Proxy:     http://localhost:${PROXY_PORT} → routing by subdomain`);
+      console.log(`    chat.arivumaiyam.com → localhost:3000 (Web Chat)`);
+      console.log(`    dash.arivumaiyam.com → localhost:${dashPort} (Dashboard)`);
+      console.log(`    api.arivumaiyam.com  → localhost:${dashPort} (API)\n`);
+    });
+  } catch (err) {
+    log.warn(`Reverse proxy failed to start: ${err}`);
+  }
+
   // Auto-restart gateway on channel errors
   let restartAttempts = 0;
   const MAX_RESTART_ATTEMPTS = 5;
