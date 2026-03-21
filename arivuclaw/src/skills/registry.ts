@@ -133,7 +133,7 @@ export class SkillRegistry {
   // ─── SKILL.md Parser ─────────────────────────────────────────────
 
   private parseSkillMd(raw: string): { frontmatter: Record<string, unknown>; body: string } {
-    const fmMatch = raw.match(/^---\n([\s\S]*?)\n---\n([\s\S]*)$/);
+    const fmMatch = raw.match(/^---\r?\n([\s\S]*?)\r?\n---\r?\n([\s\S]*)$/);
 
     if (!fmMatch) {
       return { frontmatter: {}, body: raw };

@@ -2,7 +2,14 @@
   "gateway": {
     "host": "0.0.0.0",
     "port": 3000,
-    "corsOrigins": ["http://localhost:3000"]
+    "dashboardPort": 7890,
+    "proxyPort": 5013,
+    "corsOrigins": [
+      "http://localhost:3000",
+      "https://chat.arivumaiyam.com",
+      "https://arivumaiyam.com"
+    ],
+    "proxyRoutes": {}
   },
   "defaultProvider": "anthropic",
   "defaultModel": "claude-sonnet-4-6",

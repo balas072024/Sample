@@ -10,7 +10,7 @@
   "scripts": {
     "build": "tsc",
     "dev": "ts-node src/cli/index.ts",
-    "start": "node dist/cli/index.ts",
+    "start": "node dist/cli/index.js",
     "test": "jest --config jest.config.js",
     "test:unit": "jest --config jest.config.js tests/unit",
     "test:integration": "jest --config jest.config.js tests/integration",

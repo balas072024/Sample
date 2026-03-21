@@ -280,19 +280,23 @@ async function startGateway(): Promise<void> {
   try {
     const http = require("http");
     const PROXY_PORT = 5013;
+    // Load custom routes from config, merge with defaults
+    const configRoutes = (config.gateway as any)?.proxyRoutes || {};
     const ROUTES: Record<string, number> = {
-      // Arivumaiyam AI services
+      // Arivumaiyam AI core services
       "chat.arivumaiyam.com": 3000,           // Web chat channel
       "dash.arivumaiyam.com": dashPort,       // Dashboard
       "api.arivumaiyam.com": dashPort,        // API endpoints
       "arivumaiyam.com": dashPort,            // Main site → dashboard
-      // Other published applications (update ports as needed)
-      "family.arivumaiyam.com": 5100,         // Family app
-      "neuralbrain.arivumaiyam.com": 5200,    // Neural Brain
-      "kaasai.arivumaiyam.com": 5300,         // KaasAI
-      "valluvan.arivumaiyam.com": 5400,       // Valluvan
-      "opsshiftpro.arivumaiyam.com": 5500,    // OpsShiftPro
-      "opswatch.arivumaiyam.com": 5600,       // OpsWatch
+      // Other published applications — mapped to detected/configured ports
+      "family.arivumaiyam.com": 8080,         // Family app (IIS/Windows)
+      "neuralbrain.arivumaiyam.com": 8200,    // Neural Brain
+      "kaasai.arivumaiyam.com": 9090,         // KaasAI
+      "valluvan.arivumaiyam.com": 8443,       // Valluvan
+      "opsshiftpro.arivumaiyam.com": 12000,   // OpsShiftPro
+      "opswatch.arivumaiyam.com": 18789,      // OpsWatch
+      // Override with config file routes
+      ...configRoutes,
     };
     // Default fallback for unknown subdomains → web chat
     const DEFAULT_TARGET = 3000;
