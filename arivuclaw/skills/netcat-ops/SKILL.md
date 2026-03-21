@@ -28,7 +28,7 @@ tools:
           description: Use UDP instead of TCP
         execute:
           type: string
-          description: Program to execute on connection (e.g., /bin/bash)
+          description: Program to execute on connection
         outputFile:
           type: string
           description: File to write received data to
@@ -44,7 +44,7 @@ tools:
       properties:
         host:
           type: string
-          description: Target hostname or IP address
+          description: Target host or IP address
         port:
           type: number
           description: Target port number
@@ -61,16 +61,14 @@ tools:
         - host
         - port
   - name: nc_transfer
-    description: Transfer a file using netcat
+    description: Transfer a file via netcat
     inputSchema:
       type: object
       properties:
         mode:
           type: string
-          enum:
-            - send
-            - receive
-          description: Transfer mode (send or receive)
+          enum: [send, receive]
+          description: Transfer mode
         host:
           type: string
           description: Remote host (required for send mode)
@@ -79,7 +77,7 @@ tools:
           description: Port to use for the transfer
         file:
           type: string
-          description: Path to the file to send or receive
+          description: File path to send or save to
       required:
         - mode
         - port
@@ -91,13 +89,13 @@ tools:
       properties:
         host:
           type: string
-          description: Target hostname or IP address
+          description: Target host or IP address
         ports:
           type: string
-          description: "Port range or list (e.g., 1-1024, 80,443,8080)"
+          description: "Port range or list (e.g., 1-1024, 22,80,443)"
         timeout:
           type: number
-          description: Timeout per port in seconds
+          description: Connection timeout per port in seconds
         verbose:
           type: boolean
           description: Enable verbose output
@@ -106,31 +104,33 @@ tools:
         - ports
 triggers:
   - type: keyword
-    value: "netcat"
+    pattern: "netcat"
     priority: 9
   - type: keyword
-    value: "nc "
+    pattern: "nc "
     priority: 7
+environment:
+  binaries: []
 ---
 
-# Netcat / Ncat Network Operations
+# Netcat/Ncat Network Operations
 
-This skill provides an interface to Netcat (nc/ncat), the Swiss Army knife of networking. It supports raw TCP/UDP connections, port scanning, file transfers, and shell relaying.
-
-## Capabilities
-
-- **Listening**: Set up listeners for incoming connections on any port.
-- **Connections**: Connect to remote hosts for banner grabbing, data transfer, or shell access.
-- **File Transfer**: Send and receive files over the network without additional services.
-- **Port Scanning**: Perform basic TCP/UDP port scans against target hosts.
+This skill provides an interface to Netcat (nc/ncat), the Swiss Army knife of networking, for port scanning, file transfers, reverse shells, and basic network connectivity testing.
 
 ## Usage
 
-1. Use `nc_listen` to start a listener on a port for incoming connections.
-2. Use `nc_connect` to connect to a remote host and port.
-3. Use `nc_transfer` to send or receive files over the network.
-4. Use `nc_scan` for basic port scanning and service discovery.
+- **nc_listen** — Start a listener on a port, optionally executing a program on connection.
+- **nc_connect** — Connect to a remote host and port, optionally sending data.
+- **nc_transfer** — Transfer files between hosts using netcat.
+- **nc_scan** — Perform basic port scanning against a target.
+
+## Instructions
+
+1. Use `nc_listen` to set up listeners for catching reverse shells or receiving files.
+2. Use `nc_connect` to establish outbound connections and interact with services.
+3. Use `nc_transfer` for simple file transfers between systems without additional tooling.
+4. Use `nc_scan` for quick port scanning when more advanced tools are unavailable.
 
 ## Authorized Testing Only
 
-This skill is intended exclusively for authorized security testing and educational purposes. Only use these tools against systems and networks you have explicit written permission to test. Unauthorized network access, port scanning, and shell deployment are illegal. Always obtain proper authorization before conducting any network operations with these tools.
+This skill is intended exclusively for use in authorized security testing and penetration testing engagements. You must have explicit written permission from the system owner before using netcat for shell access, port scanning, or data transfer on target systems. Unauthorized use of this tool against systems you do not own or have permission to test is illegal and unethical. Always operate within the scope of your engagement and applicable laws.

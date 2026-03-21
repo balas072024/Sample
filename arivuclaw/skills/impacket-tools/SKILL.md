@@ -1,7 +1,7 @@
 ---
 name: impacket-tools
 version: "1.0.0"
-description: "Impacket network protocol toolkit \u2014 SMB, NTLM, Kerberos, WMI, DCOM, MSSQL attacks."
+description: "Impacket network protocol toolkit — SMB, NTLM, Kerberos, WMI, DCOM, MSSQL attacks."
 author: ArivuClaw
 tags:
   - impacket
@@ -20,13 +20,10 @@ tools:
     description: Remote command execution via PSExec
     inputSchema:
       type: object
-      required:
-        - target
-        - username
       properties:
         target:
           type: string
-          description: Target host IP or hostname
+          description: Target host (IP or hostname)
         username:
           type: string
           description: Username for authentication
@@ -42,17 +39,15 @@ tools:
         command:
           type: string
           description: Command to execute on the target
+      required: [target, username]
   - name: impacket_smbexec
     description: Remote command execution via SMBExec
     inputSchema:
       type: object
-      required:
-        - target
-        - username
       properties:
         target:
           type: string
-          description: Target host IP or hostname
+          description: Target host (IP or hostname)
         username:
           type: string
           description: Username for authentication
@@ -65,17 +60,15 @@ tools:
         command:
           type: string
           description: Command to execute on the target
+      required: [target, username]
   - name: impacket_wmiexec
     description: Remote command execution via WMI
     inputSchema:
       type: object
-      required:
-        - target
-        - username
       properties:
         target:
           type: string
-          description: Target host IP or hostname
+          description: Target host (IP or hostname)
         username:
           type: string
           description: Username for authentication
@@ -88,17 +81,15 @@ tools:
         command:
           type: string
           description: Command to execute on the target
+      required: [target, username]
   - name: impacket_secretsdump
     description: Dump credentials from a target
     inputSchema:
       type: object
-      required:
-        - target
-        - username
       properties:
         target:
           type: string
-          description: Target host IP or hostname
+          description: Target host (IP or hostname)
         username:
           type: string
           description: Username for authentication
@@ -114,13 +105,11 @@ tools:
         just_dc:
           type: boolean
           description: Extract only NTDS.DIT data (DRSUAPI method)
+      required: [target, username]
   - name: impacket_kerberoast
     description: Kerberoasting attack for SPN hashes
     inputSchema:
       type: object
-      required:
-        - domain
-        - username
       properties:
         domain:
           type: string
@@ -137,13 +126,11 @@ tools:
         outputFile:
           type: string
           description: File to save extracted hashes
+      required: [domain, username]
   - name: impacket_getTGT
     description: Request a Kerberos TGT
     inputSchema:
       type: object
-      required:
-        - domain
-        - username
       properties:
         domain:
           type: string
@@ -156,20 +143,19 @@ tools:
           description: Domain password
         hash:
           type: string
-          description: NTLM hash for authentication
+          description: NTLM hash for pass-the-hash
         dc:
           type: string
           description: Domain controller IP or hostname
+      required: [domain, username]
   - name: impacket_smbclient
     description: Interactive SMB client
     inputSchema:
       type: object
-      required:
-        - target
       properties:
         target:
           type: string
-          description: Target host IP or hostname
+          description: Target host (IP or hostname)
         username:
           type: string
           description: Username for authentication
@@ -179,41 +165,46 @@ tools:
         share:
           type: string
           description: SMB share name to connect to
+      required: [target]
 triggers:
   - type: keyword
-    value: impacket
+    pattern: impacket
     priority: 9
   - type: keyword
-    value: psexec
+    pattern: psexec
     priority: 8
   - type: keyword
-    value: kerberoast
+    pattern: kerberoast
     priority: 9
   - type: keyword
-    value: secretsdump
+    pattern: secretsdump
     priority: 9
 ---
 
 # Impacket Tools — Network Protocol Toolkit
 
-This skill provides access to the Impacket suite of tools for interacting with Windows network protocols. It supports SMB, NTLM, Kerberos, WMI, and DCOM-based attacks commonly used during penetration testing and red team engagements.
+This skill provides access to the Impacket suite of tools for interacting with Windows network protocols including SMB, NTLM, Kerberos, WMI, DCOM, and MSSQL.
 
 ## Capabilities
 
-- **PSExec**: Remote command execution using the PSExec technique over SMB, supporting both password and pass-the-hash authentication.
-- **SMBExec**: Stealthier alternative to PSExec using SMB for remote command execution.
-- **WMIExec**: Remote command execution through Windows Management Instrumentation.
-- **SecretsDump**: Extract credentials including SAM hashes, LSA secrets, cached domain credentials, and NTDS.DIT via DRSUAPI.
-- **Kerberoasting**: Request and extract service ticket hashes for offline cracking of service account passwords.
-- **GetTGT**: Request Kerberos Ticket Granting Tickets for use in further attacks.
-- **SMB Client**: Interactive SMB client for browsing shares and transferring files.
+- **PSExec**: Remote command execution using the PSExec technique over SMB.
+- **SMBExec**: Stealthier remote command execution via SMB service creation.
+- **WMIExec**: Semi-interactive shell via Windows Management Instrumentation.
+- **SecretsDump**: Extract credentials including SAM, LSA secrets, and NTDS.DIT hashes.
+- **Kerberoasting**: Request and extract service ticket hashes for offline cracking.
+- **GetTGT**: Request Kerberos Ticket Granting Tickets for authentication.
+- **SMBClient**: Browse and interact with SMB shares on remote hosts.
 
 ## Usage
 
-1. Select the appropriate tool based on your engagement needs and available credentials.
-2. Provide target, authentication, and command parameters.
-3. Use extracted credentials for further lateral movement or privilege escalation.
+All tools support authentication via plaintext passwords or NTLM hashes (pass-the-hash). Provide either `password` or `hash` for authentication.
 
-## Authorization Notice
+## Requirements
 
-This skill is intended for **authorized security testing and penetration testing engagements only**. You must have explicit written permission from the system owner before executing any remote commands, dumping credentials, or performing Kerberos attacks. Unauthorized use of these tools against systems you do not own or have permission to test is illegal and unethical. Always operate within the scope of your engagement and comply with all applicable laws and regulations.
+- Impacket Python library installed (`pip install impacket`)
+- Network connectivity to target hosts
+- Valid credentials (password or NTLM hash)
+
+## Authorized Use Only
+
+This skill is intended exclusively for authorized penetration testing and red team engagements. Always obtain explicit written permission before executing any commands against target systems. Unauthorized use of these tools against systems you do not own or have permission to test is illegal and unethical.
