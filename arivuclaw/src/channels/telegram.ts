@@ -439,6 +439,41 @@ export class TelegramChannel extends BaseChannel {
 
   // ─── Send Message ──────────────────────────────────────────────
 
+  /** Telegram's max message length */
+  private static readonly MAX_MSG_LENGTH = 4096;
+
+  /**
+   * Split text into chunks that fit within Telegram's limit.
+   * Tries to split at paragraph breaks, then line breaks, then hard-cuts.
+   */
+  private splitMessage(text: string, limit: number = TelegramChannel.MAX_MSG_LENGTH): string[] {
+    if (text.length <= limit) return [text];
+
+    const chunks: string[] = [];
+    let remaining = text;
+
+    while (remaining.length > 0) {
+      if (remaining.length <= limit) {
+        chunks.push(remaining);
+        break;
+      }
+
+      // Try to split at a double newline (paragraph)
+      let splitAt = remaining.lastIndexOf("\n\n", limit);
+      // Fallback: single newline
+      if (splitAt <= 0) splitAt = remaining.lastIndexOf("\n", limit);
+      // Fallback: space
+      if (splitAt <= 0) splitAt = remaining.lastIndexOf(" ", limit);
+      // Hard cut if no good split point
+      if (splitAt <= 0) splitAt = limit;
+
+      chunks.push(remaining.slice(0, splitAt));
+      remaining = remaining.slice(splitAt).trimStart();
+    }
+
+    return chunks;
+  }
+
   protected async doSendMessage(
     channelUserId: string,
     content: string,
@@ -453,45 +488,57 @@ export class TelegramChannel extends BaseChannel {
     const replyToId = raw?._replyToMessageId as number | undefined;
     const incomingMsgId = raw?.message_id as number | undefined;
 
-    // Convert markdown to Telegram HTML
-    const html = markdownToTelegramHtml(content);
-
-    const opts: Record<string, unknown> = {
-      parse_mode: "HTML",
-    };
+    const baseOpts: Record<string, unknown> = {};
 
     // Reply to the user's message in groups for threading
     if (incomingMsgId) {
-      opts.reply_to_message_id = incomingMsgId;
-      opts.allow_sending_without_reply = true;
+      baseOpts.reply_to_message_id = incomingMsgId;
+      baseOpts.allow_sending_without_reply = true;
     }
 
     // Forum topic support
     if (threadId) {
-      opts.message_thread_id = threadId;
+      baseOpts.message_thread_id = threadId;
     }
 
     // Link preview control (disable for long messages to avoid clutter)
     if (content.length > 1000) {
-      opts.disable_web_page_preview = true;
+      baseOpts.disable_web_page_preview = true;
     }
 
-    try {
-      const sent = await this.bot.api.sendMessage(chatId, html, opts);
-      // Track for reply threading
-      this.lastBotMessageId.set(String(chatId), sent.message_id);
-      this.log.info(`Sent message to Telegram chat ${chatId}`);
-    } catch (error) {
-      // If HTML parse fails, retry as plain text (like OpenClaw)
-      const errMsg = error instanceof Error ? error.message : String(error);
-      if (errMsg.includes("can't parse entities")) {
-        this.log.warn("HTML parse failed, retrying as plain text");
-        delete opts.parse_mode;
-        const sent = await this.bot.api.sendMessage(chatId, content, opts);
+    // Split into chunks that fit Telegram's 4096 char limit
+    const chunks = this.splitMessage(content);
+
+    for (let i = 0; i < chunks.length; i++) {
+      const chunk = chunks[i];
+      const html = markdownToTelegramHtml(chunk);
+      const opts: Record<string, unknown> = {
+        ...baseOpts,
+        parse_mode: "HTML",
+      };
+
+      // Only reply-thread the first chunk
+      if (i > 0) {
+        delete opts.reply_to_message_id;
+      }
+
+      try {
+        const sent = await this.bot.api.sendMessage(chatId, html, opts);
         this.lastBotMessageId.set(String(chatId), sent.message_id);
-      } else {
-        throw error;
+      } catch (error) {
+        // If HTML parse fails, retry as plain text
+        const errMsg = error instanceof Error ? error.message : String(error);
+        if (errMsg.includes("can't parse entities")) {
+          this.log.warn("HTML parse failed, retrying as plain text");
+          delete opts.parse_mode;
+          const sent = await this.bot.api.sendMessage(chatId, chunk, opts);
+          this.lastBotMessageId.set(String(chatId), sent.message_id);
+        } else {
+          throw error;
+        }
       }
     }
+
+    this.log.info(`Sent message to Telegram chat ${chatId} (${chunks.length} chunk${chunks.length > 1 ? "s" : ""})`);
   }
 }

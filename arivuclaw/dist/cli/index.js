@@ -259,8 +259,23 @@ async function startGateway() {
     // Auto-restart gateway on channel errors
     let restartAttempts = 0;
     const MAX_RESTART_ATTEMPTS = 5;
+    // Non-fatal error patterns — these should NOT trigger a gateway restart
+    const NON_FATAL_PATTERNS = [
+        "too long", "can't parse entities", "message is not modified",
+        "query is too old", "BUTTON_DATA_INVALID", "MESSAGE_NOT_MODIFIED",
+        "Bad Request", "forbidden", "blocked by user", "chat not found",
+        "Anthropic API error", "MiniMax API error", "OpenAI API error",
+        "rate limit", "429", "quota",
+    ];
     gateway.on("error", async (data) => {
-        log.error(`Gateway error: ${data?.message || data}`);
+        const errStr = String(data?.message || data);
+        log.error(`Gateway error: ${errStr}`);
+        // Skip restart for non-fatal errors (bad messages, API errors, etc.)
+        const isNonFatal = NON_FATAL_PATTERNS.some(p => errStr.toLowerCase().includes(p.toLowerCase()));
+        if (isNonFatal) {
+            log.info(`Non-fatal error, skipping restart: ${errStr.slice(0, 120)}`);
+            return;
+        }
         if (restartAttempts < MAX_RESTART_ATTEMPTS) {
             restartAttempts++;
             const delay = Math.min(2000 * Math.pow(2, restartAttempts - 1), 30000);

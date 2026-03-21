@@ -29,6 +29,13 @@ export declare class TelegramChannel extends BaseChannel {
     protected connect(): Promise<void>;
     cacheStickerDescription(uniqueId: string, description: string): void;
     protected disconnect(): Promise<void>;
+    /** Telegram's max message length */
+    private static readonly MAX_MSG_LENGTH;
+    /**
+     * Split text into chunks that fit within Telegram's limit.
+     * Tries to split at paragraph breaks, then line breaks, then hard-cuts.
+     */
+    private splitMessage;
     protected doSendMessage(channelUserId: string, content: string, attachments?: Attachment[], metadata?: Record<string, unknown>): Promise<void>;
 }
 //# sourceMappingURL=telegram.d.ts.map
