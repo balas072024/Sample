@@ -133,8 +133,8 @@ async function startGateway(): Promise<void> {
   // Start gateway
   await gateway.start();
 
-  // Start Web UI Dashboard
-  const dashPort = Number(config.gateway.port) || 7890;
+  // Start Web UI Dashboard on a separate port from the Web channel
+  const dashPort = Number(config.gateway.dashboardPort) || 7890;
   try {
     const http = require("http");
     const { generateDashboardHTML } = require("../ui/dashboard");
@@ -174,6 +174,18 @@ async function startGateway(): Promise<void> {
 
       res.writeHead(404);
       res.end("Not found");
+    });
+
+    dashServer.on("error", (err: any) => {
+      if (err.code === "EADDRINUSE") {
+        log.warn(`Dashboard port ${dashPort} already in use — trying ${dashPort + 1}`);
+        dashServer.listen(dashPort + 1, () => {
+          console.log(`\n  🌐 Dashboard: http://localhost:${dashPort + 1}`);
+          console.log(`  📡 API:       http://localhost:${dashPort + 1}/api/health\n`);
+        });
+      } else {
+        log.warn(`Dashboard failed to start: ${err.message}`);
+      }
     });
 
     dashServer.listen(dashPort, () => {
