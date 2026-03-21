@@ -1,0 +1,511 @@
+#!/usr/bin/env node
+"use strict";
+/**
+ * ArivuClaw CLI — Main entry point.
+ *
+ * Usage:
+ *   arivuclaw                  — Start ArivuClaw with all configured channels
+ *   arivuclaw chat             — Start CLI chat mode
+ *   arivuclaw onboard          — Interactive setup wizard
+ *   arivuclaw skills list      — List available skills
+ *   arivuclaw skills install   — Install a skill from ClawHub
+ *   arivuclaw status           — Show system status
+ *   arivuclaw config           — Edit configuration
+ */
+Object.defineProperty(exports, "__esModule", { value: true });
+const gateway_1 = require("../core/gateway");
+const agent_runtime_1 = require("../core/agent-runtime");
+const registry_1 = require("../skills/registry");
+const vector_store_1 = require("../memory/vector-store");
+const anthropic_1 = require("../plugins/providers/anthropic");
+const openai_1 = require("../plugins/providers/openai");
+const ollama_1 = require("../plugins/providers/ollama");
+const minimax_1 = require("../plugins/providers/minimax");
+const deepseek_1 = require("../plugins/providers/deepseek");
+const groq_1 = require("../plugins/providers/groq");
+const neural_brain_1 = require("../plugins/providers/neural-brain");
+const cli_1 = require("../channels/cli");
+const whatsapp_1 = require("../channels/whatsapp");
+const telegram_1 = require("../channels/telegram");
+const discord_1 = require("../channels/discord");
+const slack_1 = require("../channels/slack");
+const web_1 = require("../channels/web");
+const system_tools_1 = require("../tools/system-tools");
+const config_1 = require("./config");
+const logger_1 = require("../utils/logger");
+const log = logger_1.Logger.create("cli");
+const BANNER = `
+   _         _             ____  _
+  / \\   _ __(_)_   ___   _/ ___|| | __ ___      __
+ / _ \\ | '__| \\ \\ / / | | \\___ \\| |/ _\` \\ \\ /\\ / /
+/ ___ \\| |  | |\\ V /| |_| |___) | | (_| |\\ V  V /
+/_/   \\_\\_|  |_| \\_/  \\__,_|____/|_|\\__,_| \\_/\\_/
+
+  🦀 ArivuClaw v1.0.0 — Your Intelligent AI Assistant
+  Secure. Composable. Multi-platform.
+`;
+async function main() {
+    const args = process.argv.slice(2);
+    const command = args[0] || "start";
+    switch (command) {
+        case "start":
+            await startGateway();
+            break;
+        case "chat":
+            await startChat();
+            break;
+        case "onboard":
+        case "setup":
+        case "init": {
+            const { runOnboardWizard } = require("./onboard");
+            await runOnboardWizard();
+            break;
+        }
+        case "config": {
+            const { runConfigCommand } = require("./onboard");
+            await runConfigCommand(args.slice(1));
+            break;
+        }
+        case "skills":
+            await handleSkills(args.slice(1));
+            break;
+        case "status":
+            showStatus();
+            break;
+        case "version":
+            console.log("ArivuClaw v1.0.0");
+            break;
+        case "help":
+            showHelp();
+            break;
+        default:
+            console.log(`Unknown command: ${command}`);
+            showHelp();
+            process.exit(1);
+    }
+}
+async function startGateway() {
+    console.log(BANNER);
+    // Load .env file if present
+    try {
+        require("dotenv").config();
+    }
+    catch { /* dotenv optional */ }
+    const config = (0, config_1.loadConfig)();
+    logger_1.Logger.setLevel(config.logging.level);
+    // Initialize memory store
+    const memoryStore = new vector_store_1.VectorMemoryStore(config.memory);
+    // Initialize LLM provider
+    const provider = createProvider(config);
+    // Initialize skill registry
+    const skillRegistry = new registry_1.SkillRegistry(config.skills.directories);
+    await skillRegistry.loadAll();
+    if (config.skills.hotReload) {
+        skillRegistry.enableHotReload();
+    }
+    // Create gateway
+    const gateway = new gateway_1.Gateway(config, memoryStore);
+    // Create agent runtime
+    const runtime = new agent_runtime_1.AgentRuntime(config, provider, memoryStore, skillRegistry);
+    gateway.setAgentRuntime(runtime);
+    // Register configured channels
+    log.info(`Configured channels: ${config.channels.map(c => `${c.type}(enabled=${c.enabled})`).join(", ")}`);
+    for (const channelConfig of config.channels) {
+        if (!channelConfig.enabled) {
+            log.info(`Skipping channel ${channelConfig.type} (disabled)`);
+            continue;
+        }
+        log.info(`Starting channel: ${channelConfig.type} (token=${channelConfig.credentials?.botToken ? "present" : "missing"})`);
+        try {
+            const adapter = createChannelAdapter(channelConfig.type);
+            if (adapter) {
+                await gateway.registerChannel(adapter);
+            }
+            else {
+                log.warn(`No adapter found for channel type: ${channelConfig.type}`);
+            }
+        }
+        catch (err) {
+            log.error(`Failed to register channel ${channelConfig.type}: ${err.message || err}`);
+        }
+    }
+    // Start gateway
+    await gateway.start();
+    // Start Web UI Dashboard on a separate port from the Web channel
+    const dashPort = Number(config.gateway.dashboardPort) || 7890;
+    try {
+        const http = require("http");
+        const { generateDashboardHTML } = require("../ui/dashboard");
+        const dashServer = http.createServer((req, res) => {
+            const url = req.url || "/";
+            if (url === "/" || url === "/dashboard") {
+                res.writeHead(200, { "Content-Type": "text/html" });
+                res.end(generateDashboardHTML());
+                return;
+            }
+            if (url === "/api/health") {
+                res.writeHead(200, { "Content-Type": "application/json" });
+                res.end(JSON.stringify(gateway.getHealth()));
+                return;
+            }
+            if (url === "/api/skills") {
+                res.writeHead(200, { "Content-Type": "application/json" });
+                res.end(JSON.stringify(skillRegistry.getAllSkills().map((s) => ({
+                    name: s.name || s.manifest?.name || "unknown",
+                    version: s.manifest?.version || "1.0.0",
+                    description: s.manifest?.description || "",
+                    tools: s.manifest?.tools?.length || 0,
+                    loaded: s.loaded,
+                }))));
+                return;
+            }
+            if (url === "/api/channels") {
+                res.writeHead(200, { "Content-Type": "application/json" });
+                const health = gateway.getHealth();
+                res.end(JSON.stringify(health.channels));
+                return;
+            }
+            if (url === "/api/sessions") {
+                res.writeHead(200, { "Content-Type": "application/json" });
+                res.end(JSON.stringify([]));
+                return;
+            }
+            if (url === "/api/memory/stats") {
+                res.writeHead(200, { "Content-Type": "application/json" });
+                res.end(JSON.stringify({
+                    totalEntries: memoryStore.size?.() ?? 0,
+                    totalFacts: 0,
+                    vectorDimensions: 0,
+                    storageSizeBytes: 0,
+                }));
+                return;
+            }
+            if (url === "/api/providers") {
+                res.writeHead(200, { "Content-Type": "application/json" });
+                res.end(JSON.stringify([{
+                        type: config.defaultProvider,
+                        name: config.defaultProvider,
+                        model: config.defaultModel,
+                    }]));
+                return;
+            }
+            if (url === "/api/config") {
+                res.writeHead(200, { "Content-Type": "application/json" });
+                res.end(JSON.stringify({ provider: config.defaultProvider, model: config.defaultModel, mode: config.mode }));
+                return;
+            }
+            if (url === "/api/restart" && req.method === "POST") {
+                res.writeHead(200, { "Content-Type": "application/json" });
+                res.end(JSON.stringify({ status: "restarting" }));
+                gateway.restart().catch((err) => log.error(`Restart failed: ${err}`));
+                return;
+            }
+            res.writeHead(404);
+            res.end("Not found");
+        });
+        dashServer.on("error", (err) => {
+            if (err.code === "EADDRINUSE") {
+                log.warn(`Dashboard port ${dashPort} already in use — trying ${dashPort + 1}`);
+                dashServer.listen(dashPort + 1, () => {
+                    console.log(`\n  🌐 Dashboard: http://localhost:${dashPort + 1}`);
+                    console.log(`  📡 API:       http://localhost:${dashPort + 1}/api/health\n`);
+                });
+            }
+            else {
+                log.warn(`Dashboard failed to start: ${err.message}`);
+            }
+        });
+        dashServer.listen(dashPort, () => {
+            console.log(`\n  🌐 Dashboard: http://localhost:${dashPort}`);
+            console.log(`  📡 API:       http://localhost:${dashPort}/api/health\n`);
+        });
+    }
+    catch (err) {
+        log.warn(`Dashboard failed to start: ${err}`);
+    }
+    // Wire up additional modules
+    try {
+        // MCP Server — expose skills as MCP tools
+        const { MCPServer, MCPBridge } = require("../mcp/server");
+        const mcpServer = new MCPServer("arivuclaw", "1.0.0");
+        const mcpBridge = new MCPBridge(mcpServer);
+        log.info(`MCP Server ready (${mcpServer.getTools().length} tools exposed)`);
+        // Telemetry & Health
+        const { HealthDashboard } = require("../observability/health-dashboard");
+        const healthDash = new HealthDashboard();
+        log.info("Health dashboard initialized");
+        // i18n
+        const { I18n } = require("../i18n/locales");
+        const i18n = new I18n();
+        log.info(`i18n initialized (${i18n.getSupportedLocales().length} locales)`);
+        // Guardrails (auto-approve all in unrestricted)
+        const { GuardrailManager } = require("../core/guardrails");
+        const guardrails = new GuardrailManager(config.mode === "unrestricted");
+        log.info(`Guardrails: auto-approve=${guardrails.isAutoApproveAll()}`);
+        // Backup Manager
+        const { BackupManager } = require("../backup/manager");
+        const backupMgr = new BackupManager();
+        log.info("Backup manager ready");
+        // Model Tiering
+        const { ModelTierManager } = require("../core/model-tiering");
+        const tierMgr = new ModelTierManager();
+        log.info("Model tiering initialized");
+        console.log("  ✅ All modules wired and ready\n");
+    }
+    catch (err) {
+        log.warn(`Some optional modules failed to load: ${err}`);
+    }
+    // Auto-restart gateway on channel errors
+    let restartAttempts = 0;
+    const MAX_RESTART_ATTEMPTS = 5;
+    gateway.on("error", async (data) => {
+        log.error(`Gateway error: ${data?.message || data}`);
+        if (restartAttempts < MAX_RESTART_ATTEMPTS) {
+            restartAttempts++;
+            const delay = Math.min(2000 * Math.pow(2, restartAttempts - 1), 30000);
+            log.info(`Auto-restarting gateway in ${delay / 1000}s (attempt ${restartAttempts}/${MAX_RESTART_ATTEMPTS})...`);
+            setTimeout(async () => {
+                try {
+                    await gateway.restart();
+                    restartAttempts = 0; // Reset on successful restart
+                    log.info("Gateway auto-restart successful");
+                }
+                catch (err) {
+                    log.error(`Auto-restart failed: ${err}`);
+                }
+            }, delay);
+        }
+        else {
+            log.error(`Max restart attempts (${MAX_RESTART_ATTEMPTS}) reached. Manual intervention required.`);
+        }
+    });
+    // Handle uncaught errors — restart instead of crashing
+    process.on("uncaughtException", async (err) => {
+        log.error(`Uncaught exception: ${err.message}`);
+        if (restartAttempts < MAX_RESTART_ATTEMPTS) {
+            restartAttempts++;
+            log.info(`Attempting gateway restart after uncaught exception...`);
+            try {
+                await gateway.restart();
+                restartAttempts = 0;
+            }
+            catch (restartErr) {
+                log.error(`Restart after exception failed: ${restartErr}`);
+            }
+        }
+    });
+    // Graceful shutdown
+    const shutdown = async () => {
+        log.info("Shutting down...");
+        await gateway.shutdown();
+        process.exit(0);
+    };
+    process.on("SIGINT", shutdown);
+    process.on("SIGTERM", shutdown);
+}
+async function startChat() {
+    console.log(BANNER);
+    try {
+        require("dotenv").config();
+    }
+    catch { /* dotenv optional */ }
+    const config = (0, config_1.loadConfig)();
+    logger_1.Logger.setLevel("warn"); // Quiet mode for chat
+    const memoryStore = new vector_store_1.VectorMemoryStore(config.memory);
+    const provider = createProvider(config);
+    const skillRegistry = new registry_1.SkillRegistry(config.skills.directories);
+    await skillRegistry.loadAll();
+    const gateway = new gateway_1.Gateway(config, memoryStore);
+    const runtime = new agent_runtime_1.AgentRuntime(config, provider, memoryStore, skillRegistry);
+    gateway.setAgentRuntime(runtime);
+    // Only CLI channel for chat mode
+    const cliChannel = new cli_1.CLIChannel();
+    await gateway.registerChannel(cliChannel);
+    await gateway.start();
+}
+async function runOnboard() {
+    console.log(BANNER);
+    console.log("Welcome to ArivuClaw setup! Let's get you configured.\n");
+    // In production, this would be an interactive wizard using inquirer
+    console.log("Steps:");
+    console.log("  1. Choose your AI provider (Anthropic/OpenAI/Ollama)");
+    console.log("  2. Enter your API key");
+    console.log("  3. Select messaging channels to connect");
+    console.log("  4. Configure security settings");
+    console.log("  5. Install starter skills");
+    console.log("\nRun: arivuclaw onboard --interactive");
+}
+async function handleSkills(args) {
+    const subcommand = args[0] || "list";
+    const config = (0, config_1.loadConfig)();
+    const registry = new registry_1.SkillRegistry(config.skills.directories);
+    await registry.loadAll();
+    switch (subcommand) {
+        case "list": {
+            const skills = registry.getAllSkills();
+            console.log(`\nInstalled Skills (${skills.length}):\n`);
+            for (const skill of skills) {
+                const status = skill.loaded ? "✓" : "✗";
+                console.log(`  ${status} ${skill.name} v${skill.manifest.version}`);
+                console.log(`    ${skill.manifest.description}`);
+                console.log(`    Tools: ${skill.manifest.tools.map((t) => t.name).join(", ") || "none"}`);
+                console.log();
+            }
+            break;
+        }
+        case "install":
+            console.log("Skill installation from registry — coming soon!");
+            break;
+        default:
+            console.log(`Unknown skills command: ${subcommand}`);
+    }
+}
+function showStatus() {
+    const config = (0, config_1.loadConfig)();
+    const sysInfo = system_tools_1.SystemTools.getFullSystemInfo();
+    console.log("\n🦀 ArivuClaw Status\n");
+    console.log(`  Mode:       ${config.mode.toUpperCase()}`);
+    console.log(`  Provider:   ${config.defaultProvider}`);
+    console.log(`  Model:      ${config.defaultModel}`);
+    console.log(`  Channels:   ${config.channels.filter((c) => c.enabled).map((c) => c.type).join(", ")}`);
+    console.log(`  Skill dirs: ${config.skills.directories.join(", ")}`);
+    console.log(`  Sandbox:    ${config.security.sandboxEnabled ? "ON" : "OFF"}`);
+    console.log(`  Rate limit: ${config.security.rateLimits.length > 0 ? "ON" : "OFF (unrestricted)"}`);
+    console.log("\n  System:");
+    console.log(`    Host:     ${sysInfo.hostname}`);
+    console.log(`    OS:       ${sysInfo.platform} ${sysInfo.arch}`);
+    console.log(`    CPU:      ${sysInfo.cpus} cores — ${sysInfo.cpuModel}`);
+    console.log(`    Memory:   ${sysInfo.freeMemory} free / ${sysInfo.totalMemory} total`);
+    console.log(`    User:     ${sysInfo.user}`);
+    console.log(`    Node:     ${sysInfo.node || "N/A"}`);
+    console.log(`    Docker:   ${system_tools_1.SystemTools.dockerAvailable() ? "available" : "not installed"}`);
+    // List available providers
+    console.log("\n  Available Providers:");
+    const providers = [
+        { name: "anthropic", env: "ANTHROPIC_API_KEY" },
+        { name: "openai", env: "OPENAI_API_KEY" },
+        { name: "minimax", env: "MINIMAX_API_KEY" },
+        { name: "deepseek", env: "DEEPSEEK_API_KEY" },
+        { name: "groq", env: "GROQ_API_KEY" },
+        { name: "google", env: "GOOGLE_API_KEY" },
+        { name: "ollama", env: null },
+        { name: "neural-brain", env: null },
+    ];
+    for (const p of providers) {
+        const active = p.name === config.defaultProvider ? " (active)" : "";
+        const configured = p.env ? (process.env[p.env] ? "✓ configured" : "✗ no key") : "✓ local";
+        console.log(`    ${p.name}: ${configured}${active}`);
+    }
+}
+function showHelp() {
+    console.log(`
+ArivuClaw — Your Intelligent AI Assistant 🦀
+
+Usage: arivuclaw [command]
+
+Commands:
+  start       Start ArivuClaw with all configured channels (default)
+  chat        Start CLI chat mode
+  onboard     Interactive setup wizard
+  skills      Manage skills (list, install)
+  status      Show system status
+  config      Edit configuration
+  version     Show version
+  help        Show this help
+
+Examples:
+  arivuclaw                    Start with all channels
+  arivuclaw chat               CLI-only chat mode
+  arivuclaw skills list        List installed skills
+  arivuclaw onboard            First-time setup
+`);
+}
+function createProvider(config) {
+    const providerConfig = config.providers[config.defaultProvider];
+    switch (config.defaultProvider) {
+        case "anthropic":
+            return new anthropic_1.AnthropicProvider({
+                apiKey: providerConfig?.apiKey || process.env.ANTHROPIC_API_KEY || "",
+                baseUrl: providerConfig?.baseUrl,
+            });
+        case "openai":
+            return new openai_1.OpenAIProvider({
+                apiKey: providerConfig?.apiKey || process.env.OPENAI_API_KEY || "",
+                baseUrl: providerConfig?.baseUrl,
+            });
+        case "ollama":
+            return new ollama_1.OllamaProvider({
+                baseUrl: providerConfig?.baseUrl,
+            });
+        case "minimax":
+            return new minimax_1.MiniMaxProvider({
+                apiKey: providerConfig?.apiKey || process.env.MINIMAX_API_KEY || "",
+                groupId: providerConfig?.options?.groupId,
+                baseUrl: providerConfig?.baseUrl,
+            });
+        case "deepseek":
+            return new deepseek_1.DeepSeekProvider({
+                apiKey: providerConfig?.apiKey || process.env.DEEPSEEK_API_KEY || "",
+                baseUrl: providerConfig?.baseUrl,
+            });
+        case "groq":
+            return new groq_1.GroqProvider({
+                apiKey: providerConfig?.apiKey || process.env.GROQ_API_KEY || "",
+                baseUrl: providerConfig?.baseUrl,
+            });
+        case "custom": {
+            // Neural Brain mode
+            const opts = (providerConfig?.options || {});
+            const backboneProviderName = opts.backboneProvider || "anthropic";
+            // Create the backbone provider
+            const backboneConfig = config.providers[backboneProviderName];
+            let backbone;
+            switch (backboneProviderName) {
+                case "openai":
+                    backbone = new openai_1.OpenAIProvider({ apiKey: backboneConfig?.apiKey || process.env.OPENAI_API_KEY || "" });
+                    break;
+                case "ollama":
+                    backbone = new ollama_1.OllamaProvider({ baseUrl: backboneConfig?.baseUrl });
+                    break;
+                default:
+                    backbone = new anthropic_1.AnthropicProvider({ apiKey: backboneConfig?.apiKey || process.env.ANTHROPIC_API_KEY || "" });
+            }
+            return new neural_brain_1.NeuralBrainProvider({
+                apiKey: providerConfig?.apiKey,
+                baseUrl: providerConfig?.baseUrl,
+                neuralMode: opts.neuralMode || "hybrid",
+                plasticityRate: opts.plasticityRate || 0.1,
+                associativeMemorySize: opts.associativeMemorySize || 100,
+                backboneProvider: backboneProviderName,
+            }, backbone);
+        }
+        default:
+            return new anthropic_1.AnthropicProvider({
+                apiKey: process.env.ANTHROPIC_API_KEY || "",
+            });
+    }
+}
+function createChannelAdapter(type) {
+    switch (type) {
+        case "cli":
+            return new cli_1.CLIChannel();
+        case "whatsapp":
+            return new whatsapp_1.WhatsAppChannel();
+        case "telegram":
+            return new telegram_1.TelegramChannel();
+        case "discord":
+            return new discord_1.DiscordChannel();
+        case "slack":
+            return new slack_1.SlackChannel();
+        case "web":
+            return new web_1.WebChannel();
+        default:
+            log.warn(`Unknown channel type: ${type}`);
+            return null;
+    }
+}
+main().catch((error) => {
+    console.error("Fatal error:", error);
+    process.exit(1);
+});
+//# sourceMappingURL=index.js.map
