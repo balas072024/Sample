@@ -5,8 +5,10 @@
 import * as fs from "fs";
 import * as path from "path";
 import type { ArivuClawConfig } from "../core/types.js";
+import { getSecurityPolicyForMode } from "../security/unrestricted.js";
 
 const DEFAULT_CONFIG: ArivuClawConfig = {
+  mode: "unrestricted",  // Default to unrestricted for local laptop use
   gateway: {
     host: "0.0.0.0",
     port: 3000,
@@ -28,6 +30,27 @@ const DEFAULT_CONFIG: ArivuClawConfig = {
     ollama: {
       baseUrl: "http://localhost:11434",
       defaultModel: "llama3.1",
+    },
+    minimax: {
+      apiKey: process.env.MINIMAX_API_KEY || "",
+      defaultModel: "MiniMax-Text-01",
+    },
+    deepseek: {
+      apiKey: process.env.DEEPSEEK_API_KEY || "",
+      defaultModel: "deepseek-chat",
+    },
+    groq: {
+      apiKey: process.env.GROQ_API_KEY || "",
+      defaultModel: "llama-3.3-70b-versatile",
+    },
+    "neural-brain": {
+      defaultModel: "neural-brain-hybrid",
+      options: {
+        neuralMode: "hybrid",
+        plasticityRate: 0.1,
+        associativeMemorySize: 100,
+        backboneProvider: "anthropic",
+      },
     },
     custom: {
       defaultModel: "",
@@ -80,18 +103,15 @@ const DEFAULT_CONFIG: ArivuClawConfig = {
     },
   },
   security: {
-    maxTokensPerTurn: 8192,
-    maxToolCallsPerTurn: 20,
+    maxTokensPerTurn: 100_000,
+    maxToolCallsPerTurn: 200,
     allowedDomains: [],
     blockedDomains: [],
     allowedPaths: [],
-    blockedPaths: ["/etc", "/root", "/var/log"],
-    sandboxEnabled: true,
-    requireApprovalFor: ["system.process", "system.env", "filesystem.write"],
-    rateLimits: [
-      { scope: "user", maxRequests: 30, windowMs: 60_000 },
-      { scope: "global", maxRequests: 100, windowMs: 60_000 },
-    ],
+    blockedPaths: [],
+    sandboxEnabled: false,
+    requireApprovalFor: [],
+    rateLimits: [],
   },
   skills: {
     directories: [
@@ -114,23 +134,34 @@ export function loadConfig(): ArivuClawConfig {
     path.join(process.env.HOME || "~", ".arivuclaw", "config.json"),
   ];
 
+  let config = DEFAULT_CONFIG;
+
   for (const configPath of configPaths) {
     if (fs.existsSync(configPath)) {
       try {
         const raw = fs.readFileSync(configPath, "utf-8");
         const userConfig = JSON.parse(raw) as Partial<ArivuClawConfig>;
-        return deepMerge(DEFAULT_CONFIG, userConfig) as ArivuClawConfig;
+        config = deepMerge(DEFAULT_CONFIG, userConfig) as ArivuClawConfig;
+        break;
       } catch (error) {
         console.warn(`Failed to load config from ${configPath}: ${error}`);
       }
     }
   }
 
-  // Load from environment variables
-  return applyEnvOverrides(DEFAULT_CONFIG);
+  // Apply environment overrides
+  config = applyEnvOverrides(config);
+
+  // Apply mode-based security policy
+  config.security = getSecurityPolicyForMode(config.mode, config.security);
+
+  return config;
 }
 
 function applyEnvOverrides(config: ArivuClawConfig): ArivuClawConfig {
+  if (process.env.ARIVUCLAW_MODE) {
+    config.mode = process.env.ARIVUCLAW_MODE as ArivuClawConfig["mode"];
+  }
   if (process.env.ARIVUCLAW_PROVIDER) {
     config.defaultProvider = process.env.ARIVUCLAW_PROVIDER as ArivuClawConfig["defaultProvider"];
   }

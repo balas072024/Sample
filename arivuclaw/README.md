@@ -1,10 +1,10 @@
 # 🦀 ArivuClaw
 
-**Your Intelligent AI Assistant. Secure. Composable. Multi-platform.**
+**Your Intelligent AI Assistant. Unrestricted. Composable. Multi-platform.**
 
 > *"Arivu" (அறிவு) means wisdom/knowledge in Tamil*
 
-ArivuClaw is an open-source AI agent framework that connects any LLM to your messaging platforms — WhatsApp, Telegram, Discord, Slack, and more. It's inspired by [OpenClaw](https://github.com/openclaw/openclaw) but rebuilt with security, composability, and developer experience as first-class priorities.
+ArivuClaw is an open-source AI agent framework that connects any LLM to your messaging platforms — WhatsApp, Telegram, Discord, Slack, and more. Inspired by [OpenClaw](https://github.com/openclaw/openclaw) but rebuilt with **unrestricted local access**, more skills, more providers, and better security architecture.
 
 ---
 
@@ -12,45 +12,45 @@ ArivuClaw is an open-source AI agent framework that connects any LLM to your mes
 
 | Feature | OpenClaw | ArivuClaw |
 |---------|----------|-----------|
-| **Security** | CVE-2026-25253 (gateway URL injection) | URL validation, sandboxed execution, path traversal prevention |
-| **Skill Composition** | Flat, isolated skills | Typed interfaces, dependency resolution, skill composition |
-| **Memory** | External plugin required | Built-in vector store with RAG, semantic search, and fact extraction |
-| **Prompt Injection** | Vulnerable | Built-in detection heuristics |
-| **Rate Limiting** | Basic | Per-user, per-channel, and global with configurable windows |
-| **Permission Model** | Broad permissions | Fine-grained RBAC (owner/admin/user/guest) with per-tool permissions |
-| **Hot Reload** | Skills watcher | Skills + config hot reload with dependency re-resolution |
-| **Memory Decay** | No | Automatic decay — old unused memories fade, frequently accessed ones persist |
-| **Fact Extraction** | No | Automatic extraction of user facts from conversations |
-| **Cross-Channel** | Shared sessions | Unified identity with cross-channel message routing |
-| **Local Models** | Via Ollama plugin | First-class Ollama support with auto-detection |
+| **Execution Mode** | Single mode | 3 modes: Unrestricted / Local-Admin / Restricted |
+| **System Access** | Limited | Full elevated access (sudo, services, packages) |
+| **LLM Providers** | 4-5 via plugins | 8 built-in: Anthropic, OpenAI, Ollama, MiniMax, DeepSeek, Groq, Google, Neural Brain |
+| **Skills** | 53 bundled | **37+ built-in** skills covering all OpenClaw tools + extras |
+| **Security** | CVE-2026-25253 | URL validation, sandboxed execution, prompt injection detection |
+| **Skill Composition** | Flat, isolated | Typed interfaces, dependency resolution, skill composition |
+| **Memory** | External plugin | Built-in RAG with vector search, fact extraction, memory decay |
+| **Neural Brain** | No | Bio-inspired neural processing layer with associative memory |
+| **Free Providers** | Ollama only | Ollama + Groq (free tier) + DeepSeek (free tier) |
+| **System Tools** | Via exec skill | Native clipboard, screenshot, TTS, OCR, notifications |
+| **Docker** | Via skill | Native Docker management with compose support |
+| **Cost** | Free + API | Free + API (more free provider options) |
 
 ## Architecture
 
 ```
-┌─────────────────────────────────────────────────────────┐
-│                     ArivuClaw Gateway                    │
-│                    (WebSocket Server)                     │
-├──────────┬──────────┬──────────┬──────────┬─────────────┤
-│ WhatsApp │ Telegram │ Discord  │  Slack   │  Web / CLI  │
-│ (Baileys)│ (grammY) │(discord.js│ (Bolt)  │ (WS+REST)   │
-└────┬─────┴────┬─────┴────┬─────┴────┬─────┴──────┬──────┘
-     │          │          │          │             │
-     └──────────┴──────────┴──────────┴─────────────┘
+┌──────────────────────────────────────────────────────────────┐
+│                      ArivuClaw Gateway                        │
+│              Mode: UNRESTRICTED / LOCAL-ADMIN / RESTRICTED     │
+├──────────┬──────────┬──────────┬──────────┬──────────────────┤
+│ WhatsApp │ Telegram │ Discord  │  Slack   │  Web / CLI       │
+│ (Baileys)│ (grammY) │(discord.js│ (Bolt)  │ (WS+REST)        │
+└────┬─────┴────┬─────┴────┬─────┴────┬─────┴──────────┬───────┘
+     └──────────┴──────────┴──────────┴────────────────┘
                            │
                     ┌──────┴──────┐
                     │ Agent Runtime│
                     │  (AI Loop)   │
                     └──────┬──────┘
                            │
-            ┌──────────────┼──────────────┐
-            │              │              │
-     ┌──────┴──────┐ ┌────┴────┐ ┌───────┴───────┐
-     │ Skill System │ │ Memory  │ │   Security    │
-     │ (Composable) │ │  (RAG)  │ │   (Sandbox)   │
-     └──────────────┘ └─────────┘ └───────────────┘
+      ┌────────────────────┼────────────────────┐
+      │                    │                    │
+┌─────┴──────┐   ┌────────┴────────┐   ┌──────┴──────┐
+│ 37+ Skills │   │ Memory (RAG)    │   │  8 Providers │
+│ Composable │   │ Vector + Facts  │   │  + Neural    │
+└────────────┘   └─────────────────┘   └─────────────┘
 ```
 
-## Quick Start
+## Quick Start (Local Laptop)
 
 ### Install
 
@@ -64,66 +64,188 @@ npm install -g arivuclaw
 arivuclaw onboard
 ```
 
-This interactive wizard will:
-1. Choose your AI provider (Anthropic, OpenAI, Ollama, Google)
-2. Configure your API key
-3. Select messaging channels
-4. Set security preferences
-5. Install starter skills
-
 ### Start Chatting
 
 ```bash
-# CLI chat mode
+# CLI chat mode (unrestricted by default)
 arivuclaw chat
 
 # Start all configured channels
 arivuclaw start
 
-# Check status
+# Check status (shows system info, providers, skills)
 arivuclaw status
+
+# List all installed skills
+arivuclaw skills list
 ```
 
-### Configuration
+## Execution Modes
 
-ArivuClaw looks for configuration in:
-1. `./arivuclaw.config.json` (project-level)
-2. `./.arivuclaw/config.json` (project-level)
-3. `~/.arivuclaw/config.json` (user-level)
+| Mode | Description | Use Case |
+|------|-------------|----------|
+| `unrestricted` | **No limits.** Full system access, no sandbox, no rate limits, sudo allowed | Your personal laptop |
+| `local-admin` | Elevated access with basic safety nets | Development machine |
+| `restricted` | Sandboxed, rate-limited, approval workflows | Shared/network deployment |
 
-Environment variables:
+Set via environment variable:
 ```bash
-ANTHROPIC_API_KEY=sk-ant-...     # Anthropic API key
-OPENAI_API_KEY=sk-...            # OpenAI API key
-TELEGRAM_BOT_TOKEN=...           # Telegram bot token
-DISCORD_BOT_TOKEN=...            # Discord bot token
-ARIVUCLAW_PROVIDER=anthropic     # Default provider
-ARIVUCLAW_MODEL=claude-sonnet-4-6  # Default model
-ARIVUCLAW_LOG_LEVEL=info         # Log level
+ARIVUCLAW_MODE=unrestricted  # Default
 ```
 
-## Skills
+In unrestricted mode, ArivuClaw can:
+- Install/remove packages (`apt`, `brew`, `pacman`, etc.)
+- Manage system services (`systemctl start/stop/restart`)
+- Full filesystem access (read/write/delete anywhere)
+- Run any shell command without restrictions
+- Docker container management
+- Access clipboard, take screenshots, play audio
+- Send desktop notifications
+- Control smart home devices
 
-ArivuClaw uses a composable skills system. Each skill is a directory with a `SKILL.md` file containing YAML frontmatter and instructions.
+## Supported Providers (8 built-in)
 
-### Built-in Skills
+| Provider | Models | Free Tier? | Local? |
+|----------|--------|------------|--------|
+| **Anthropic** | Claude Opus 4.6, Sonnet 4.6, Haiku 4.5 | No | No |
+| **OpenAI** | GPT-4o, o3, o4-mini | No | No |
+| **MiniMax** | MiniMax-Text-01, abab6.5s | Yes (limited) | No |
+| **DeepSeek** | deepseek-chat, deepseek-coder, deepseek-reasoner | Yes (generous) | No |
+| **Groq** | Llama 3.3 70B, Mixtral, Gemma | Yes (free) | No |
+| **Google** | Gemini 2.0 Flash/Pro | No | No |
+| **Ollama** | Llama 3, Mistral, Phi, Qwen, etc. | Yes (100% free) | Yes |
+| **Neural Brain** | Bio-inspired hybrid (any backbone) | Uses backbone | Hybrid |
 
+### Neural Brain Mode
+
+Experimental bio-inspired neural processing inspired by [Cortical Labs' DishBrain](https://robohorizon.com/en-gb/magazine/2026/03/cortical-labs-brain-llm/). Adds:
+- **Associative memory**: Learns from your interactions, recalls similar patterns
+- **Neural plasticity**: Adapts over time — frequently used patterns strengthen
+- **Memory decay**: Unused patterns fade naturally (like biological forgetting)
+- Works on top of any backbone provider (Anthropic, OpenAI, Ollama, etc.)
+
+```bash
+ARIVUCLAW_PROVIDER=custom  # Activates Neural Brain
+```
+
+## Built-in Skills (37+)
+
+All matching OpenClaw's 25 tools + 53 skills, and more:
+
+### Core Tools (matching OpenClaw's 25 built-in tools)
+| Skill | OpenClaw Equivalent | Description |
+|-------|-------------------|-------------|
+| `file-ops` | read, write, list, search | Full filesystem CRUD + glob search |
+| `code-exec` | exec, python, node | Shell commands + script execution |
+| `web-browse` | web_search, web_fetch, web_screenshot | Search, fetch, and analyze web |
+| `browser-automation` | browser | Puppeteer/Playwright automation |
+| `scheduler` | schedule, heartbeat | Reminders, cron jobs, intervals |
+| `email-send` | email | Send/read emails (Gmail, SMTP) |
+| `slack-integration` | slack | Full Slack: channels, threads |
+| `discord` | discord | (built into channel adapter) |
+| `github-integration` | github | Repos, PRs, issues, actions |
+| `jira-integration` | jira | Issues, sprints, boards |
+| `database` | database | SQLite, Postgres, MySQL, Mongo, Redis |
+| `calculator` | calculator | Math, formulas, conversions |
+| `date-time` | date_time | Timezones, countdowns, formatting |
+| `image-lab` | image_gen | AI image generation (DALL-E, SD, local) |
+| `pdf-tools` | pdf | Create, read, merge, split, convert |
+| `zip-archive` | zip | Compress/extract (zip, tar, gzip, 7z) |
+| `context-manager` | memory, context | Conversation + memory management |
+| `heartbeat-monitor` | heartbeat | Background health monitoring |
+
+### Developer Skills (matching OpenClaw's community skills)
 | Skill | Description |
 |-------|-------------|
-| `web-browse` | Fetch and search web content |
-| `file-ops` | Read, write, and search files |
-| `code-exec` | Execute code and shell commands |
-| `scheduler` | Set reminders and recurring tasks |
-| `summarize` | Summarize text, URLs, and documents |
+| `code-review` | Analyze code quality, bugs, security |
+| `debug-assistant` | Debug errors, stack traces |
+| `test-generator` | Auto-generate unit/integration tests |
+| `refactor-assistant` | Code improvements, modernization |
+| `git-ops` | Full Git: clone, commit, push, branch, merge |
+| `docker-ops` | Docker containers, images, compose |
+| `api-builder` | Build, test, mock REST APIs |
+| `api-monitor` | Monitor API health, uptime |
+| `error-tracker` | Track/analyze application errors |
+| `deployment-watcher` | Monitor CI/CD deployments |
 
-### Creating a Custom Skill
+### Productivity Skills
+| Skill | Description |
+|-------|-------------|
+| `meeting-summary` | Summarize meetings, extract action items |
+| `task-manager` | Todo lists, task tracking |
+| `note-taking` | Personal knowledge base with search |
+| `obsidian-notes` | Obsidian vault integration |
+| `google-workspace` | Gmail, Calendar, Drive, Docs, Sheets |
+| `summarize` | Summarize text, URLs, documents |
+| `translate` | 100+ languages translation |
+| `blog-writer` | Write blog posts, articles |
+| `video-script` | Write video scripts, YouTube content |
+| `news-digest` | Personalized news from RSS/APIs |
+
+### System & Utility Skills
+| Skill | Description |
+|-------|-------------|
+| `system-info` | Hardware info, process mgmt, packages, services |
+| `clipboard` | Read/write system clipboard |
+| `screenshot` | Capture screen, windows, regions |
+| `audio-tts` | Text-to-speech, speech-to-text, audio conversion |
+| `ocr` | Extract text from images (Tesseract) |
+| `image-tools` | Resize, crop, convert, compress images |
+| `password-gen` | Secure password & passphrase generation |
+| `home-automation` | Home Assistant, MQTT smart home control |
+| `whisper-stt` | OpenAI Whisper speech-to-text |
+| `social-media` | Post to Twitter/X, LinkedIn, Instagram |
+| `crypto-wallet` | Crypto prices, portfolio, alerts |
+
+## Configuration
+
+### Environment Variables
+```bash
+# Mode
+ARIVUCLAW_MODE=unrestricted
+
+# Provider (pick one)
+ARIVUCLAW_PROVIDER=anthropic    # or openai, ollama, minimax, deepseek, groq, custom
+ARIVUCLAW_MODEL=claude-sonnet-4-6
+
+# API Keys
+ANTHROPIC_API_KEY=sk-ant-...
+OPENAI_API_KEY=sk-...
+MINIMAX_API_KEY=...
+DEEPSEEK_API_KEY=...
+GROQ_API_KEY=...              # Free at console.groq.com
+GOOGLE_API_KEY=...
+
+# Channels
+TELEGRAM_BOT_TOKEN=...
+DISCORD_BOT_TOKEN=...
+```
+
+### Free Setup (Zero Cost)
+
+For a completely free ArivuClaw setup:
+
+```bash
+# 1. Install Ollama (free, local, private)
+curl -fsSL https://ollama.com/install.sh | sh
+ollama pull llama3.1
+
+# 2. Set ArivuClaw to use Ollama
+export ARIVUCLAW_PROVIDER=ollama
+export ARIVUCLAW_MODEL=llama3.1
+
+# 3. Or use Groq (free tier, cloud-fast)
+export ARIVUCLAW_PROVIDER=groq
+export GROQ_API_KEY=your-free-key-from-console.groq.com
+```
+
+## Creating Custom Skills
 
 ```
 my-skill/
   SKILL.md
 ```
 
-**SKILL.md:**
 ```yaml
 ---
 name: my-skill
@@ -134,15 +256,12 @@ permissions:
 tools:
   - name: my_tool
     description: Does something useful
-    permissions:
-      - network.http
+    permissions: [network.http]
     inputSchema:
       type: object
       properties:
-        input:
-          type: string
-      required:
-        - input
+        input: { type: string }
+      required: [input]
 triggers:
   - type: keyword
     pattern: "my-trigger"
@@ -150,66 +269,21 @@ triggers:
 dependencies:
   - skill: web-browse
     version: "1.0.0"
-provides:
-  - name: MyInterface
-    version: "1.0"
-    methods:
-      - name: doSomething
-        description: Does the thing
-        inputSchema: {}
-        outputSchema: {}
 ---
 
-# My Skill
-
-Instructions for the AI on how to use this skill.
+# My Skill Instructions
+Tell the AI how to use this skill here.
 ```
-
-### Skill Directories (Precedence)
-
-1. `./skills/` — Workspace skills (highest priority)
-2. `~/.arivuclaw/skills/` — User skills
-3. Built-in skills (lowest priority)
-
-## Security
-
-ArivuClaw takes security seriously:
-
-- **Sandboxed Execution**: All tool calls run in isolated contexts with declared permissions
-- **URL Validation**: Gateway URLs are validated to prevent token theft (fixes OpenClaw's CVE-2026-25253)
-- **Path Traversal Prevention**: File operations are restricted to allowed paths
-- **Prompt Injection Detection**: Heuristic detection of injection attempts
-- **Rate Limiting**: Per-user, per-channel, and global rate limits
-- **RBAC**: Role-based access control (owner/admin/user/guest)
-- **Memory Isolation**: Per-user memory with no cross-user leakage
-
-## Supported Providers
-
-| Provider | Models | Local? |
-|----------|--------|--------|
-| Anthropic | Claude Opus, Sonnet, Haiku | No |
-| OpenAI | GPT-4o, o3, o4-mini | No |
-| Ollama | Llama 3, Mistral, Phi, etc. | Yes |
-| Google | Gemini 2.0 Flash/Pro | No |
 
 ## Development
 
 ```bash
-# Clone
-git clone https://github.com/arivuclaw/arivuclaw.git
+git clone <your-repo-url>
 cd arivuclaw
-
-# Install dependencies
 npm install
-
-# Run in dev mode
-npm run dev
-
-# Run tests
-npm test
-
-# Build
-npm run build
+npm run dev      # Dev mode
+npm test         # Run tests
+npm run build    # Production build
 ```
 
 ## Project Structure
@@ -217,18 +291,19 @@ npm run build
 ```
 arivuclaw/
 ├── src/
-│   ├── core/           # Gateway, Agent Runtime, Types
-│   ├── channels/       # Channel adapters (WhatsApp, Telegram, etc.)
-│   ├── skills/         # Skill registry and loader
-│   ├── memory/         # Vector memory store with RAG
-│   ├── security/       # Security guard and sandbox
-│   ├── plugins/        # Provider plugins (Anthropic, OpenAI, Ollama)
-│   ├── cli/            # CLI entry point and config
-│   └── utils/          # Logger and utilities
-├── skills/             # Built-in skills
-├── tests/              # Unit and integration tests
-├── config/             # Configuration templates
-└── docs/               # Documentation
+│   ├── core/              # Gateway, Agent Runtime, Types
+│   ├── channels/          # 6 channel adapters
+│   ├── skills/            # Skill registry & loader
+│   ├── memory/            # Vector memory with RAG
+│   ├── security/          # Guard, Sandbox, Unrestricted mode
+│   ├── plugins/providers/ # 8 LLM providers
+│   ├── tools/             # System tools (clipboard, screenshot, etc.)
+│   ├── cli/               # CLI, config, onboarding
+│   └── utils/             # Logger
+├── skills/                # 37+ built-in skills
+├── tests/                 # Unit & integration tests
+├── config/                # Configuration templates
+└── docs/                  # Documentation
 ```
 
 ## License
@@ -237,5 +312,11 @@ MIT
 
 ## Credits
 
-Inspired by [OpenClaw](https://github.com/openclaw/openclaw) by Peter Steinberger.
-Built with wisdom (Arivu) and a focus on security, composability, and developer experience.
+Inspired by [OpenClaw](https://github.com/openclaw/openclaw) by Peter Steinberger. Neural Brain concept inspired by [Cortical Labs' DishBrain](https://robohorizon.com/en-gb/magazine/2026/03/cortical-labs-brain-llm/).
+
+Sources:
+- [OpenClaw GitHub](https://github.com/openclaw/openclaw)
+- [OpenClaw Tools & Skills Guide](https://dev.to/roobia/what-are-openclaw-tools-and-skills-complete-guide-25-tools-53-skills-39o2)
+- [OpenClaw Architecture](https://ppaolo.substack.com/p/openclaw-system-architecture-overview)
+- [Awesome OpenClaw Skills](https://github.com/VoltAgent/awesome-openclaw-skills)
+- [Cortical Labs Brain-LLM](https://robohorizon.com/en-gb/magazine/2026/03/cortical-labs-brain-llm/)

@@ -20,12 +20,17 @@ import { VectorMemoryStore } from "../memory/vector-store.js";
 import { AnthropicProvider } from "../plugins/providers/anthropic.js";
 import { OpenAIProvider } from "../plugins/providers/openai.js";
 import { OllamaProvider } from "../plugins/providers/ollama.js";
+import { MiniMaxProvider } from "../plugins/providers/minimax.js";
+import { DeepSeekProvider } from "../plugins/providers/deepseek.js";
+import { GroqProvider } from "../plugins/providers/groq.js";
+import { NeuralBrainProvider } from "../plugins/providers/neural-brain.js";
 import { CLIChannel } from "../channels/cli.js";
 import { WhatsAppChannel } from "../channels/whatsapp.js";
 import { TelegramChannel } from "../channels/telegram.js";
 import { DiscordChannel } from "../channels/discord.js";
 import { SlackChannel } from "../channels/slack.js";
 import { WebChannel } from "../channels/web.js";
+import { SystemTools } from "../tools/system-tools.js";
 import { loadConfig } from "./config.js";
 import { Logger } from "../utils/logger.js";
 import type { ArivuClawConfig, LLMProvider } from "../core/types.js";
@@ -191,12 +196,42 @@ async function handleSkills(args: string[]): Promise<void> {
 
 function showStatus(): void {
   const config = loadConfig();
-  console.log("\nArivuClaw Status:");
-  console.log(`  Provider: ${config.defaultProvider}`);
-  console.log(`  Model: ${config.defaultModel}`);
-  console.log(`  Channels: ${config.channels.filter((c) => c.enabled).map((c) => c.type).join(", ")}`);
+  const sysInfo = SystemTools.getFullSystemInfo();
+
+  console.log("\n🦀 ArivuClaw Status\n");
+  console.log(`  Mode:       ${config.mode.toUpperCase()}`);
+  console.log(`  Provider:   ${config.defaultProvider}`);
+  console.log(`  Model:      ${config.defaultModel}`);
+  console.log(`  Channels:   ${config.channels.filter((c) => c.enabled).map((c) => c.type).join(", ")}`);
   console.log(`  Skill dirs: ${config.skills.directories.join(", ")}`);
-  console.log(`  Security: sandbox=${config.security.sandboxEnabled}`);
+  console.log(`  Sandbox:    ${config.security.sandboxEnabled ? "ON" : "OFF"}`);
+  console.log(`  Rate limit: ${config.security.rateLimits.length > 0 ? "ON" : "OFF (unrestricted)"}`);
+  console.log("\n  System:");
+  console.log(`    Host:     ${sysInfo.hostname}`);
+  console.log(`    OS:       ${sysInfo.platform} ${sysInfo.arch}`);
+  console.log(`    CPU:      ${sysInfo.cpus} cores — ${sysInfo.cpuModel}`);
+  console.log(`    Memory:   ${sysInfo.freeMemory} free / ${sysInfo.totalMemory} total`);
+  console.log(`    User:     ${sysInfo.user}`);
+  console.log(`    Node:     ${sysInfo.node || "N/A"}`);
+  console.log(`    Docker:   ${SystemTools.dockerAvailable() ? "available" : "not installed"}`);
+
+  // List available providers
+  console.log("\n  Available Providers:");
+  const providers = [
+    { name: "anthropic", env: "ANTHROPIC_API_KEY" },
+    { name: "openai", env: "OPENAI_API_KEY" },
+    { name: "minimax", env: "MINIMAX_API_KEY" },
+    { name: "deepseek", env: "DEEPSEEK_API_KEY" },
+    { name: "groq", env: "GROQ_API_KEY" },
+    { name: "google", env: "GOOGLE_API_KEY" },
+    { name: "ollama", env: null },
+    { name: "neural-brain", env: null },
+  ];
+  for (const p of providers) {
+    const active = p.name === config.defaultProvider ? " (active)" : "";
+    const configured = p.env ? (process.env[p.env] ? "✓ configured" : "✗ no key") : "✓ local";
+    console.log(`    ${p.name}: ${configured}${active}`);
+  }
 }
 
 function showHelp(): void {
@@ -241,6 +276,53 @@ function createProvider(config: ArivuClawConfig): LLMProvider {
       return new OllamaProvider({
         baseUrl: providerConfig?.baseUrl,
       });
+    case "minimax":
+      return new MiniMaxProvider({
+        apiKey: providerConfig?.apiKey || process.env.MINIMAX_API_KEY || "",
+        groupId: (providerConfig?.options as Record<string, string>)?.groupId,
+        baseUrl: providerConfig?.baseUrl,
+      });
+    case "deepseek":
+      return new DeepSeekProvider({
+        apiKey: providerConfig?.apiKey || process.env.DEEPSEEK_API_KEY || "",
+        baseUrl: providerConfig?.baseUrl,
+      });
+    case "groq":
+      return new GroqProvider({
+        apiKey: providerConfig?.apiKey || process.env.GROQ_API_KEY || "",
+        baseUrl: providerConfig?.baseUrl,
+      });
+    case "custom": {
+      // Neural Brain mode
+      const opts = (providerConfig?.options || {}) as Record<string, unknown>;
+      const backboneProviderName = (opts.backboneProvider as string) || "anthropic";
+
+      // Create the backbone provider
+      const backboneConfig = config.providers[backboneProviderName];
+      let backbone: LLMProvider;
+      switch (backboneProviderName) {
+        case "openai":
+          backbone = new OpenAIProvider({ apiKey: backboneConfig?.apiKey || process.env.OPENAI_API_KEY || "" });
+          break;
+        case "ollama":
+          backbone = new OllamaProvider({ baseUrl: backboneConfig?.baseUrl });
+          break;
+        default:
+          backbone = new AnthropicProvider({ apiKey: backboneConfig?.apiKey || process.env.ANTHROPIC_API_KEY || "" });
+      }
+
+      return new NeuralBrainProvider(
+        {
+          apiKey: providerConfig?.apiKey,
+          baseUrl: providerConfig?.baseUrl,
+          neuralMode: (opts.neuralMode as "simulate" | "cortical-api" | "hybrid") || "hybrid",
+          plasticityRate: (opts.plasticityRate as number) || 0.1,
+          associativeMemorySize: (opts.associativeMemorySize as number) || 100,
+          backboneProvider: backboneProviderName,
+        },
+        backbone,
+      );
+    }
     default:
       return new AnthropicProvider({
         apiKey: process.env.ANTHROPIC_API_KEY || "",

@@ -113,7 +113,7 @@ export interface IncomingMessage {
 
 // ─── LLM Providers ──────────────────────────────────────────────────
 
-export type ProviderType = "anthropic" | "openai" | "google" | "ollama" | "custom";
+export type ProviderType = "anthropic" | "openai" | "google" | "ollama" | "minimax" | "deepseek" | "groq" | "custom";
 
 export interface LLMProvider {
   readonly type: ProviderType;
@@ -188,18 +188,37 @@ export interface ToolResult {
 export type ToolPermission =
   | "filesystem.read"
   | "filesystem.write"
+  | "filesystem.delete"
   | "network.http"
   | "network.websocket"
+  | "network.tcp"
   | "browser.navigate"
   | "browser.interact"
   | "code.execute"
   | "system.process"
   | "system.env"
+  | "system.admin"
+  | "system.clipboard"
+  | "system.screenshot"
+  | "system.audio"
+  | "system.notifications"
   | "channel.send"
   | "memory.read"
   | "memory.write"
   | "schedule.create"
-  | "schedule.delete";
+  | "schedule.delete"
+  | "docker.manage"
+  | "git.ops"
+  | "database.query"
+  | "email.send"
+  | "image.process"
+  | "pdf.process"
+  | "translate.text"
+  | "ocr.extract"
+  | "tts.speak"
+  | "unrestricted";
+
+export type ExecutionMode = "restricted" | "unrestricted" | "local-admin";
 
 export interface SkillManifest {
   name: string;
@@ -328,12 +347,13 @@ export interface SandboxContext {
 // ─── Configuration ───────────────────────────────────────────────────
 
 export interface ArivuClawConfig {
+  mode: ExecutionMode;
   gateway: {
     host: string;
     port: number;
     corsOrigins: string[];
   };
-  providers: Record<ProviderType, ProviderConfig>;
+  providers: Record<string, ProviderConfig>;
   defaultProvider: ProviderType;
   defaultModel: string;
   channels: ChannelConfig[];
