@@ -281,11 +281,20 @@ async function startGateway(): Promise<void> {
     const http = require("http");
     const PROXY_PORT = 5013;
     const ROUTES: Record<string, number> = {
-      "chat.arivumaiyam.com": 3000,    // Web channel
-      "dash.arivumaiyam.com": dashPort, // Dashboard
-      "api.arivumaiyam.com": dashPort,  // API endpoints
+      // Arivumaiyam AI services
+      "chat.arivumaiyam.com": 3000,           // Web chat channel
+      "dash.arivumaiyam.com": dashPort,       // Dashboard
+      "api.arivumaiyam.com": dashPort,        // API endpoints
+      "arivumaiyam.com": dashPort,            // Main site → dashboard
+      // Other published applications (update ports as needed)
+      "family.arivumaiyam.com": 5100,         // Family app
+      "neuralbrain.arivumaiyam.com": 5200,    // Neural Brain
+      "kaasai.arivumaiyam.com": 5300,         // KaasAI
+      "valluvan.arivumaiyam.com": 5400,       // Valluvan
+      "opsshiftpro.arivumaiyam.com": 5500,    // OpsShiftPro
+      "opswatch.arivumaiyam.com": 5600,       // OpsWatch
     };
-    // Default fallback for arivumaiyam.com or unknown subdomains
+    // Default fallback for unknown subdomains → web chat
     const DEFAULT_TARGET = 3000;
 
     const proxy = http.createServer((req: any, res: any) => {
@@ -345,10 +354,11 @@ async function startGateway(): Promise<void> {
 
     proxy.listen(PROXY_PORT, () => {
       log.info(`Cloudflare reverse proxy listening on port ${PROXY_PORT}`);
-      console.log(`  🌐 Proxy:     http://localhost:${PROXY_PORT} → routing by subdomain`);
-      console.log(`    chat.arivumaiyam.com → localhost:3000 (Web Chat)`);
-      console.log(`    dash.arivumaiyam.com → localhost:${dashPort} (Dashboard)`);
-      console.log(`    api.arivumaiyam.com  → localhost:${dashPort} (API)\n`);
+      console.log(`\n  🌐 Cloudflare Proxy on :${PROXY_PORT} — Subdomain Routing:`);
+      for (const [domain, port] of Object.entries(ROUTES)) {
+        console.log(`    ${domain.padEnd(35)} → localhost:${port}`);
+      }
+      console.log(`    ${"(default)".padEnd(35)} → localhost:${DEFAULT_TARGET}\n`);
     });
   } catch (err) {
     log.warn(`Reverse proxy failed to start: ${err}`);
