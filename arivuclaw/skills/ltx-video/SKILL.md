@@ -2,7 +2,7 @@
 name: ltx-video
 version: 1.0.0
 description: "LTX-Video (Lightricks) — fastest open-source video generator. Produces 30fps video faster than real-time. Runs on 12GB VRAM."
-author: ArivuClaw
+author: Arivumaiyam AI
 tags:
   - ltx
   - video
@@ -82,7 +82,7 @@ triggers:
 
 # LTX Video
 
-LTX-Video (Lightricks) video generation skill for ArivuClaw. The fastest open-source video generator, producing 30fps video faster than real-time on 12GB VRAM.
+LTX-Video (Lightricks) video generation skill for Arivumaiyam AI. The fastest open-source video generator, producing 30fps video faster than real-time on 12GB VRAM.
 
 ## Usage
 

@@ -2,7 +2,7 @@
 name: system-info
 version: "1.0.0"
 description: System information, process management, package installation, service control.
-author: ArivuClaw
+author: Arivumaiyam AI
 tags:
   - system
   - process

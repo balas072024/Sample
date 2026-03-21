@@ -2,7 +2,7 @@
 name: cosyvoice-tts
 version: "1.0.0"
 description: "CosyVoice2 — ultra-low latency streaming TTS. 150ms latency, real-time speech synthesis, voice cloning."
-author: ArivuClaw
+author: Arivumaiyam AI
 tags:
   - cosyvoice
   - tts

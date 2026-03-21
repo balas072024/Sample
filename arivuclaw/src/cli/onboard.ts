@@ -1,5 +1,5 @@
 /**
- * ArivuClaw Onboarding Wizard — Interactive first-time setup.
+ * Arivumaiyam AI Onboarding Wizard — Interactive first-time setup.
  */
 
 import * as fs from "fs";
@@ -27,7 +27,7 @@ export async function runOnboardWizard(): Promise<void> {
 
   console.log(`
 ╔═══════════════════════════════════════════════════════╗
-║           🦀 ArivuClaw Setup Wizard                  ║
+║           🦀 Arivumaiyam AI Setup Wizard                  ║
 ║   Let's configure your intelligent AI assistant!     ║
 ╚═══════════════════════════════════════════════════════╝
 `);
@@ -89,7 +89,7 @@ export async function runOnboardWizard(): Promise<void> {
     fs.writeFileSync(configPath, JSON.stringify(config, null, 2));
 
     console.log(`\n✅ Configuration saved to ${configPath}`);
-    console.log("\n🚀 Start ArivuClaw with:");
+    console.log("\n🚀 Start Arivumaiyam AI with:");
     console.log("   arivuclaw        — Start all channels");
     console.log("   arivuclaw chat   — CLI chat mode\n");
   } finally {

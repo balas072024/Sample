@@ -2,7 +2,7 @@
 name: musicgen-audio
 version: "1.0.0"
 description: "Meta AudioCraft — MusicGen + AudioGen for music and sound generation from text. Generate full songs, background music, and sound effects."
-author: ArivuClaw
+author: Arivumaiyam AI
 tags:
   - musicgen
   - audiocraft

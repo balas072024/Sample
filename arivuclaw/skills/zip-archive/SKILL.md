@@ -2,7 +2,7 @@
 name: zip-archive
 version: "1.0.0"
 description: Archive management for creating, extracting, and listing contents of zip, tar, gzip, and 7z archives.
-author: ArivuClaw
+author: Arivumaiyam AI
 tags: [archive, zip, tar, gzip, compression, extract]
 permissions: [filesystem.read, filesystem.write]
 tools:

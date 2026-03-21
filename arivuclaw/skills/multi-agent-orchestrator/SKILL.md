@@ -4,7 +4,7 @@ version: "1.0.0"
 description: >
   Orchestrate multiple AI agents working in parallel on different aspects of a task.
   Agent-to-agent communication, task delegation, result aggregation.
-author: ArivuClaw
+author: Arivumaiyam AI
 tags:
   - multi-agent
   - orchestrator
@@ -153,7 +153,7 @@ triggers:
 
 # Multi-Agent Orchestrator
 
-The **multi-agent-orchestrator** skill enables ArivuClaw to spawn, coordinate, and manage multiple AI agents working together on complex tasks.
+The **multi-agent-orchestrator** skill enables Arivumaiyam AI to spawn, coordinate, and manage multiple AI agents working together on complex tasks.
 
 ## How It Works
 

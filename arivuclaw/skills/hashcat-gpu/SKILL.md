@@ -2,7 +2,7 @@
 name: hashcat-gpu
 version: "1.0.0"
 description: "GPU-accelerated password cracking with Hashcat. World's fastest password recovery."
-author: ArivuClaw
+author: Arivumaiyam AI
 tags:
   - hashcat
   - gpu

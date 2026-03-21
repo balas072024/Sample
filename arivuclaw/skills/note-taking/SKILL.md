@@ -2,7 +2,7 @@
 name: note-taking
 version: "1.0.0"
 description: Create, search, tag, and manage personal notes and knowledge base.
-author: ArivuClaw
+author: Arivumaiyam AI
 tags: [notes, knowledge, wiki, markdown]
 permissions: [filesystem.read, filesystem.write, memory.read, memory.write]
 tools:

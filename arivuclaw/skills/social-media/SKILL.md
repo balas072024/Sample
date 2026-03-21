@@ -2,7 +2,7 @@
 name: social-media
 version: "1.0.0"
 description: Create, schedule, and manage social media posts across Twitter/X, LinkedIn, Instagram, etc.
-author: ArivuClaw
+author: Arivumaiyam AI
 tags: [social, twitter, linkedin, instagram, content]
 permissions: [network.http, channel.send]
 tools:

@@ -1,11 +1,11 @@
 /**
- * ArivuClaw MCP Server — Model Context Protocol implementation.
+ * Arivumaiyam AI MCP Server — Model Context Protocol implementation.
  *
  * MCP is THE standard for 2026 AI agent tool integration.
- * This enables ArivuClaw to:
- * 1. Expose its tools as an MCP server (other agents can use ArivuClaw's tools)
+ * This enables Arivumaiyam AI to:
+ * 1. Expose its tools as an MCP server (other agents can use Arivumaiyam AI's tools)
  * 2. Connect to external MCP servers (use 13,000+ ClawHub/community tools)
- * 3. Bridge between MCP and ArivuClaw's native skill system
+ * 3. Bridge between MCP and Arivumaiyam AI's native skill system
  */
 
 import { EventEmitter } from "eventemitter3";
@@ -63,7 +63,7 @@ export interface MCPResponse {
   error?: { code: number; message: string; data?: unknown };
 }
 
-// ─── MCP Server (expose ArivuClaw tools to other agents) ──────────
+// ─── MCP Server (expose Arivumaiyam AI tools to other agents) ──────────
 
 export class MCPServer extends EventEmitter {
   private tools = new Map<string, MCPTool>();
@@ -238,7 +238,7 @@ export class MCPClient {
   }
 }
 
-// ─── MCP Bridge (convert between MCP and ArivuClaw native tools) ──
+// ─── MCP Bridge (convert between MCP and Arivumaiyam AI native tools) ──
 
 export class MCPBridge {
   constructor(
@@ -247,7 +247,7 @@ export class MCPBridge {
   ) {}
 
   /**
-   * Register ArivuClaw native tools as MCP tools.
+   * Register Arivumaiyam AI native tools as MCP tools.
    */
   exposeNativeTools(tools: ToolDefinition[], executor: (call: ToolCall) => Promise<ToolResult>): void {
     for (const tool of tools) {

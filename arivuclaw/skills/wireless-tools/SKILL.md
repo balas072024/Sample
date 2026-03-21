@@ -2,7 +2,7 @@
 name: wireless-tools
 version: "1.0.0"
 description: "Extended wireless testing — Reaver WPS attacks, Pixie Dust, Kismet, WiFite automated attacks."
-author: ArivuClaw
+author: Arivumaiyam AI
 tags:
   - wireless
   - wps

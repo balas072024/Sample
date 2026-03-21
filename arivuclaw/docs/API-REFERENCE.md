@@ -1,4 +1,4 @@
-# ArivuClaw — API Reference
+# Arivumaiyam AI — API Reference
 
 > All classes are TypeScript. Types are defined in `src/core/types.ts` unless noted.
 

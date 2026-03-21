@@ -1,5 +1,5 @@
 /**
- * ArivuClaw MiniMax Provider — MiniMax AI model integration.
+ * Arivumaiyam AI MiniMax Provider — MiniMax AI model integration.
  *
  * MiniMax offers free-tier access and competitive models.
  * API: https://api.minimax.chat
@@ -42,12 +42,12 @@ export class MiniMaxProvider implements LLMProvider {
     const messages = [
       {
         sender_type: "BOT",
-        sender_name: "ArivuClaw",
+        sender_name: "Arivumaiyam AI",
         text: request.systemPrompt,
       },
       ...request.messages.map((m) => ({
         sender_type: m.role === "user" ? "USER" : "BOT",
-        sender_name: m.role === "user" ? "User" : "ArivuClaw",
+        sender_name: m.role === "user" ? "User" : "Arivumaiyam AI",
         text: typeof m.content === "string" ? m.content : JSON.stringify(m.content),
       })),
     ];
@@ -60,7 +60,7 @@ export class MiniMaxProvider implements LLMProvider {
       prompt: request.systemPrompt,
       role_meta: {
         user_name: "User",
-        bot_name: "ArivuClaw",
+        bot_name: "Arivumaiyam AI",
       },
     };
 

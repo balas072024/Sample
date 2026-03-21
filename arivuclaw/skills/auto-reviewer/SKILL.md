@@ -4,7 +4,7 @@ version: "1.0.0"
 description: >
   Autonomous code review AI — review PRs, enforce standards, detect anti-patterns,
   security issues, suggest improvements with auto-fix.
-author: ArivuClaw
+author: Arivumaiyam AI
 tags:
   - review
   - code-quality
@@ -142,7 +142,7 @@ triggers:
 
 # auto-reviewer
 
-Autonomous code review AI skill for ArivuClaw. Review pull requests, enforce
+Autonomous code review AI skill for Arivumaiyam AI. Review pull requests, enforce
 coding standards, detect anti-patterns and security issues, and suggest
 improvements with auto-fix capabilities.
 

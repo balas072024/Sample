@@ -4,7 +4,7 @@ version: "1.0.0"
 description: >
   AI software architect — design system architectures, generate diagrams,
   create project structures, recommend tech stacks, produce design docs.
-author: ArivuClaw
+author: Arivumaiyam AI
 tags:
   - architecture
   - design
@@ -173,7 +173,7 @@ triggers:
 
 # auto-architect
 
-AI software architect skill for ArivuClaw. Design system architectures, generate
+AI software architect skill for Arivumaiyam AI. Design system architectures, generate
 diagrams, scaffold projects, recommend tech stacks, and review existing designs.
 
 ## Usage

@@ -2,7 +2,7 @@
 name: pivoting-tools
 version: "1.0.0"
 description: "Network pivoting and proxying — proxychains, SOCKS proxies, Ligolo-ng, double pivoting."
-author: ArivuClaw
+author: Arivumaiyam AI
 tags:
   - pivoting
   - proxy

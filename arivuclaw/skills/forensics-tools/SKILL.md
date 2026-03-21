@@ -2,7 +2,7 @@
 name: forensics-tools
 version: "1.0.0"
 description: "Digital forensics toolkit — disk imaging, file recovery, timeline analysis, evidence collection."
-author: ArivuClaw
+author: Arivumaiyam AI
 tags:
   - forensics
   - disk

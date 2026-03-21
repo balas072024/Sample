@@ -1,5 +1,5 @@
 /**
- * ArivuClaw Unrestricted Mode — Full system access for local laptop use.
+ * Arivumaiyam AI Unrestricted Mode — Full system access for local laptop use.
  *
  * When mode is "unrestricted" or "local-admin":
  * - All tool permissions are granted automatically

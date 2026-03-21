@@ -2,7 +2,7 @@
 name: audio-editor
 version: "1.0.0"
 description: "Audio editing toolkit — trim, merge, convert, normalize, split, extract from video, using ffmpeg and sox."
-author: ArivuClaw
+author: Arivumaiyam AI
 tags:
   - audio
   - edit

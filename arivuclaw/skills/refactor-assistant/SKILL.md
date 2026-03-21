@@ -2,7 +2,7 @@
 name: refactor-assistant
 version: 1.0.0
 description: Recommends and applies code improvements including modernization, pattern upgrades, and structural refactoring.
-author: ArivuClaw
+author: Arivumaiyam AI
 tags:
   - development
   - refactoring

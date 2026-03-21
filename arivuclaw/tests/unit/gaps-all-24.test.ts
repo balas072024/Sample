@@ -231,9 +231,9 @@ describe("Gap Tests: All 24 Modules", () => {
     it("translates to multiple languages", () => {
       const { I18n } = require("../../src/i18n/locales");
       const i18n = new I18n();
-      expect(i18n.t("welcome")).toContain("ArivuClaw");
-      expect(i18n.t("welcome", "ta")).toContain("அறிவுக்ளா");
-      expect(i18n.t("welcome", "ja")).toContain("ArivuClaw");
+      expect(i18n.t("welcome")).toContain("Arivumaiyam AI");
+      expect(i18n.t("welcome", "ta")).toContain("அறிவுமையம்");
+      expect(i18n.t("welcome", "ja")).toContain("Arivumaiyam AI");
       expect(i18n.t("goodbye", "es")).toBe("¡Adiós!");
       expect(i18n.getSupportedLocales().length).toBeGreaterThanOrEqual(10);
     });

@@ -2,7 +2,7 @@
 name: error-tracker
 version: 1.0.0
 description: Tracks and analyzes application errors and logs. Detects patterns, groups similar errors, and provides resolution suggestions.
-author: ArivuClaw
+author: Arivumaiyam AI
 tags:
   - devops
   - monitoring

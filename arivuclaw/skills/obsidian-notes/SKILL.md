@@ -2,7 +2,7 @@
 name: obsidian-notes
 version: "1.0.0"
 description: Obsidian vault integration for creating and searching notes, managing wikilinks, backlinks, and graph views.
-author: ArivuClaw
+author: Arivumaiyam AI
 tags: [obsidian, notes, markdown, knowledge-base, wikilinks]
 permissions: [filesystem.read, filesystem.write]
 tools:

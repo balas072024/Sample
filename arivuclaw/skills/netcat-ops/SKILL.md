@@ -2,7 +2,7 @@
 name: netcat-ops
 version: "1.0.0"
 description: "Netcat/Ncat — the Swiss Army knife of networking. Port scanning, file transfer, reverse shells, port forwarding."
-author: ArivuClaw
+author: Arivumaiyam AI
 tags:
   - netcat
   - nc

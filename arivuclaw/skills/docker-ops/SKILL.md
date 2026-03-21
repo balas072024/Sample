@@ -2,7 +2,7 @@
 name: docker-ops
 version: "1.0.0"
 description: Manage Docker containers, images, volumes, and docker-compose stacks.
-author: ArivuClaw
+author: Arivumaiyam AI
 tags:
   - docker
   - containers

@@ -4,7 +4,7 @@ version: "1.0.0"
 description: >
   Autonomous test generation and execution — unit, integration, e2e tests.
   Mutation testing, coverage analysis, fuzz testing.
-author: ArivuClaw
+author: Arivumaiyam AI
 tags:
   - test
   - unit
@@ -169,7 +169,7 @@ triggers:
 
 # auto-tester
 
-Autonomous test generation and execution skill for ArivuClaw. Generate unit,
+Autonomous test generation and execution skill for Arivumaiyam AI. Generate unit,
 integration, and e2e tests. Run mutation testing, coverage analysis, and fuzz
 testing for comprehensive test quality.
 

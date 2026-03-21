@@ -1,5 +1,5 @@
 /**
- * ArivuClaw WhatsApp Channel — Via Baileys (WhatsApp Web protocol).
+ * Arivumaiyam AI WhatsApp Channel — Via Baileys (WhatsApp Web protocol).
  */
 
 import { v4 as uuid } from "uuid";
@@ -61,7 +61,7 @@ export class WhatsAppChannel extends BaseChannel {
   }
 
   private parseMessage(raw: unknown): IncomingMessage {
-    // Parse Baileys message format into ArivuClaw format
+    // Parse Baileys message format into Arivumaiyam AI format
     const msg = raw as Record<string, unknown>;
     const key = msg.key as Record<string, string>;
     const message = msg.message as Record<string, unknown>;

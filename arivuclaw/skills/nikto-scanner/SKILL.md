@@ -2,7 +2,7 @@
 name: nikto-scanner
 version: "1.0.0"
 description: "Web server scanner detecting dangerous files, outdated versions, and vulnerabilities."
-author: ArivuClaw
+author: Arivumaiyam AI
 tags:
   - nikto
   - web

@@ -2,7 +2,7 @@
 name: calculator
 version: 1.0.0
 description: Performs math calculations, unit conversions, and formula evaluations with precision control.
-author: ArivuClaw
+author: Arivumaiyam AI
 tags:
   - utility
   - math

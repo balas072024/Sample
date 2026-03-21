@@ -1,5 +1,5 @@
 /**
- * ArivuClaw Microsoft Teams Channel — Bot Framework adapter.
+ * Arivumaiyam AI Microsoft Teams Channel — Bot Framework adapter.
  *
  * Integrates with Microsoft Teams using the Bot Framework SDK.
  * Supports text messages, adaptive cards, and file attachments.
@@ -154,7 +154,7 @@ export class TeamsChannel extends BaseChannel {
           });
         } else {
           res.writeHead(200);
-          res.end("ArivuClaw Teams Bot is running");
+          res.end("Arivumaiyam AI Teams Bot is running");
         }
       });
 

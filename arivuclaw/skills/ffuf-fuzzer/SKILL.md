@@ -2,7 +2,7 @@
 name: ffuf-fuzzer
 version: "1.0.0"
 description: "Fast web fuzzer for directory discovery, parameter fuzzing, and virtual host enumeration."
-author: ArivuClaw
+author: Arivumaiyam AI
 tags:
   - ffuf
   - fuzz

@@ -1,5 +1,5 @@
 /**
- * ArivuClaw Web UI Dashboard — Serves a real-time status dashboard.
+ * Arivumaiyam AI Web UI Dashboard — Serves a real-time status dashboard.
  *
  * Provides an Express HTTP server with API endpoints for system health,
  * sessions, skills, channels, memory stats, providers, and configuration.
@@ -10,7 +10,7 @@
 
 import type { IncomingMessage, ServerResponse } from "node:http";
 import type {
-  ArivuClawConfig,
+  ArivumaiyamConfig,
   ChannelStatus,
   ProviderType,
   Session,
@@ -43,8 +43,8 @@ export interface DashboardDataProvider {
   getChannelStatuses(): ChannelStatus[];
   getMemoryStats(): MemoryStats;
   getProviders(): { type: ProviderType; name: string; model: string }[];
-  getConfig(): ArivuClawConfig;
-  updateConfig(patch: Partial<ArivuClawConfig>): void;
+  getConfig(): ArivumaiyamConfig;
+  updateConfig(patch: Partial<ArivumaiyamConfig>): void;
 }
 
 /** Lightweight route handler signature. */
@@ -68,7 +68,7 @@ export function generateDashboardHTML(): string {
 <head>
 <meta charset="utf-8"/>
 <meta name="viewport" content="width=device-width, initial-scale=1"/>
-<title>ArivuClaw Dashboard</title>
+<title>Arivumaiyam AI Dashboard</title>
 <style>
   *{margin:0;padding:0;box-sizing:border-box}
   body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;
@@ -96,7 +96,7 @@ export function generateDashboardHTML(): string {
 </head>
 <body>
 <header>
-  <h1>ArivuClaw Dashboard</h1>
+  <h1>Arivumaiyam AI Dashboard</h1>
   <span class="status" id="healthStatus">Checking...</span>
 </header>
 <div class="grid">
@@ -123,7 +123,7 @@ export function generateDashboardHTML(): string {
     <ul id="providerList"></ul>
   </div>
 </div>
-<footer>ArivuClaw &mdash; Refreshes every 5 seconds</footer>
+<footer>Arivumaiyam AI &mdash; Refreshes every 5 seconds</footer>
 <script>
 async function fetchJSON(url){
   try{const r=await fetch(url);return await r.json()}catch{return null}
@@ -178,7 +178,7 @@ setInterval(refresh,5000);
 // ─── Dashboard Server ────────────────────────────────────────────────
 
 /**
- * Express-style HTTP server for the ArivuClaw web dashboard.
+ * Express-style HTTP server for the Arivumaiyam AI web dashboard.
  *
  * @example
  * ```ts
@@ -308,7 +308,7 @@ export class DashboardServer {
       method: "POST",
       handler: (_req, res, body) => {
         try {
-          const patch = JSON.parse(body ?? "{}") as Partial<ArivuClawConfig>;
+          const patch = JSON.parse(body ?? "{}") as Partial<ArivumaiyamConfig>;
           this.data.updateConfig(patch);
           this.json(res, { success: true });
         } catch (error) {

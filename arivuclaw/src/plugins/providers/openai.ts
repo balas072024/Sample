@@ -1,5 +1,5 @@
 /**
- * ArivuClaw OpenAI Provider — GPT / o-series integration.
+ * Arivumaiyam AI OpenAI Provider — GPT / o-series integration.
  */
 
 import type {

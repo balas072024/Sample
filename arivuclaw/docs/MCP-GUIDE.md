@@ -4,11 +4,11 @@
 
 The **Model Context Protocol (MCP)** is the 2026 open standard for AI agent tool integration, adopted by Anthropic, OpenAI, Google DeepMind, and the Linux Foundation. It enables interoperability between AI agents and tool servers.
 
-ArivuClaw supports MCP natively as both a **server** (expose tools to other agents) and a **client** (use tools from external MCP servers).
+Arivumaiyam AI supports MCP natively as both a **server** (expose tools to other agents) and a **client** (use tools from external MCP servers).
 
-## ArivuClaw as MCP Server
+## Arivumaiyam AI as MCP Server
 
-Expose ArivuClaw's 112 skills as MCP tools for other agents to use:
+Expose Arivumaiyam AI's 112 skills as MCP tools for other agents to use:
 
 ```typescript
 import { MCPServer, MCPBridge } from "arivuclaw";
@@ -41,7 +41,7 @@ const response = await server.handleRequest({
 });
 ```
 
-## ArivuClaw as MCP Client
+## Arivumaiyam AI as MCP Client
 
 Connect to external MCP servers (ClawHub, community tools, custom servers):
 
@@ -64,7 +64,7 @@ const result = await client.callTool("github_create_pr", {
 
 ## MCP Bridge
 
-The bridge connects ArivuClaw's native skill system with the MCP ecosystem:
+The bridge connects Arivumaiyam AI's native skill system with the MCP ecosystem:
 
 ```typescript
 import { MCPServer, MCPBridge } from "arivuclaw";
@@ -72,7 +72,7 @@ import { MCPServer, MCPBridge } from "arivuclaw";
 const server = new MCPServer();
 const bridge = new MCPBridge(server);
 
-// Expose all native ArivuClaw tools as MCP
+// Expose all native Arivumaiyam AI tools as MCP
 bridge.exposeNativeTools(nativeTools, toolExecutor);
 
 // Connect to external MCP servers
@@ -97,7 +97,7 @@ const result = await bridge.callExternalTool("github", "create_issue", { title: 
 
 ## Connecting to ClawHub
 
-ArivuClaw can connect to OpenClaw's ClawHub ecosystem (13,000+ MCP skills):
+Arivumaiyam AI can connect to OpenClaw's ClawHub ecosystem (13,000+ MCP skills):
 
 ```json
 {

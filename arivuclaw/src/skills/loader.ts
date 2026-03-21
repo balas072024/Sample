@@ -1,5 +1,5 @@
 /**
- * ArivuClaw Skill Loader — Formats skills for system prompt injection.
+ * Arivumaiyam AI Skill Loader — Formats skills for system prompt injection.
  *
  * Uses compact XML representation (similar to OpenClaw) but adds:
  * - Interface metadata for skill composition

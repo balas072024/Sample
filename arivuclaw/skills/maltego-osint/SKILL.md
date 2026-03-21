@@ -2,7 +2,7 @@
 name: maltego-osint
 version: "1.0.0"
 description: "OSINT and link analysis. Discover relationships between people, domains, IPs, and organizations."
-author: ArivuClaw
+author: Arivumaiyam AI
 tags:
   - maltego
   - osint

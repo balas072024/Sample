@@ -2,7 +2,7 @@
 name: wpscan-wordpress
 version: "1.0.0"
 description: "WordPress vulnerability scanner — plugins, themes, users, and core version detection."
-author: ArivuClaw
+author: Arivumaiyam AI
 tags:
   - wpscan
   - wordpress

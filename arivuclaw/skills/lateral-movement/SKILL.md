@@ -2,7 +2,7 @@
 name: lateral-movement
 version: "1.0.0"
 description: "Lateral movement techniques — Pass-the-Hash, Pass-the-Ticket, over-pass-the-hash, token impersonation."
-author: ArivuClaw
+author: Arivumaiyam AI
 tags:
   - lateral
   - pth

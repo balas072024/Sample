@@ -1,4 +1,4 @@
-# ArivuClaw — Deployment Guide
+# Arivumaiyam AI — Deployment Guide
 
 > From laptop to Kubernetes in minutes.
 
@@ -489,7 +489,7 @@ curl https://yourdomain.com/health
 
 ### Dashboard
 
-ArivuClaw ships a web dashboard at port `3001`:
+Arivumaiyam AI ships a web dashboard at port `3001`:
 
 ```
 http://localhost:3001
@@ -529,10 +529,10 @@ Key metrics:
 
 ## Scaling
 
-ArivuClaw is designed for single-instance operation (one process per deployment). To scale:
+Arivumaiyam AI is designed for single-instance operation (one process per deployment). To scale:
 
 1. **Vertical scaling** — increase CPU/memory. The AI loop is CPU-bound during embedding; LLM calls are I/O-bound.
-2. **Multiple personas** — run separate ArivuClaw instances for different agent personas or teams.
+2. **Multiple personas** — run separate Arivumaiyam AI instances for different agent personas or teams.
 3. **Session affinity** — if load-balancing multiple instances, use sticky sessions (cookie or IP hash) so each user's session stays on one instance.
 4. **Redis session store** — configure Redis as the session backend to share sessions across instances:
 

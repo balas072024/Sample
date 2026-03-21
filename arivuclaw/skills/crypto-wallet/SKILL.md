@@ -2,7 +2,7 @@
 name: crypto-wallet
 version: "1.0.0"
 description: Check cryptocurrency prices, portfolio tracking, and wallet balance monitoring.
-author: ArivuClaw
+author: Arivumaiyam AI
 tags: [crypto, bitcoin, ethereum, portfolio, price]
 permissions: [network.http, memory.read, memory.write]
 tools:

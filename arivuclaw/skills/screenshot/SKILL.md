@@ -2,7 +2,7 @@
 name: screenshot
 version: "1.0.0"
 description: Take screenshots of the desktop, specific windows, or screen regions.
-author: ArivuClaw
+author: Arivumaiyam AI
 tags: [screenshot, capture, screen]
 permissions: [system.screenshot, filesystem.write]
 tools:

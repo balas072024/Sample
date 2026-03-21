@@ -2,7 +2,7 @@
 name: password-attacks
 version: "1.0.0"
 description: "Comprehensive password attack toolkit — generation, mutation, spraying, credential stuffing."
-author: ArivuClaw
+author: Arivumaiyam AI
 tags:
   - password
   - wordlist

@@ -2,7 +2,7 @@
 name: scheduler
 version: "1.0.0"
 description: Schedule tasks, reminders, and recurring jobs.
-author: ArivuClaw
+author: Arivumaiyam AI
 tags:
   - schedule
   - reminder

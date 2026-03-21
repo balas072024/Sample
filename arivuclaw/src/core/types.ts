@@ -1,5 +1,5 @@
 /**
- * ArivuClaw Core Type Definitions
+ * Arivumaiyam AI Core Type Definitions
  *
  * Improvements over OpenClaw:
  * - Typed skill interfaces with dependency resolution
@@ -346,7 +346,7 @@ export interface SandboxContext {
 
 // ─── Configuration ───────────────────────────────────────────────────
 
-export interface ArivuClawConfig {
+export interface ArivumaiyamConfig {
   mode: ExecutionMode;
   gateway: {
     host: string;
@@ -386,7 +386,7 @@ export interface MemoryStoreConfig {
 
 // ─── Events ──────────────────────────────────────────────────────────
 
-export type ArivuClawEvent =
+export type ArivumaiyamEvent =
   | { type: "message.received"; data: IncomingMessage }
   | { type: "message.sent"; data: { channelType: ChannelType; content: string } }
   | { type: "tool.called"; data: { toolName: string; input: Record<string, unknown> } }

@@ -1,4 +1,4 @@
-# ArivuClaw — Security Guide
+# Arivumaiyam AI — Security Guide
 
 > Defense-in-depth: 3 execution modes, guardrails, sandboxing, OAuth2, HMAC webhooks, audit logging, backup/restore.
 
@@ -6,7 +6,7 @@
 
 ## Execution Modes
 
-ArivuClaw ships with three execution modes. Set via the `ARIVUCLAW_MODE` environment variable or the `mode` config field.
+Arivumaiyam AI ships with three execution modes. Set via the `ARIVUCLAW_MODE` environment variable or the `mode` config field.
 
 ### Mode Overview
 
@@ -18,7 +18,7 @@ ArivuClaw ships with three execution modes. Set via the `ARIVUCLAW_MODE` environ
 
 ### unrestricted
 
-The owner trusts ArivuClaw completely. All 112 skills are available. Tools execute immediately without approval. The sandbox is optional (can be enabled selectively). This is the default mode for local laptop usage.
+The owner trusts Arivumaiyam AI completely. All 112 skills are available. Tools execute immediately without approval. The sandbox is optional (can be enabled selectively). This is the default mode for local laptop usage.
 
 ```bash
 export ARIVUCLAW_MODE=unrestricted
@@ -277,10 +277,10 @@ rules:
 
 ### ask Flow
 
-When a rule triggers with `action: ask`, ArivuClaw:
+When a rule triggers with `action: ask`, Arivumaiyam AI:
 
 1. Pauses execution and sends an approval request to `ownerUserId`.
-2. The owner receives a formatted message: "ArivuClaw wants to run `git_push` — [Approve] [Deny]".
+2. The owner receives a formatted message: "Arivumaiyam AI wants to run `git_push` — [Approve] [Deny]".
 3. On approval, execution continues. On denial, a permission error is returned.
 4. Requests time out after 5 minutes (configurable via `guardrailAskTimeoutMs`).
 
@@ -368,7 +368,7 @@ Incoming webhooks can be HMAC-SHA256 verified:
 export WEBHOOK_SECRET=$(openssl rand -hex 32)
 ```
 
-ArivuClaw computes `HMAC-SHA256(secret, raw_body)` and compares to the `X-Hub-Signature-256` header (GitHub convention) or the `X-Arivuclaw-Signature` header. Timing-safe comparison is used to prevent timing attacks.
+Arivumaiyam AI computes `HMAC-SHA256(secret, raw_body)` and compares to the `X-Hub-Signature-256` header (GitHub convention) or the `X-Arivuclaw-Signature` header. Timing-safe comparison is used to prevent timing attacks.
 
 ```typescript
 webhooks: {

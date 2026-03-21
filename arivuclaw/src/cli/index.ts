@@ -1,10 +1,10 @@
 #!/usr/bin/env node
 
 /**
- * ArivuClaw CLI — Main entry point.
+ * Arivumaiyam AI CLI — Main entry point.
  *
  * Usage:
- *   arivuclaw                  — Start ArivuClaw with all configured channels
+ *   arivuclaw                  — Start Arivumaiyam AI with all configured channels
  *   arivuclaw chat             — Start CLI chat mode
  *   arivuclaw onboard          — Interactive setup wizard
  *   arivuclaw skills list      — List available skills
@@ -33,7 +33,7 @@ import { WebChannel } from "../channels/web.js";
 import { SystemTools } from "../tools/system-tools.js";
 import { loadConfig } from "./config.js";
 import { Logger } from "../utils/logger.js";
-import type { ArivuClawConfig, LLMProvider } from "../core/types.js";
+import type { ArivumaiyamConfig, LLMProvider } from "../core/types.js";
 
 const log = Logger.create("cli");
 
@@ -44,7 +44,7 @@ const BANNER = `
 / ___ \\| |  | |\\ V /| |_| |___) | | (_| |\\ V  V /
 /_/   \\_\\_|  |_| \\_/  \\__,_|____/|_|\\__,_| \\_/\\_/
 
-  🦀 ArivuClaw v1.0.0 — Your Intelligent AI Assistant
+  🦀 Arivumaiyam AI v1.0.0 — Your Intelligent AI Assistant
   Secure. Composable. Multi-platform.
 `;
 
@@ -69,7 +69,7 @@ async function main(): Promise<void> {
       showStatus();
       break;
     case "version":
-      console.log("ArivuClaw v1.0.0");
+      console.log("Arivumaiyam AI v1.0.0");
       break;
     case "help":
       showHelp();
@@ -155,7 +155,7 @@ async function startChat(): Promise<void> {
 
 async function runOnboard(): Promise<void> {
   console.log(BANNER);
-  console.log("Welcome to ArivuClaw setup! Let's get you configured.\n");
+  console.log("Welcome to Arivumaiyam AI setup! Let's get you configured.\n");
 
   // In production, this would be an interactive wizard using inquirer
   console.log("Steps:");
@@ -198,7 +198,7 @@ function showStatus(): void {
   const config = loadConfig();
   const sysInfo = SystemTools.getFullSystemInfo();
 
-  console.log("\n🦀 ArivuClaw Status\n");
+  console.log("\n🦀 Arivumaiyam AI Status\n");
   console.log(`  Mode:       ${config.mode.toUpperCase()}`);
   console.log(`  Provider:   ${config.defaultProvider}`);
   console.log(`  Model:      ${config.defaultModel}`);
@@ -236,12 +236,12 @@ function showStatus(): void {
 
 function showHelp(): void {
   console.log(`
-ArivuClaw — Your Intelligent AI Assistant 🦀
+Arivumaiyam AI — Your Intelligent AI Assistant 🦀
 
 Usage: arivuclaw [command]
 
 Commands:
-  start       Start ArivuClaw with all configured channels (default)
+  start       Start Arivumaiyam AI with all configured channels (default)
   chat        Start CLI chat mode
   onboard     Interactive setup wizard
   skills      Manage skills (list, install)
@@ -258,7 +258,7 @@ Examples:
 `);
 }
 
-function createProvider(config: ArivuClawConfig): LLMProvider {
+function createProvider(config: ArivumaiyamConfig): LLMProvider {
   const providerConfig = config.providers[config.defaultProvider];
 
   switch (config.defaultProvider) {

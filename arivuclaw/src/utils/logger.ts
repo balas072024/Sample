@@ -1,5 +1,5 @@
 /**
- * ArivuClaw Logger — Structured logging utility.
+ * Arivumaiyam AI Logger — Structured logging utility.
  */
 
 export type LogLevel = "debug" | "info" | "warn" | "error";

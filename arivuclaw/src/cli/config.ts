@@ -1,13 +1,13 @@
 /**
- * ArivuClaw Configuration Loader
+ * Arivumaiyam AI Configuration Loader
  */
 
 import * as fs from "fs";
 import * as path from "path";
-import type { ArivuClawConfig } from "../core/types.js";
+import type { ArivumaiyamConfig } from "../core/types.js";
 import { getSecurityPolicyForMode } from "../security/unrestricted.js";
 
-const DEFAULT_CONFIG: ArivuClawConfig = {
+const DEFAULT_CONFIG: ArivumaiyamConfig = {
   mode: "unrestricted",  // Default to unrestricted for local laptop use
   gateway: {
     host: "0.0.0.0",
@@ -126,7 +126,7 @@ const DEFAULT_CONFIG: ArivuClawConfig = {
   },
 };
 
-export function loadConfig(): ArivuClawConfig {
+export function loadConfig(): ArivumaiyamConfig {
   // Try loading from multiple locations (precedence: local > user > default)
   const configPaths = [
     path.resolve("arivuclaw.config.json"),
@@ -140,8 +140,8 @@ export function loadConfig(): ArivuClawConfig {
     if (fs.existsSync(configPath)) {
       try {
         const raw = fs.readFileSync(configPath, "utf-8");
-        const userConfig = JSON.parse(raw) as Partial<ArivuClawConfig>;
-        config = deepMerge(DEFAULT_CONFIG as unknown as Record<string, unknown>, userConfig as unknown as Record<string, unknown>) as unknown as ArivuClawConfig;
+        const userConfig = JSON.parse(raw) as Partial<ArivumaiyamConfig>;
+        config = deepMerge(DEFAULT_CONFIG as unknown as Record<string, unknown>, userConfig as unknown as Record<string, unknown>) as unknown as ArivumaiyamConfig;
         break;
       } catch (error) {
         console.warn(`Failed to load config from ${configPath}: ${error}`);
@@ -158,18 +158,18 @@ export function loadConfig(): ArivuClawConfig {
   return config;
 }
 
-function applyEnvOverrides(config: ArivuClawConfig): ArivuClawConfig {
+function applyEnvOverrides(config: ArivumaiyamConfig): ArivumaiyamConfig {
   if (process.env.ARIVUCLAW_MODE) {
-    config.mode = process.env.ARIVUCLAW_MODE as ArivuClawConfig["mode"];
+    config.mode = process.env.ARIVUCLAW_MODE as ArivumaiyamConfig["mode"];
   }
   if (process.env.ARIVUCLAW_PROVIDER) {
-    config.defaultProvider = process.env.ARIVUCLAW_PROVIDER as ArivuClawConfig["defaultProvider"];
+    config.defaultProvider = process.env.ARIVUCLAW_PROVIDER as ArivumaiyamConfig["defaultProvider"];
   }
   if (process.env.ARIVUCLAW_MODEL) {
     config.defaultModel = process.env.ARIVUCLAW_MODEL;
   }
   if (process.env.ARIVUCLAW_LOG_LEVEL) {
-    config.logging.level = process.env.ARIVUCLAW_LOG_LEVEL as ArivuClawConfig["logging"]["level"];
+    config.logging.level = process.env.ARIVUCLAW_LOG_LEVEL as ArivumaiyamConfig["logging"]["level"];
   }
   if (process.env.ARIVUCLAW_SANDBOX === "false") {
     config.security.sandboxEnabled = false;

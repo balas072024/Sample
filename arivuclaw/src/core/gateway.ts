@@ -1,5 +1,5 @@
 /**
- * ArivuClaw Gateway — The central hub connecting channels to the agent runtime.
+ * Arivumaiyam AI Gateway — The central hub connecting channels to the agent runtime.
  *
  * Improvements over OpenClaw:
  * - Input validation on all gateway URLs (prevents CVE-2026-25253 style attacks)
@@ -12,8 +12,8 @@
 import { EventEmitter } from "eventemitter3";
 import { v4 as uuid } from "uuid";
 import type {
-  ArivuClawConfig,
-  ArivuClawEvent,
+  ArivumaiyamConfig,
+  ArivumaiyamEvent,
   ChannelAdapter,
   ChannelType,
   IncomingMessage,
@@ -37,7 +37,7 @@ export class Gateway extends EventEmitter<Record<string, (...args: unknown[]) =>
   private isRunning = false;
 
   constructor(
-    private config: ArivuClawConfig,
+    private config: ArivumaiyamConfig,
     private memoryStore: MemoryStore,
   ) {
     super();
@@ -288,7 +288,7 @@ export class Gateway extends EventEmitter<Record<string, (...args: unknown[]) =>
 
   async start(): Promise<void> {
     if (this.isRunning) return;
-    log.info("ArivuClaw Gateway starting...");
+    log.info("Arivumaiyam AI Gateway starting...");
 
     await this.memoryStore.initialize();
 
@@ -297,12 +297,12 @@ export class Gateway extends EventEmitter<Record<string, (...args: unknown[]) =>
     }
 
     this.isRunning = true;
-    log.info("ArivuClaw Gateway is running 🦀");
+    log.info("Arivumaiyam AI Gateway is running 🦀");
   }
 
   async shutdown(): Promise<void> {
     if (!this.isRunning) return;
-    log.info("ArivuClaw Gateway shutting down...");
+    log.info("Arivumaiyam AI Gateway shutting down...");
 
     // Graceful shutdown: drain active sessions
     for (const [type, adapter] of this.channels) {
@@ -317,7 +317,7 @@ export class Gateway extends EventEmitter<Record<string, (...args: unknown[]) =>
     await this.memoryStore.shutdown();
     this.channels.clear();
     this.isRunning = false;
-    log.info("ArivuClaw Gateway stopped");
+    log.info("Arivumaiyam AI Gateway stopped");
   }
 
   // ─── Health ──────────────────────────────────────────────────────
@@ -339,7 +339,7 @@ export class Gateway extends EventEmitter<Record<string, (...args: unknown[]) =>
     };
   }
 
-  private emitEvent(event: ArivuClawEvent): void {
+  private emitEvent(event: ArivumaiyamEvent): void {
     this.emit(event.type, event.data);
   }
 }

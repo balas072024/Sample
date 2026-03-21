@@ -2,7 +2,7 @@
 name: sublist3r-enum
 version: "1.0.0"
 description: "Fast subdomain enumeration using multiple search engines and sources."
-author: ArivuClaw
+author: Arivumaiyam AI
 tags:
   - sublist3r
   - subdomain

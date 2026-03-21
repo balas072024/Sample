@@ -2,7 +2,7 @@
 name: bloodhound-ad
 version: "1.0.0"
 description: Active Directory attack path discovery and privilege escalation analysis with BloodHound.
-author: ArivuClaw
+author: Arivumaiyam AI
 tags:
   - bloodhound
   - active-directory

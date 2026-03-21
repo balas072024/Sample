@@ -1,12 +1,12 @@
-# ArivuClaw FAQ
+# Arivumaiyam AI FAQ
 
 ## General
 
-### What is ArivuClaw?
-ArivuClaw ("Arivu" = wisdom in Tamil) is an open-source AI agent framework that connects any LLM to your messaging platforms and gives you full control over your system. It has 112 built-in skills, 8 LLM providers, 10 messaging channels, and runs in unrestricted mode on your laptop.
+### What is Arivumaiyam AI?
+Arivumaiyam AI ("Arivu" = wisdom in Tamil) is an open-source AI agent framework that connects any LLM to your messaging platforms and gives you full control over your system. It has 112 built-in skills, 8 LLM providers, 10 messaging channels, and runs in unrestricted mode on your laptop.
 
 ### How is it different from OpenClaw?
-| Feature | OpenClaw | ArivuClaw |
+| Feature | OpenClaw | Arivumaiyam AI |
 |---------|----------|-----------|
 | Skills | 53 bundled | 112 built-in |
 | Providers | 4-5 | 8 + Neural Brain |
@@ -23,7 +23,7 @@ ArivuClaw ("Arivu" = wisdom in Tamil) is an open-source AI agent framework that 
 ### Is it free?
 Yes, MIT licensed. You only pay for API credits if using cloud providers. Ollama, Groq (free tier), and DeepSeek (free tier) are completely free.
 
-### What languages does ArivuClaw support?
+### What languages does Arivumaiyam AI support?
 Interface: English, Tamil, Hindi, Spanish, French, German, Japanese, Chinese, Korean, Arabic. LLM responses: All languages supported by your chosen model.
 
 ## Setup
@@ -43,7 +43,7 @@ Yes. Use Model Tiering to route simple queries to cheap models and complex ones 
 1. Enable WhatsApp in config: `channels: [{ type: "whatsapp", enabled: true }]`
 2. Run `arivuclaw start`
 3. Scan the QR code displayed in terminal
-4. Send a message to your number — ArivuClaw responds
+4. Send a message to your number — Arivumaiyam AI responds
 
 ### Does it work offline?
 Yes, with Ollama. Install Ollama, pull a model, set `ARIVUCLAW_PROVIDER=ollama`, and everything runs 100% locally with no internet.
@@ -62,7 +62,7 @@ Yes. Skills have trigger patterns (keywords, regex). When your message matches, 
 ## Security
 
 ### Is unrestricted mode safe?
-On YOUR OWN laptop/network: yes. Unrestricted mode gives ArivuClaw the same access you have. Never expose unrestricted mode on a public network.
+On YOUR OWN laptop/network: yes. Unrestricted mode gives Arivumaiyam AI the same access you have. Never expose unrestricted mode on a public network.
 
 ### Can I add restrictions?
 Yes. Switch to `restricted` mode in config, or use the Guardrails system to require approval for specific operations.
@@ -70,10 +70,10 @@ Yes. Switch to `restricted` mode in config, or use the Guardrails system to requ
 ## Architecture
 
 ### What is MCP?
-Model Context Protocol — the 2026 standard for AI agent tool integration. ArivuClaw can expose its tools as MCP servers and connect to 13,000+ external MCP tools.
+Model Context Protocol — the 2026 standard for AI agent tool integration. Arivumaiyam AI can expose its tools as MCP servers and connect to 13,000+ external MCP tools.
 
 ### What is Neural Brain?
 A bio-inspired processing layer that adds associative memory and neural plasticity on top of any LLM backbone. It learns from your interactions and recalls similar patterns.
 
-### Can multiple users share one ArivuClaw?
+### Can multiple users share one Arivumaiyam AI?
 Yes. Each user gets isolated sessions and memory. Cross-channel identity linking lets one user seamlessly switch between WhatsApp, Telegram, etc.

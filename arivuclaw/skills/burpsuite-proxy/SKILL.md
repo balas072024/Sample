@@ -2,7 +2,7 @@
 name: burpsuite-proxy
 version: "1.0.0"
 description: "Burp Suite web application security testing — proxy, scanner, intruder, repeater."
-author: ArivuClaw
+author: Arivumaiyam AI
 tags:
   - burpsuite
   - burp

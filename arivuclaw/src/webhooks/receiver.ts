@@ -1,5 +1,5 @@
 /**
- * ArivuClaw Webhook Receiver — Incoming webhook handler with HMAC verification.
+ * Arivumaiyam AI Webhook Receiver — Incoming webhook handler with HMAC verification.
  *
  * Creates Express-compatible HTTP routes for receiving webhooks from external
  * services (GitHub, Stripe, Slack, etc.). Each webhook can be optionally

@@ -1,5 +1,5 @@
 /**
- * ArivuClaw Base Channel Adapter — Abstract base for all channel implementations.
+ * Arivumaiyam AI Base Channel Adapter — Abstract base for all channel implementations.
  *
  * Provides common functionality:
  * - Connection state management

@@ -2,7 +2,7 @@
 name: ocr
 version: "1.0.0"
 description: Extract text from images and scanned documents using OCR.
-author: ArivuClaw
+author: Arivumaiyam AI
 tags: [ocr, text-extraction, tesseract]
 permissions: [ocr.extract, filesystem.read, filesystem.write]
 tools:

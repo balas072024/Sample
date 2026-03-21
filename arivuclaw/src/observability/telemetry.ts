@@ -1,5 +1,5 @@
 /**
- * ArivuClaw Observability — Audit logging, metrics, and tracing.
+ * Arivumaiyam AI Observability — Audit logging, metrics, and tracing.
  *
  * Provides structured telemetry for the entire system:
  * - TelemetryService: unified facade for audit, metrics, and tracing.

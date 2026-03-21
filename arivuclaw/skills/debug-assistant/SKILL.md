@@ -2,7 +2,7 @@
 name: debug-assistant
 version: 1.0.0
 description: Helps identify and resolve coding errors by analyzing stack traces, logs, and runtime behavior. Supports interactive debug sessions.
-author: ArivuClaw
+author: Arivumaiyam AI
 tags:
   - development
   - debugging

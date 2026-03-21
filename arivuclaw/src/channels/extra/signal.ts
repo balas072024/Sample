@@ -1,5 +1,5 @@
 /**
- * ArivuClaw Signal Channel — Signal messenger adapter via signal-cli.
+ * Arivumaiyam AI Signal Channel — Signal messenger adapter via signal-cli.
  *
  * Uses the signal-cli daemon (JSON-RPC mode) for sending/receiving messages
  * over the Signal Protocol. Supports text, images, and file attachments.

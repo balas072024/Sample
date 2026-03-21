@@ -1,5 +1,5 @@
 /**
- * ArivuClaw iMessage Channel — macOS-only iMessage adapter.
+ * Arivumaiyam AI iMessage Channel — macOS-only iMessage adapter.
  *
  * Reads incoming messages from the iMessage SQLite database (chat.db)
  * and sends outgoing messages via AppleScript / osascript.

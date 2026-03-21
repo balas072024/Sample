@@ -2,7 +2,7 @@
 name: hunyuan-video
 version: 1.0.0
 description: "Tencent HunyuanVideo — 13B parameter open-source video gen. Cinematic quality, image-to-video, audio-driven avatar animation."
-author: ArivuClaw
+author: Arivumaiyam AI
 tags:
   - hunyuan
   - video
@@ -111,7 +111,7 @@ triggers:
 
 # Hunyuan Video
 
-Tencent HunyuanVideo skill for ArivuClaw. A 13B parameter open-source video generation model delivering cinematic quality with support for text-to-video, image-to-video, audio-driven avatar animation, and multimodal customized generation.
+Tencent HunyuanVideo skill for Arivumaiyam AI. A 13B parameter open-source video generation model delivering cinematic quality with support for text-to-video, image-to-video, audio-driven avatar animation, and multimodal customized generation.
 
 ## Usage
 

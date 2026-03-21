@@ -2,7 +2,7 @@
 name: volatility-mem
 version: "1.0.0"
 description: "Volatility memory forensics — analyze RAM dumps for processes, network connections, malware, credentials."
-author: ArivuClaw
+author: Arivumaiyam AI
 tags:
   - volatility
   - memory

@@ -2,7 +2,7 @@
 name: image-lab
 version: "1.0.0"
 description: AI image generation and editing using DALL-E, Stable Diffusion, local models, and image manipulation tools.
-author: ArivuClaw
+author: Arivumaiyam AI
 tags: [image, generation, ai, dalle, stable-diffusion, editing]
 permissions: [network.fetch, filesystem.write, filesystem.read]
 tools:

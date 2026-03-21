@@ -2,7 +2,7 @@
 name: web-shells
 version: "1.0.0"
 description: "Web shell detection, analysis, and generation for authorized web application testing."
-author: ArivuClaw
+author: Arivumaiyam AI
 tags:
   - webshell
   - backdoor

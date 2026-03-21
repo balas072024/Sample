@@ -1,5 +1,5 @@
 /**
- * ArivuClaw Streaming Response Manager
+ * Arivumaiyam AI Streaming Response Manager
  *
  * Wraps LLM streaming and pushes tokens to channels in real-time.
  * Manages backpressure and token buffering to avoid flooding channels

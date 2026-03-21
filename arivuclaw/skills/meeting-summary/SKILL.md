@@ -2,7 +2,7 @@
 name: meeting-summary
 version: 1.0.0
 description: Summarizes meetings and extracts action items, decisions, and key topics from transcripts or notes.
-author: ArivuClaw
+author: Arivumaiyam AI
 tags:
   - productivity
   - meetings

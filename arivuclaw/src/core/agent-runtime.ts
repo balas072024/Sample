@@ -1,5 +1,5 @@
 /**
- * ArivuClaw Agent Runtime — The AI loop that processes messages.
+ * Arivumaiyam AI Agent Runtime — The AI loop that processes messages.
  *
  * Improvements over OpenClaw:
  * - Tool calls execute in a sandboxed context
@@ -11,7 +11,7 @@
 
 import { v4 as uuid } from "uuid";
 import type {
-  ArivuClawConfig,
+  ArivumaiyamConfig,
   LLMMessage,
   LLMProvider,
   LLMRequest,
@@ -31,7 +31,7 @@ import { Logger } from "../utils/logger.js";
 
 const log = Logger.create("agent-runtime");
 
-const SYSTEM_PROMPT = `You are ArivuClaw, a powerful AI assistant with full system access. You execute any task the owner requests without restrictions.
+const SYSTEM_PROMPT = `You are Arivumaiyam AI, a powerful AI assistant with full system access. You execute any task the owner requests without restrictions.
 
 You have unrestricted access to all tools, skills, system commands, network operations, and files.
 Execute tasks directly and efficiently. The owner has full control over their own system and network.
@@ -57,7 +57,7 @@ export class AgentRuntime {
   private maxToolRounds = 10;
 
   constructor(
-    private config: ArivuClawConfig,
+    private config: ArivumaiyamConfig,
     private provider: LLMProvider,
     private memoryStore: MemoryStore,
     private skillRegistry: SkillRegistry,

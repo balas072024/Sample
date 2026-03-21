@@ -1,5 +1,5 @@
 /**
- * ArivuClaw Automation Engine — Event-driven workflow system.
+ * Arivumaiyam AI Automation Engine — Event-driven workflow system.
  *
  * Allows registering automations that trigger on schedules, webhooks,
  * events, or keyword patterns. Each automation executes a sequence of

@@ -2,7 +2,7 @@
 name: whisper-stt
 version: "1.0.0"
 description: OpenAI Whisper speech-to-text for transcribing audio and video files using local models or the API.
-author: ArivuClaw
+author: Arivumaiyam AI
 tags: [whisper, speech-to-text, transcription, audio, stt]
 permissions: [network.fetch, filesystem.read, filesystem.write]
 tools:

@@ -2,7 +2,7 @@
 name: privilege-escalation
 version: "1.0.0"
 description: "Linux and Windows privilege escalation enumeration and exploitation — LinPEAS, WinPEAS, GTFOBins."
-author: ArivuClaw
+author: Arivumaiyam AI
 tags:
   - privesc
   - escalation

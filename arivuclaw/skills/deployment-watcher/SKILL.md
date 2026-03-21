@@ -2,7 +2,7 @@
 name: deployment-watcher
 version: 1.0.0
 description: Monitors CI/CD deployments, tracks pipeline status, and alerts on failures or rollbacks.
-author: ArivuClaw
+author: Arivumaiyam AI
 tags:
   - devops
   - ci-cd

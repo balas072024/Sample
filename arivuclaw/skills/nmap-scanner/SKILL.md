@@ -2,7 +2,7 @@
 name: nmap-scanner
 version: "1.0.0"
 description: "Network discovery and security auditing with Nmap. Port scanning, service detection, OS fingerprinting, NSE scripts."
-author: ArivuClaw
+author: Arivumaiyam AI
 tags:
   - nmap
   - scan

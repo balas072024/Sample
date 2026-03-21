@@ -2,7 +2,7 @@
 name: nuclei-scanner
 version: "1.0.0"
 description: "Fast vulnerability scanner using community-powered templates. CVE detection, misconfigurations, exposed panels."
-author: ArivuClaw
+author: Arivumaiyam AI
 tags:
   - nuclei
   - vulnerability

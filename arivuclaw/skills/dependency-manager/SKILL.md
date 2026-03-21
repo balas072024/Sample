@@ -4,7 +4,7 @@ version: "1.0.0"
 description: >
   Intelligent dependency management — update, audit, resolve conflicts,
   find alternatives, license compliance, size analysis.
-author: ArivuClaw
+author: Arivumaiyam AI
 tags:
   - dependencies
   - npm
@@ -171,7 +171,7 @@ triggers:
 
 # Dependency Manager
 
-The **dependency-manager** skill provides ArivuClaw with intelligent dependency management capabilities across multiple package ecosystems.
+The **dependency-manager** skill provides Arivumaiyam AI with intelligent dependency management capabilities across multiple package ecosystems.
 
 ## How It Works
 

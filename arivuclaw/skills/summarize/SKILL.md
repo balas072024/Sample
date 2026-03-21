@@ -2,7 +2,7 @@
 name: summarize
 version: "1.0.0"
 description: Summarize text, documents, web pages, and conversations.
-author: ArivuClaw
+author: Arivumaiyam AI
 tags:
   - summarize
   - text

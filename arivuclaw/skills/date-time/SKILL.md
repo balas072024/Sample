@@ -2,7 +2,7 @@
 name: date-time
 version: "1.0.0"
 description: Date and time operations including current time, timezone conversion, date math, countdowns, and formatting.
-author: ArivuClaw
+author: Arivumaiyam AI
 tags: [date, time, timezone, calendar, countdown]
 permissions: [network.fetch]
 tools:

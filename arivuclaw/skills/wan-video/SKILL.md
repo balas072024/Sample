@@ -2,7 +2,7 @@
 name: wan-video
 version: 1.0.0
 description: "Wan 2.2 (Alibaba) — SOTA open-source video generation. Text-to-video and image-to-video with MoE architecture. Runs locally on consumer GPUs (8GB+ VRAM)."
-author: ArivuClaw
+author: Arivumaiyam AI
 tags:
   - wan
   - video
@@ -111,7 +111,7 @@ triggers:
 
 # Wan Video
 
-Wan 2.2 (Alibaba) video generation skill for ArivuClaw. State-of-the-art open-source video generation with MoE architecture, capable of running locally on consumer GPUs with 8GB+ VRAM.
+Wan 2.2 (Alibaba) video generation skill for Arivumaiyam AI. State-of-the-art open-source video generation with MoE architecture, capable of running locally on consumer GPUs with 8GB+ VRAM.
 
 ## Usage
 

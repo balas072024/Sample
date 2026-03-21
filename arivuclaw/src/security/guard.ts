@@ -1,5 +1,5 @@
 /**
- * ArivuClaw Security Guard — Input validation, rate limiting, and permission checks.
+ * Arivumaiyam AI Security Guard — Input validation, rate limiting, and permission checks.
  *
  * Improvements over OpenClaw:
  * - All gateway URLs validated (prevents CVE-2026-25253 style token theft)

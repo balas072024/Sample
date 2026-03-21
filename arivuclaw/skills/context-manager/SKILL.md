@@ -2,7 +2,7 @@
 name: context-manager
 version: "1.0.0"
 description: Manage conversation context and memory by saving, recalling, clearing, and summarizing context windows.
-author: ArivuClaw
+author: Arivumaiyam AI
 tags: [context, memory, conversation, history, management]
 permissions: [filesystem.read, filesystem.write]
 tools:

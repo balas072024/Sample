@@ -2,7 +2,7 @@
 name: social-engineer
 version: "1.0.0"
 description: "Social Engineering Toolkit (SET) — phishing simulations, credential harvesting for authorized security awareness testing."
-author: ArivuClaw
+author: Arivumaiyam AI
 tags:
   - set
   - phishing

@@ -2,7 +2,7 @@
 name: home-automation
 version: "1.0.0"
 description: Control smart home devices via Home Assistant, MQTT, or direct API calls.
-author: ArivuClaw
+author: Arivumaiyam AI
 tags: [home, iot, smart-home, homeassistant, mqtt]
 permissions: [network.http, network.websocket]
 tools:

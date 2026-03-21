@@ -2,7 +2,7 @@
 name: audio-tts
 version: "1.0.0"
 description: Text-to-speech, speech-to-text, audio playback, and audio file conversion.
-author: ArivuClaw
+author: Arivumaiyam AI
 tags: [audio, tts, speech, voice]
 permissions: [system.audio, network.http, filesystem.read, filesystem.write]
 tools:

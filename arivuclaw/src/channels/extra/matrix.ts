@@ -1,5 +1,5 @@
 /**
- * ArivuClaw Matrix Channel — Matrix protocol adapter.
+ * Arivumaiyam AI Matrix Channel — Matrix protocol adapter.
  *
  * Uses matrix-js-sdk for communication over the Matrix open protocol.
  * Supports end-to-end encryption, rooms, and threads.

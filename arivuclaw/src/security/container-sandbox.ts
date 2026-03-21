@@ -1,5 +1,5 @@
 /**
- * ArivuClaw Container Sandbox — Docker-based isolation for skill execution.
+ * Arivumaiyam AI Container Sandbox — Docker-based isolation for skill execution.
  *
  * Runs tools and skills inside Docker containers with strict resource limits.
  * Falls back to in-process execution when Docker is not available.

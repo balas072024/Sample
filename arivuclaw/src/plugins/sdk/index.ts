@@ -1,5 +1,5 @@
 /**
- * ArivuClaw Plugin SDK — Extension point system for plugins.
+ * Arivumaiyam AI Plugin SDK — Extension point system for plugins.
  *
  * Provides a unified SDK for registering plugins across 7 extension points:
  * channel, memory, tool, provider, hook, middleware, and transform.

@@ -2,7 +2,7 @@
 name: sqlmap-injection
 version: "1.0.0"
 description: "Automatic SQL injection detection and exploitation. Database takeover, data extraction, OS access."
-author: ArivuClaw
+author: Arivumaiyam AI
 tags:
   - sqlmap
   - sql

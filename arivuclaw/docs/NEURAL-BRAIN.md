@@ -2,7 +2,7 @@
 
 ## Overview
 
-Neural Brain is ArivuClaw's experimental bio-inspired processing layer, inspired by [Cortical Labs' DishBrain](https://robohorizon.com/en-gb/magazine/2026/03/cortical-labs-brain-llm/) project that wired living human neurons into an LLM.
+Neural Brain is Arivumaiyam AI's experimental bio-inspired processing layer, inspired by [Cortical Labs' DishBrain](https://robohorizon.com/en-gb/magazine/2026/03/cortical-labs-brain-llm/) project that wired living human neurons into an LLM.
 
 ## How It Works
 
@@ -79,4 +79,4 @@ const stats = provider.getStats();
 
 ## Future
 
-When Cortical Labs releases their API, ArivuClaw will be among the first to integrate actual biological neural compute — living brain cells selecting tokens for your AI assistant.
+When Cortical Labs releases their API, Arivumaiyam AI will be among the first to integrate actual biological neural compute — living brain cells selecting tokens for your AI assistant.

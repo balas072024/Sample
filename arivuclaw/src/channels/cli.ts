@@ -1,5 +1,5 @@
 /**
- * ArivuClaw CLI Channel — Terminal-based interactive chat.
+ * Arivumaiyam AI CLI Channel — Terminal-based interactive chat.
  */
 
 import * as readline from "readline";
@@ -53,7 +53,7 @@ export class CLIChannel extends BaseChannel {
     });
 
     console.log("\n╔════════════════════════════════════════╗");
-    console.log("║     🦀 ArivuClaw — Terminal Chat      ║");
+    console.log("║     🦀 Arivumaiyam AI — Terminal Chat      ║");
     console.log("║  Type /help for commands, /quit to exit ║");
     console.log("╚════════════════════════════════════════╝\n");
 
@@ -69,21 +69,21 @@ export class CLIChannel extends BaseChannel {
     content: string,
     attachments?: Attachment[],
   ): Promise<void> {
-    console.log(`\n🤖 ArivuClaw: ${content}`);
+    console.log(`\n🤖 Arivumaiyam AI: ${content}`);
     this.rl?.prompt();
   }
 
   private printHelp(): void {
     console.log(`
 ╔═══════════════════════════════════╗
-║       ArivuClaw CLI Commands      ║
+║       Arivumaiyam AI CLI Commands      ║
 ╠═══════════════════════════════════╣
 ║ /help    — Show this help         ║
 ║ /skills  — List active skills     ║
 ║ /memory  — Show memory stats      ║
 ║ /status  — Show system status     ║
 ║ /clear   — Clear conversation     ║
-║ /quit    — Exit ArivuClaw         ║
+║ /quit    — Exit Arivumaiyam AI         ║
 ╚═══════════════════════════════════╝
 `);
   }

@@ -2,7 +2,7 @@
 name: email-send
 version: "1.0.0"
 description: Send emails via SMTP, Gmail, or Outlook. Read inbox. Manage drafts.
-author: ArivuClaw
+author: Arivumaiyam AI
 tags:
   - email
   - smtp
@@ -81,7 +81,7 @@ triggers:
 
 # Email Skill
 
-Send and read emails directly from ArivuClaw.
+Send and read emails directly from Arivumaiyam AI.
 
 ## Setup
 Configure your email provider in `arivuclaw.config.json`:

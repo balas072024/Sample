@@ -2,7 +2,7 @@
 name: code-review
 version: 1.0.0
 description: Analyzes code for quality, bugs, style violations, and security issues. Supports multiple languages and configurable rulesets.
-author: ArivuClaw
+author: Arivumaiyam AI
 tags:
   - development
   - code-quality
