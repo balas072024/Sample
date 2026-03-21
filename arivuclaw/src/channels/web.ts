@@ -127,7 +127,11 @@ export class WebChannel extends BaseChannel {
   }
 
   private isAllowedOrigin(origin: string): boolean {
-    const allowed = (this.config.options?.corsOrigins as string[]) || ["http://localhost:3000"];
+    const allowed = (this.config.options?.corsOrigins as string[]) || [
+      "http://localhost:3000",
+      "https://chat.arivumaiyam.com",
+      "https://arivumaiyam.com",
+    ];
     return allowed.some((a) => origin.startsWith(a));
   }
 }
