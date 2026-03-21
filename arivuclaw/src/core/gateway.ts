@@ -1,5 +1,5 @@
 /**
- * Arivumaiyam AI Gateway — The central hub connecting channels to the agent runtime.
+ * ArivuClaw Gateway — The central hub connecting channels to the agent runtime.
  *
  * Improvements over OpenClaw:
  * - Input validation on all gateway URLs (prevents CVE-2026-25253 style attacks)
@@ -12,8 +12,8 @@
 import { EventEmitter } from "eventemitter3";
 import { v4 as uuid } from "uuid";
 import type {
-  ArivumaiyamConfig,
-  ArivumaiyamEvent,
+  ArivuClawConfig,
+  ArivuClawEvent,
   ChannelAdapter,
   ChannelType,
   IncomingMessage,
@@ -37,7 +37,7 @@ export class Gateway extends EventEmitter<Record<string, (...args: unknown[]) =>
   private isRunning = false;
 
   constructor(
-    private config: ArivumaiyamConfig,
+    private config: ArivuClawConfig,
     private memoryStore: MemoryStore,
   ) {
     super();
@@ -212,7 +212,7 @@ export class Gateway extends EventEmitter<Record<string, (...args: unknown[]) =>
         .map(c => `  ${c.type}: ${c.connected ? "✅ Connected" : "❌ Offline"}`)
         .join("\n");
       await this.sendToChannel(incoming.channelType, incoming.channelUserId,
-        `🦀 Arivumaiyam AI Status\n\nRunning: ${health.running ? "Yes" : "No"}\nSessions: ${health.activeSessions}\nUsers: ${health.totalUsers}\n\nChannels:\n${channelList}`);
+        `🦀 ArivuClaw Status\n\nRunning: ${health.running ? "Yes" : "No"}\nSessions: ${health.activeSessions}\nUsers: ${health.totalUsers}\n\nChannels:\n${channelList}`);
       return true;
     }
 
@@ -334,7 +334,7 @@ export class Gateway extends EventEmitter<Record<string, (...args: unknown[]) =>
 
   async start(): Promise<void> {
     if (this.isRunning) return;
-    log.info("Arivumaiyam AI Gateway starting...");
+    log.info("ArivuClaw Gateway starting...");
 
     await this.memoryStore.initialize();
 
@@ -343,12 +343,12 @@ export class Gateway extends EventEmitter<Record<string, (...args: unknown[]) =>
     }
 
     this.isRunning = true;
-    log.info("Arivumaiyam AI Gateway is running 🦀");
+    log.info("ArivuClaw Gateway is running 🦀");
   }
 
   async shutdown(): Promise<void> {
     if (!this.isRunning) return;
-    log.info("Arivumaiyam AI Gateway shutting down...");
+    log.info("ArivuClaw Gateway shutting down...");
 
     // Graceful shutdown: drain active sessions
     for (const [type, adapter] of this.channels) {
@@ -363,7 +363,7 @@ export class Gateway extends EventEmitter<Record<string, (...args: unknown[]) =>
     await this.memoryStore.shutdown();
     this.channels.clear();
     this.isRunning = false;
-    log.info("Arivumaiyam AI Gateway stopped");
+    log.info("ArivuClaw Gateway stopped");
   }
 
   /**
@@ -371,7 +371,7 @@ export class Gateway extends EventEmitter<Record<string, (...args: unknown[]) =>
    * Preserves sessions and user identities across restarts.
    */
   async restart(): Promise<void> {
-    log.info("Arivumaiyam AI Gateway restarting...");
+    log.info("ArivuClaw Gateway restarting...");
 
     // Save channel adapters before shutdown clears them
     const adapters = new Map(this.channels);
@@ -407,7 +407,7 @@ export class Gateway extends EventEmitter<Record<string, (...args: unknown[]) =>
     await this.memoryStore.initialize();
     this.isRunning = true;
     this.emitEvent({ type: "gateway.restarted", data: {} });
-    log.info("Arivumaiyam AI Gateway restarted successfully 🦀");
+    log.info("ArivuClaw Gateway restarted successfully 🦀");
   }
 
   // ─── Health ──────────────────────────────────────────────────────
@@ -429,7 +429,7 @@ export class Gateway extends EventEmitter<Record<string, (...args: unknown[]) =>
     };
   }
 
-  private emitEvent(event: ArivumaiyamEvent): void {
+  private emitEvent(event: ArivuClawEvent): void {
     this.emit(event.type, event.data);
   }
 }

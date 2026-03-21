@@ -1,6 +1,6 @@
-# Contributing to Arivumaiyam AI
+# Contributing to ArivuClaw
 
-Thank you for your interest in contributing to Arivumaiyam AI!
+Thank you for your interest in contributing to ArivuClaw!
 
 ## Getting Started
 

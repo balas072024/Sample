@@ -2,7 +2,7 @@
 name: metasploit-ops
 version: "1.0.0"
 description: "Metasploit Framework — exploit development, payload generation, post-exploitation, and auxiliary modules."
-author: Arivumaiyam AI
+author: ArivuClaw
 tags:
   - metasploit
   - msf

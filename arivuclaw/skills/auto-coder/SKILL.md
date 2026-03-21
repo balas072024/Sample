@@ -5,7 +5,7 @@ description: >
   Autonomous AI code generation — write complete features, functions, classes,
   and modules from natural language descriptions. Multi-language support with
   context-aware generation.
-author: Arivumaiyam AI
+author: ArivuClaw
 tags:
   - code
   - generate
@@ -152,7 +152,7 @@ triggers:
 
 # auto-coder
 
-Autonomous AI code generation skill for Arivumaiyam AI. Write complete features,
+Autonomous AI code generation skill for ArivuClaw. Write complete features,
 functions, classes, and modules from natural language descriptions with
 multi-language support and context-aware generation.
 

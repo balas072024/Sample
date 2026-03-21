@@ -1,5 +1,5 @@
 /**
- * Arivumaiyam AI Web Channel — WebSocket-based web UI and API.
+ * ArivuClaw Web Channel — WebSocket-based web UI and API.
  *
  * Provides:
  * - WebSocket gateway for real-time chat

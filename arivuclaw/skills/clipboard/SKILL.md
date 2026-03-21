@@ -2,7 +2,7 @@
 name: clipboard
 version: "1.0.0"
 description: Read and write system clipboard. Copy/paste programmatically.
-author: Arivumaiyam AI
+author: ArivuClaw
 tags: [clipboard, copy, paste]
 permissions: [system.clipboard]
 tools:

@@ -1,13 +1,13 @@
 /**
- * Arivumaiyam AI Configuration Loader
+ * ArivuClaw Configuration Loader
  */
 
 import * as fs from "fs";
 import * as path from "path";
-import type { ArivumaiyamConfig } from "../core/types";
+import type { ArivuClawConfig } from "../core/types";
 import { getSecurityPolicyForMode } from "../security/unrestricted";
 
-const DEFAULT_CONFIG: ArivumaiyamConfig = {
+const DEFAULT_CONFIG: ArivuClawConfig = {
   mode: "unrestricted",  // Default to unrestricted for local laptop use
   gateway: {
     host: "0.0.0.0",
@@ -126,14 +126,14 @@ const DEFAULT_CONFIG: ArivumaiyamConfig = {
   },
 };
 
-export function loadConfig(): ArivumaiyamConfig {
+export function loadConfig(): ArivuClawConfig {
   // Try loading from multiple locations (precedence: local > user > default)
   const configPaths = [
-    path.resolve("arivumaiyam.config.json"),
-    path.resolve(".arivumaiyam/config.json"),
     path.resolve("arivuclaw.config.json"),
     path.resolve(".arivuclaw/config.json"),
-    path.join(process.env.HOME || process.env.USERPROFILE || "~", ".arivumaiyam", "config.json"),
+    path.resolve("arivuclaw.config.json"),
+    path.resolve(".arivuclaw/config.json"),
+    path.join(process.env.HOME || process.env.USERPROFILE || "~", ".arivuclaw", "config.json"),
   ];
 
   let config = DEFAULT_CONFIG;
@@ -142,8 +142,8 @@ export function loadConfig(): ArivumaiyamConfig {
     if (fs.existsSync(configPath)) {
       try {
         const raw = fs.readFileSync(configPath, "utf-8");
-        const userConfig = JSON.parse(raw) as Partial<ArivumaiyamConfig>;
-        config = deepMerge(DEFAULT_CONFIG as unknown as Record<string, unknown>, userConfig as unknown as Record<string, unknown>) as unknown as ArivumaiyamConfig;
+        const userConfig = JSON.parse(raw) as Partial<ArivuClawConfig>;
+        config = deepMerge(DEFAULT_CONFIG as unknown as Record<string, unknown>, userConfig as unknown as Record<string, unknown>) as unknown as ArivuClawConfig;
         break;
       } catch (error) {
         console.warn(`Failed to load config from ${configPath}: ${error}`);
@@ -160,18 +160,18 @@ export function loadConfig(): ArivumaiyamConfig {
   return config;
 }
 
-function applyEnvOverrides(config: ArivumaiyamConfig): ArivumaiyamConfig {
+function applyEnvOverrides(config: ArivuClawConfig): ArivuClawConfig {
   if (process.env.ARIVUCLAW_MODE) {
-    config.mode = process.env.ARIVUCLAW_MODE as ArivumaiyamConfig["mode"];
+    config.mode = process.env.ARIVUCLAW_MODE as ArivuClawConfig["mode"];
   }
   if (process.env.ARIVUCLAW_PROVIDER) {
-    config.defaultProvider = process.env.ARIVUCLAW_PROVIDER as ArivumaiyamConfig["defaultProvider"];
+    config.defaultProvider = process.env.ARIVUCLAW_PROVIDER as ArivuClawConfig["defaultProvider"];
   }
   if (process.env.ARIVUCLAW_MODEL) {
     config.defaultModel = process.env.ARIVUCLAW_MODEL;
   }
   if (process.env.ARIVUCLAW_LOG_LEVEL) {
-    config.logging.level = process.env.ARIVUCLAW_LOG_LEVEL as ArivumaiyamConfig["logging"]["level"];
+    config.logging.level = process.env.ARIVUCLAW_LOG_LEVEL as ArivuClawConfig["logging"]["level"];
   }
   if (process.env.ARIVUCLAW_SANDBOX === "false") {
     config.security.sandboxEnabled = false;

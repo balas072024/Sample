@@ -2,7 +2,7 @@
 name: fish-speech
 version: "1.0.0"
 description: "Fish Speech V1.5 — SOTA open-source TTS with DualAR architecture. 300K+ hours training data, multi-language, voice cloning, ELO 1339."
-author: Arivumaiyam AI
+author: ArivuClaw
 tags:
   - fish-speech
   - tts

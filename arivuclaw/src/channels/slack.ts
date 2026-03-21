@@ -1,5 +1,5 @@
 /**
- * Arivumaiyam AI Slack Channel — Via @slack/bolt
+ * ArivuClaw Slack Channel — Via @slack/bolt
  */
 
 import type { Attachment, ChannelType, IncomingMessage } from "../core/types";

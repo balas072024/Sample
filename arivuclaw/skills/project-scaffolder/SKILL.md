@@ -4,7 +4,7 @@ version: "1.0.0"
 description: >
   Generate complete project scaffolds — from fullstack web apps to CLI tools,
   libraries, microservices, with CI/CD, tests, linting, Docker.
-author: Arivumaiyam AI
+author: ArivuClaw
 tags:
   - scaffold
   - boilerplate
@@ -160,7 +160,7 @@ triggers:
 
 # Project Scaffolder
 
-The **project-scaffolder** skill enables Arivumaiyam AI to generate complete, production-ready project scaffolds with best practices baked in.
+The **project-scaffolder** skill enables ArivuClaw to generate complete, production-ready project scaffolds with best practices baked in.
 
 ## How It Works
 

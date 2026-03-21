@@ -4,7 +4,7 @@ version: "1.0.0"
 description: >
   Autonomous AI debugger — analyze stack traces, find root causes, suggest and
   auto-apply fixes, reproduce bugs, set breakpoints.
-author: Arivumaiyam AI
+author: ArivuClaw
 tags:
   - debug
   - fix
@@ -153,7 +153,7 @@ triggers:
 
 # auto-debugger
 
-Autonomous AI debugger skill for Arivumaiyam AI. Analyze stack traces, find root
+Autonomous AI debugger skill for ArivuClaw. Analyze stack traces, find root
 causes, suggest and auto-apply fixes, reproduce bugs, and profile performance.
 
 ## Usage

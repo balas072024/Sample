@@ -1,5 +1,5 @@
 /**
- * Arivumaiyam AI Skill Registry — Composable skill management.
+ * ArivuClaw Skill Registry — Composable skill management.
  *
  * Improvements over OpenClaw:
  * - Dependency resolution with topological sorting

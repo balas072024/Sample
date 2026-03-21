@@ -2,7 +2,7 @@
 name: hydra-bruteforce
 version: "1.0.0"
 description: "Fast network login brute-forcer. Supports SSH, FTP, HTTP, SMB, RDP, MySQL, and 50+ protocols."
-author: Arivumaiyam AI
+author: ArivuClaw
 tags:
   - hydra
   - bruteforce

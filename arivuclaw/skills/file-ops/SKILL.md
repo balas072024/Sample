@@ -2,7 +2,7 @@
 name: file-ops
 version: "1.0.0"
 description: Read, write, search, and manage files on the local filesystem.
-author: Arivumaiyam AI
+author: ArivuClaw
 tags:
   - filesystem
   - files

@@ -2,7 +2,7 @@
 name: image-tools
 version: "1.0.0"
 description: Resize, crop, convert, compress, and generate images. AI image generation support.
-author: Arivumaiyam AI
+author: ArivuClaw
 tags:
   - image
   - resize

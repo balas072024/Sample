@@ -1,5 +1,5 @@
 /**
- * Arivumaiyam AI Neural Brain Provider — Experimental biological neural computing.
+ * ArivuClaw Neural Brain Provider — Experimental biological neural computing.
  *
  * Inspired by Cortical Labs' DishBrain project that wired living human neurons
  * into an LLM for token selection. This provider supports:
@@ -10,7 +10,7 @@
  *
  * The Neural Brain mode adds a bio-inspired processing layer that simulates
  * neural plasticity, attention patterns, and associative memory on top of
- * standard LLM inference — giving Arivumaiyam AI more human-like reasoning.
+ * standard LLM inference — giving ArivuClaw more human-like reasoning.
  */
 
 import type {

@@ -1,5 +1,5 @@
 /**
- * Arivumaiyam AI Ollama Provider — Local model support.
+ * ArivuClaw Ollama Provider — Local model support.
  *
  * Improvement over OpenClaw: First-class local model support
  * with automatic model detection and resource management.

@@ -2,7 +2,7 @@
 name: aircrack-wifi
 version: "1.0.0"
 description: "Wireless network security testing — capture, deauth, crack WPA/WPA2/WEP, monitor mode."
-author: Arivumaiyam AI
+author: ArivuClaw
 tags:
   - aircrack
   - wifi

@@ -2,7 +2,7 @@
 name: video-editor
 version: 1.0.0
 description: "Video editing toolkit — trim, merge, resize, add audio, extract frames, convert formats using ffmpeg."
-author: Arivumaiyam AI
+author: ArivuClaw
 tags:
   - video
   - edit
@@ -176,7 +176,7 @@ triggers:
 
 # Video Editor
 
-Video editing toolkit skill for Arivumaiyam AI. Provides trim, merge, resize, audio overlay, frame extraction, and format conversion capabilities powered by ffmpeg.
+Video editing toolkit skill for ArivuClaw. Provides trim, merge, resize, audio overlay, frame extraction, and format conversion capabilities powered by ffmpeg.
 
 ## Usage
 

@@ -2,7 +2,7 @@
 name: api-builder
 version: "1.0.0"
 description: Build, test, and deploy REST APIs. Make HTTP requests. Mock servers.
-author: Arivumaiyam AI
+author: ArivuClaw
 tags: [api, http, rest, curl, mock]
 permissions: [network.http, code.execute, filesystem.write]
 tools:

@@ -2,7 +2,7 @@
 name: git-ops
 version: "1.0.0"
 description: Full Git operations — clone, commit, push, pull, branch, merge, diff, log, stash.
-author: Arivumaiyam AI
+author: ArivuClaw
 tags:
   - git
   - version-control
@@ -109,7 +109,7 @@ triggers:
 
 # Git Operations Skill
 
-Full Git version control from Arivumaiyam AI. Commit, push, pull, branch, merge, and more.
+Full Git version control from ArivuClaw. Commit, push, pull, branch, merge, and more.
 
 ## Notes
 - Always shows diff before committing

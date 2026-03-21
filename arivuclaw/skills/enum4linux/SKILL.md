@@ -2,7 +2,7 @@
 name: enum4linux
 version: "1.0.0"
 description: "Windows/Samba system enumeration. Users, shares, groups, password policies, OS info."
-author: Arivumaiyam AI
+author: ArivuClaw
 tags:
   - enum4linux
   - smb

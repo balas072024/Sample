@@ -1,4 +1,4 @@
-# Arivumaiyam AI — Skills Development Guide
+# ArivuClaw — Skills Development Guide
 
 > 112 bundled skills across 4 categories. Every skill is a `SKILL.md` file — YAML frontmatter + markdown body.
 
@@ -361,7 +361,7 @@ When listing issues, present them in a readable table with number, title, and au
 
 ### Step 3: Implement the tool execution
 
-Arivumaiyam AI's `SandboxExecutor` handles `http_request` natively. Reference environment variables directly in the markdown instructions — the LLM will construct the appropriate HTTP call using the `http_request` built-in tool or your custom executor.
+ArivuClaw's `SandboxExecutor` handles `http_request` natively. Reference environment variables directly in the markdown instructions — the LLM will construct the appropriate HTTP call using the `http_request` built-in tool or your custom executor.
 
 For custom execution logic, create a plugin:
 
@@ -552,4 +552,4 @@ npx arivuclaw marketplace publish ./skills/github-issues --token $MARKETPLACE_TO
 | 7 | architecture-advisor | System design recommendations | keyword: architecture, design |
 | 8 | prompt-optimizer | Optimise LLM prompts | keyword: optimize prompt |
 | 9 | model-eval | Benchmark LLM responses | keyword: evaluate model |
-| 10 | agent-builder | Scaffold new Arivumaiyam AI agents | keyword: create agent |
+| 10 | agent-builder | Scaffold new ArivuClaw agents | keyword: create agent |

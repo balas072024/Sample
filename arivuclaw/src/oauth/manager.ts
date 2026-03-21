@@ -1,5 +1,5 @@
 /**
- * Arivumaiyam AI OAuth2 Authentication Manager
+ * ArivuClaw OAuth2 Authentication Manager
  *
  * Manages OAuth2 flows for multiple providers, storing tokens encrypted
  * at rest with AES-256-GCM. Supports authorization code grant with
@@ -148,7 +148,7 @@ const DEFAULT_PROVIDERS: Record<OAuthProviderName, Omit<OAuthProviderConfig, "cl
  * Encrypts and stores OAuth tokens at rest using AES-256-GCM.
  *
  * Tokens are encrypted with a master key derived from the provided secret.
- * The store persists tokens to a JSON file in the Arivumaiyam AI config directory.
+ * The store persists tokens to a JSON file in the ArivuClaw config directory.
  *
  * @example
  * ```ts

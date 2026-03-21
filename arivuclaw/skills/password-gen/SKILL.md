@@ -2,7 +2,7 @@
 name: password-gen
 version: "1.0.0"
 description: Generate secure passwords, passphrases, and manage password strength analysis.
-author: Arivumaiyam AI
+author: ArivuClaw
 tags: [password, security, generate]
 permissions: [system.clipboard]
 tools:

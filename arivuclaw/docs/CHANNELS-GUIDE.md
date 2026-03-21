@@ -1,4 +1,4 @@
-# Arivumaiyam AI — Channels Guide
+# ArivuClaw — Channels Guide
 
 > 10 channels. One unified agent. Cross-channel identity and session continuity.
 
@@ -112,7 +112,7 @@ arivuclaw telegram delete-webhook
 
 ### Streaming
 
-Arivumaiyam AI streams to Telegram by sending an initial "..." message, then editing it with progressive content chunks at configurable intervals (default 800 ms).
+ArivuClaw streams to Telegram by sending an initial "..." message, then editing it with progressive content chunks at configurable intervals (default 800 ms).
 
 ### Group Bots
 
@@ -178,7 +178,7 @@ Available slash commands:
 
 ### Streaming
 
-Discord supports message editing. Arivumaiyam AI sends an initial message and edits it in-place as tokens arrive (rate-limited to one edit per 800 ms to respect Discord's rate limits).
+Discord supports message editing. ArivuClaw sends an initial message and edits it in-place as tokens arrive (rate-limited to one edit per 800 ms to respect Discord's rate limits).
 
 ---
 
@@ -218,7 +218,7 @@ channels: {
 
 ### Rich Output
 
-Arivumaiyam AI formats Slack responses using Block Kit when rich content is detected (tables, code blocks, lists).
+ArivuClaw formats Slack responses using Block Kit when rich content is detected (tables, code blocks, lists).
 
 ```typescript
 // Block Kit rendering is automatic.
@@ -228,7 +228,7 @@ channels: { slack: { useBlockKit: false } }
 
 ### Streaming
 
-Slack supports message updates. Arivumaiyam AI posts an initial message and calls `chat.update` periodically as tokens arrive.
+Slack supports message updates. ArivuClaw posts an initial message and calls `chat.update` periodically as tokens arrive.
 
 ---
 
@@ -236,7 +236,7 @@ Slack supports message updates. Arivumaiyam AI posts an initial message and call
 
 **Library:** [ws](https://github.com/websockets/ws)
 
-The Web channel provides a WebSocket and HTTP API for embedding Arivumaiyam AI into web applications.
+The Web channel provides a WebSocket and HTTP API for embedding ArivuClaw into web applications.
 
 ### Setup
 
@@ -356,7 +356,7 @@ channels: {
 
 - Signal does not support message editing; streaming is simulated with a single final message.
 - Group messages are supported.
-- Arivumaiyam AI runs `signal-cli` as a subprocess using its `jsonRpc` interface.
+- ArivuClaw runs `signal-cli` as a subprocess using its `jsonRpc` interface.
 
 ---
 
@@ -412,11 +412,11 @@ channels: {
 
 ### Adaptive Cards
 
-Arivumaiyam AI automatically renders rich content (tables, code) as Adaptive Cards in Teams.
+ArivuClaw automatically renders rich content (tables, code) as Adaptive Cards in Teams.
 
 ### Streaming
 
-Teams supports activity updates. Arivumaiyam AI sends a `typing` activity, then replaces it with the completed response.
+Teams supports activity updates. ArivuClaw sends a `typing` activity, then replaces it with the completed response.
 
 ---
 
@@ -454,7 +454,7 @@ channels: {
 
 ## Cross-Channel Identity
 
-Arivumaiyam AI maintains a single `UserIdentity` across all channels. When a user on Telegram sends a message, and then the same person sends a message on Discord, Arivumaiyam AI recognises them as the same user — sharing memory, preferences, and conversation history.
+ArivuClaw maintains a single `UserIdentity` across all channels. When a user on Telegram sends a message, and then the same person sends a message on Discord, ArivuClaw recognises them as the same user — sharing memory, preferences, and conversation history.
 
 ### How it works
 

@@ -1,13 +1,13 @@
-# Arivumaiyam AI — Windows Uninstall Script
+# ArivuClaw — Windows Uninstall Script
 # Run: powershell -ExecutionPolicy Bypass -File scripts\uninstall.ps1
 
 Write-Host ""
 Write-Host "======================================" -ForegroundColor Cyan
-Write-Host "  Arivumaiyam AI — Uninstall" -ForegroundColor Cyan
+Write-Host "  ArivuClaw — Uninstall" -ForegroundColor Cyan
 Write-Host "======================================" -ForegroundColor Cyan
 Write-Host ""
 
-$confirm = Read-Host "Remove Arivumaiyam AI completely? (y/N)"
+$confirm = Read-Host "Remove ArivuClaw completely? (y/N)"
 if ($confirm -ne "y") {
     Write-Host "Cancelled." -ForegroundColor Yellow
     exit
@@ -15,9 +15,9 @@ if ($confirm -ne "y") {
 
 # Remove config
 $configDirs = @(
-    "$env:USERPROFILE\.arivumaiyam",
     "$env:USERPROFILE\.arivuclaw",
-    ".arivumaiyam",
+    "$env:USERPROFILE\.arivuclaw",
+    ".arivuclaw",
     ".arivuclaw"
 )
 
@@ -58,6 +58,6 @@ $env:TELEGRAM_BOT_TOKEN = $null
 $env:DISCORD_BOT_TOKEN = $null
 
 Write-Host ""
-Write-Host "  Done! Arivumaiyam AI has been removed." -ForegroundColor Green
+Write-Host "  Done! ArivuClaw has been removed." -ForegroundColor Green
 Write-Host "  To fully remove, delete this folder: $(Get-Location)" -ForegroundColor Gray
 Write-Host ""

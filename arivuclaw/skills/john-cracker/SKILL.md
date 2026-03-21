@@ -2,7 +2,7 @@
 name: john-cracker
 version: "1.0.0"
 description: "John the Ripper password cracker. Hash cracking, wordlist attacks, rule-based attacks, format detection."
-author: Arivumaiyam AI
+author: ArivuClaw
 tags:
   - john
   - password

@@ -2,7 +2,7 @@
 name: database
 version: "1.0.0"
 description: Query and manage databases — SQLite, PostgreSQL, MySQL, MongoDB, Redis.
-author: Arivumaiyam AI
+author: ArivuClaw
 tags:
   - database
   - sql
@@ -85,7 +85,7 @@ triggers:
 
 # Database Skill
 
-Query and manage any database directly from Arivumaiyam AI.
+Query and manage any database directly from ArivuClaw.
 
 ## Supported Databases
 - **SQLite** — File-based, zero config

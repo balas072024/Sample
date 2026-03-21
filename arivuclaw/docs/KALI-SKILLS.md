@@ -1,6 +1,6 @@
 # Kali Linux Security Skills Reference
 
-Arivumaiyam AI includes 40 built-in security testing skills covering the full Kali Linux toolkit.
+ArivuClaw includes 40 built-in security testing skills covering the full Kali Linux toolkit.
 
 ## Reconnaissance (10 skills)
 

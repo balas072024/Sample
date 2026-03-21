@@ -2,7 +2,7 @@
 name: gobuster-enum
 version: "1.0.0"
 description: "Directory, DNS, and virtual host brute-forcing with Gobuster."
-author: Arivumaiyam AI
+author: ArivuClaw
 tags:
   - gobuster
   - bruteforce

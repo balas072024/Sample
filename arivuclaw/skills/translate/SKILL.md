@@ -2,7 +2,7 @@
 name: translate
 version: "1.0.0"
 description: Translate text between 100+ languages. Detect language. Batch translate files.
-author: Arivumaiyam AI
+author: ArivuClaw
 tags:
   - translate
   - language

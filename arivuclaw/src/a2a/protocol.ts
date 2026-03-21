@@ -1,5 +1,5 @@
 /**
- * Arivumaiyam AI Agent-to-Agent Protocol (Google ADK Compatible)
+ * ArivuClaw Agent-to-Agent Protocol (Google ADK Compatible)
  *
  * Implements the A2A protocol for inter-agent communication, allowing
  * agents to discover each other, delegate tasks, and exchange results.

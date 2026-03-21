@@ -2,7 +2,7 @@
 name: browser-automation
 version: "1.0.0"
 description: Web browser automation via Puppeteer/Playwright for navigating pages, clicking elements, filling forms, taking screenshots, and scraping data.
-author: Arivumaiyam AI
+author: ArivuClaw
 tags: [browser, automation, puppeteer, playwright, scraping]
 permissions: [network.fetch, filesystem.write]
 tools:

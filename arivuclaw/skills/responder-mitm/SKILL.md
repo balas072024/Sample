@@ -2,7 +2,7 @@
 name: responder-mitm
 version: "1.0.0"
 description: "Responder LLMNR/NBT-NS/MDNS poisoner and NTLM relay for network credential capture."
-author: Arivumaiyam AI
+author: ArivuClaw
 tags:
   - responder
   - mitm

@@ -1,5 +1,5 @@
 /**
- * Arivumaiyam AI Discord Channel — Via discord.js
+ * ArivuClaw Discord Channel — Via discord.js
  */
 
 import { v4 as uuid } from "uuid";

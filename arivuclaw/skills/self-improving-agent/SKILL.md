@@ -4,7 +4,7 @@ version: "1.0.0"
 description: >
   Self-improving AI — monitors its own performance, identifies weaknesses,
   generates improvements to its own skills and prompts, A/B tests changes.
-author: Arivumaiyam AI
+author: ArivuClaw
 tags:
   - self-improving
   - meta-learning
@@ -131,7 +131,7 @@ triggers:
 
 # Self-Improving Agent
 
-The **self-improving-agent** skill gives Arivumaiyam AI the ability to monitor, analyze, and improve its own performance over time.
+The **self-improving-agent** skill gives ArivuClaw the ability to monitor, analyze, and improve its own performance over time.
 
 ## How It Works
 

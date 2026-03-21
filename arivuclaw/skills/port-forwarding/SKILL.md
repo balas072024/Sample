@@ -2,7 +2,7 @@
 name: port-forwarding
 version: "1.0.0"
 description: "Port forwarding, tunneling, and pivoting — SSH tunnels, socat, chisel, ligolo."
-author: Arivumaiyam AI
+author: ArivuClaw
 tags:
   - tunnel
   - portforward

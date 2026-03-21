@@ -1,9 +1,9 @@
-# Arivumaiyam AI — Windows Quick Install Script
+# ArivuClaw — Windows Quick Install Script
 # Run: powershell -ExecutionPolicy Bypass -File scripts\install.ps1
 
 Write-Host ""
 Write-Host "======================================" -ForegroundColor Cyan
-Write-Host "  Arivumaiyam AI — Quick Install" -ForegroundColor Cyan
+Write-Host "  ArivuClaw — Quick Install" -ForegroundColor Cyan
 Write-Host "======================================" -ForegroundColor Cyan
 Write-Host ""
 

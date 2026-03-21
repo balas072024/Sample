@@ -1,6 +1,6 @@
-# Arivumaiyam AI Quickstart Guide
+# ArivuClaw Quickstart Guide
 
-Get Arivumaiyam AI running in under 5 minutes.
+Get ArivuClaw running in under 5 minutes.
 
 ## Prerequisites
 
@@ -92,7 +92,7 @@ Once running, just talk naturally:
 
 ## Next Steps
 
-- [Architecture](./ARCHITECTURE.md) — How Arivumaiyam AI works
+- [Architecture](./ARCHITECTURE.md) — How ArivuClaw works
 - [Skills Guide](./SKILLS-GUIDE.md) — Create custom skills
 - [Providers Guide](./PROVIDERS-GUIDE.md) — Configure LLM providers
 - [Channels Guide](./CHANNELS-GUIDE.md) — Connect messaging platforms

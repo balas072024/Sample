@@ -1,5 +1,5 @@
 /**
- * Arivumaiyam AI Anthropic Provider — Claude integration.
+ * ArivuClaw Anthropic Provider — Claude integration.
  */
 
 import type {

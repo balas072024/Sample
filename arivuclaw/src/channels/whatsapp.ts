@@ -1,5 +1,5 @@
 /**
- * Arivumaiyam AI WhatsApp Channel — Via Baileys (WhatsApp Web protocol).
+ * ArivuClaw WhatsApp Channel — Via Baileys (WhatsApp Web protocol).
  */
 
 import { v4 as uuid } from "uuid";

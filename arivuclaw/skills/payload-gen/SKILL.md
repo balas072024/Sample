@@ -2,7 +2,7 @@
 name: payload-gen
 version: "1.0.0"
 description: "Generate payloads and shellcode using msfvenom, and custom payload creation for authorized testing."
-author: Arivumaiyam AI
+author: ArivuClaw
 tags:
   - msfvenom
   - payload

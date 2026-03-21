@@ -2,7 +2,7 @@
 name: amphion-audio
 version: "1.0.0"
 description: "Amphion — comprehensive audio/music/speech generation toolkit. VITS, VALL-E, NaturalSpeech2, FastSpeech2, and more."
-author: Arivumaiyam AI
+author: ArivuClaw
 tags:
   - amphion
   - audio

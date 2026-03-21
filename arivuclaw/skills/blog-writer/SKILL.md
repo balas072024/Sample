@@ -2,7 +2,7 @@
 name: blog-writer
 version: 1.0.0
 description: Writes blog posts, articles, and content with configurable tone, length, and SEO optimization.
-author: Arivumaiyam AI
+author: ArivuClaw
 tags:
   - content
   - writing

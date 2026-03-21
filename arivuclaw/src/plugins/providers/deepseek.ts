@@ -1,5 +1,5 @@
 /**
- * Arivumaiyam AI DeepSeek Provider — Free/cheap DeepSeek models.
+ * ArivuClaw DeepSeek Provider — Free/cheap DeepSeek models.
  *
  * DeepSeek offers competitive free-tier and very low-cost access.
  * Uses OpenAI-compatible API format.

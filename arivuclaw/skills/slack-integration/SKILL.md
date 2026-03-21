@@ -2,7 +2,7 @@
 name: slack-integration
 version: "1.0.0"
 description: Full Slack integration for managing channels, messages, threads, reactions, and file sharing.
-author: Arivumaiyam AI
+author: ArivuClaw
 tags: [slack, messaging, channels, collaboration, chat]
 permissions: [network.fetch, filesystem.read]
 tools:

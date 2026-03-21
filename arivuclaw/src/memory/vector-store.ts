@@ -1,5 +1,5 @@
 /**
- * Arivumaiyam AI Vector Memory Store — RAG-powered contextual memory.
+ * ArivuClaw Vector Memory Store — RAG-powered contextual memory.
  *
  * Improvements over OpenClaw:
  * - Built-in vector search (OpenClaw requires external plugins)

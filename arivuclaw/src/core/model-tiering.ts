@@ -1,5 +1,5 @@
 /**
- * Arivumaiyam AI Model Tiering — Cost-optimised model selection.
+ * ArivuClaw Model Tiering — Cost-optimised model selection.
  *
  * Evaluates task complexity and routes requests to the most cost-effective
  * model tier. Default tiers:

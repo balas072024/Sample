@@ -2,7 +2,7 @@
 name: steganography
 version: "1.0.0"
 description: Hide and extract data within images, audio, and files. Steghide, zsteg, binwalk, stegsolve.
-author: Arivumaiyam AI
+author: ArivuClaw
 tags:
   - steganography
   - stego

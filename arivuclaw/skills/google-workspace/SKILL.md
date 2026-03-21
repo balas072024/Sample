@@ -2,7 +2,7 @@
 name: google-workspace
 version: "1.0.0"
 description: Google Workspace integration for Gmail, Calendar, Drive, Docs, and Sheets operations.
-author: Arivumaiyam AI
+author: ArivuClaw
 tags: [google, gmail, calendar, drive, docs, sheets]
 permissions: [network.fetch, filesystem.read, filesystem.write]
 tools:

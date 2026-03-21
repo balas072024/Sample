@@ -1,5 +1,5 @@
 /**
- * Arivumaiyam AI Groq Provider — Ultra-fast inference, free tier available.
+ * ArivuClaw Groq Provider — Ultra-fast inference, free tier available.
  *
  * Groq provides very fast inference with free API access for
  * Llama, Mixtral, and Gemma models.

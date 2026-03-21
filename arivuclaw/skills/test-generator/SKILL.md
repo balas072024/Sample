@@ -2,7 +2,7 @@
 name: test-generator
 version: 1.0.0
 description: Auto-generates unit and integration test suites for source code. Supports multiple frameworks and languages.
-author: Arivumaiyam AI
+author: ArivuClaw
 tags:
   - development
   - testing

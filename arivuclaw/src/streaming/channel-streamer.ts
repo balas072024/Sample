@@ -1,5 +1,5 @@
 /**
- * Arivumaiyam AI Channel Streamer — Push streaming tokens to specific channel types.
+ * ArivuClaw Channel Streamer — Push streaming tokens to specific channel types.
  *
  * Each channel type has its own buffering strategy:
  * - WhatsApp/Telegram: batch tokens into sentence-sized chunks

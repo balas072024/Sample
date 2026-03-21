@@ -2,7 +2,7 @@
 name: sound-effects
 version: "1.0.0"
 description: "Generate, mix, and process sound effects and ambient audio for videos, games, and applications."
-author: Arivumaiyam AI
+author: ArivuClaw
 tags:
   - sound
   - effects

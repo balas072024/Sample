@@ -1,5 +1,5 @@
 /**
- * Arivumaiyam AI Sandbox Executor — Isolated tool execution.
+ * ArivuClaw Sandbox Executor — Isolated tool execution.
  *
  * Improvements over OpenClaw:
  * - Tools execute in isolated contexts with declared permissions only
@@ -170,7 +170,7 @@ export class SandboxExecutor {
     const response = await fetch(input.url, {
       method: input.method || "GET",
       body: input.body,
-      headers: { "User-Agent": "Mozilla/5.0 (compatible; Arivumaiyam AI/1.0)" },
+      headers: { "User-Agent": "Mozilla/5.0 (compatible; ArivuClaw/1.0)" },
       signal: AbortSignal.timeout(120_000), // 2 min for network ops
     });
 

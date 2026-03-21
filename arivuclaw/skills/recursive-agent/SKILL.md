@@ -4,7 +4,7 @@ version: "1.0.0"
 description: >
   Recursive self-improving AI agent — breaks down complex tasks into subtasks,
   executes them recursively, validates results, retries on failure, learns from outcomes.
-author: Arivumaiyam AI
+author: ArivuClaw
 tags:
   - recursive
   - agent
@@ -139,7 +139,7 @@ triggers:
 
 # Recursive Agent
 
-The **recursive-agent** skill enables Arivumaiyam AI to tackle complex tasks by recursively decomposing them into manageable subtasks, executing each one, validating results, and learning from outcomes.
+The **recursive-agent** skill enables ArivuClaw to tackle complex tasks by recursively decomposing them into manageable subtasks, executing each one, validating results, and learning from outcomes.
 
 ## How It Works
 

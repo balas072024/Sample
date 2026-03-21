@@ -2,7 +2,7 @@
 name: impacket-tools
 version: "1.0.0"
 description: "Impacket network protocol toolkit — SMB, NTLM, Kerberos, WMI, DCOM, MSSQL attacks."
-author: Arivumaiyam AI
+author: ArivuClaw
 tags:
   - impacket
   - smb

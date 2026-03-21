@@ -2,7 +2,7 @@
 name: pdf-tools
 version: "1.0.0"
 description: Create, read, merge, split, and convert PDFs.
-author: Arivumaiyam AI
+author: ArivuClaw
 tags:
   - pdf
   - document

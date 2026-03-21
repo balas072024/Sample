@@ -2,7 +2,7 @@
 name: reverse-shell
 version: "1.0.0"
 description: "Generate reverse shell one-liners and listeners for authorized penetration testing."
-author: Arivumaiyam AI
+author: ArivuClaw
 tags:
   - reverse-shell
   - shell

@@ -2,7 +2,7 @@
 name: video-script
 version: 1.0.0
 description: Writes video scripts and YouTube content including intros, outros, scene breakdowns, and timestamps.
-author: Arivumaiyam AI
+author: ArivuClaw
 tags:
   - content
   - video

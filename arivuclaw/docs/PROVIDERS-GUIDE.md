@@ -1,4 +1,4 @@
-# Arivumaiyam AI — Providers Guide
+# ArivuClaw — Providers Guide
 
 > 8 LLM provider integrations. All implement `LLMProvider`. Swap with a config change.
 
@@ -321,7 +321,7 @@ export GOOGLE_API_KEY=...
 
 **File:** `src/plugins/providers/neural-brain.ts`
 
-Neural Brain is Arivumaiyam AI's proprietary bio-inspired reasoning layer. It wraps an existing provider and adds neuromorphic processing modes.
+Neural Brain is ArivuClaw's proprietary bio-inspired reasoning layer. It wraps an existing provider and adds neuromorphic processing modes.
 
 ### Modes
 

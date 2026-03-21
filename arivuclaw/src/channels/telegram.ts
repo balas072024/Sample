@@ -1,5 +1,5 @@
 /**
- * Arivumaiyam AI Telegram Channel — Via grammY bot framework.
+ * ArivuClaw Telegram Channel — Via grammY bot framework.
  */
 
 import { v4 as uuid } from "uuid";

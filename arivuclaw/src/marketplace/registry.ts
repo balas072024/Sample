@@ -1,5 +1,5 @@
 /**
- * Arivumaiyam AI Skill Marketplace — Client for searching, installing, and
+ * ArivuClaw Skill Marketplace — Client for searching, installing, and
  * publishing skills from a central registry.
  *
  * Skills are distributed as tarballs containing a manifest and source files.
@@ -190,7 +190,7 @@ export class SkillVerifier {
 // ─── Marketplace Client ──────────────────────────────────────────────
 
 /**
- * Client for the Arivumaiyam AI Skill Marketplace.
+ * Client for the ArivuClaw Skill Marketplace.
  *
  * Provides methods to search, install, publish, update, and manage
  * skills from a central registry.

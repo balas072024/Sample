@@ -1,10 +1,10 @@
-# Arivumaiyam AI — System Architecture
+# ArivuClaw — System Architecture
 
 > Version 1.0.0 | 54 TypeScript source files | 112 skills | 10 channels | 8 LLM providers | 1153 tests passing
 
 ## Overview
 
-Arivumaiyam AI is an open-source AI agent framework built around a hub-and-spoke gateway model. A single `Gateway` instance accepts connections from any of the 10 supported channel adapters and routes every message through a shared `AgentRuntime`. The runtime manages the AI reasoning loop, retrieval-augmented generation, skill dispatch, memory persistence, and security enforcement before returning a response to the originating channel.
+ArivuClaw is an open-source AI agent framework built around a hub-and-spoke gateway model. A single `Gateway` instance accepts connections from any of the 10 supported channel adapters and routes every message through a shared `AgentRuntime`. The runtime manages the AI reasoning loop, retrieval-augmented generation, skill dispatch, memory persistence, and security enforcement before returning a response to the originating channel.
 
 ---
 
@@ -199,7 +199,7 @@ All providers implement `LLMProvider`: `chat()`, `streamChat()`, `countTokens()`
 
 | Component | Detail |
 |---|---|
-| MCPServer | Exposes Arivumaiyam AI native tools as MCP tools; publishes memory snapshots as MCP resources |
+| MCPServer | Exposes ArivuClaw native tools as MCP tools; publishes memory snapshots as MCP resources |
 | MCPClient | Connects to external MCP servers via HTTP or stdio transport |
 | MCPBridge | Bidirectional: `exposeNativeTools()` + `connectServer()` + `callExternalTool()` |
 | Protocol | JSON-RPC 2.0, protocol version `2024-11-05`; supports tools, resources, prompts |
@@ -346,9 +346,9 @@ arivuclaw/
 
 ## Key Design Decisions
 
-1. **Unrestricted by default.** Arivumaiyam AI trusts the owner. In `unrestricted` mode all tools execute without approval. Opt into guardrails per action as needed.
+1. **Unrestricted by default.** ArivuClaw trusts the owner. In `unrestricted` mode all tools execute without approval. Opt into guardrails per action as needed.
 2. **Skills are markdown files.** SKILL.md uses YAML + markdown — portable, version-controllable, and readable by both humans and LLMs.
 3. **Cross-channel identity.** A single `UserIdentity` spans all channels via `linkUserChannel()`.
 4. **Memory is first-class.** Every conversation is stored with embeddings. Facts are auto-extracted. Memory decays. RAG is injected on every LLM call.
 5. **Provider-agnostic.** All 8 providers implement `LLMProvider`. Swap with a config change; `ModelTierRouter` routes to cost-optimal models automatically.
-6. **MCP-native.** Arivumaiyam AI both exposes and consumes MCP tools, making it interoperable with the broader AI-agent ecosystem.
+6. **MCP-native.** ArivuClaw both exposes and consumes MCP tools, making it interoperable with the broader AI-agent ecosystem.

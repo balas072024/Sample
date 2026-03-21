@@ -2,7 +2,7 @@
 name: crackmapexec
 version: "1.0.0"
 description: "CrackMapExec/NetExec — Swiss army knife for pentesting Windows/AD networks. SMB, WinRM, LDAP, MSSQL, SSH."
-author: Arivumaiyam AI
+author: ArivuClaw
 tags:
   - crackmapexec
   - netexec

@@ -2,7 +2,7 @@
 name: mochi-video
 version: 1.0.0
 description: "Mochi 1 (Genmo) — 10B parameter open video model with high-fidelity motion and strong prompt adherence. Apache 2.0 license."
-author: Arivumaiyam AI
+author: ArivuClaw
 tags:
   - mochi
   - video
@@ -49,7 +49,7 @@ triggers:
 
 # Mochi Video
 
-Mochi 1 (Genmo) video generation skill for Arivumaiyam AI. A 10B parameter open video model delivering high-fidelity motion with strong prompt adherence, released under the Apache 2.0 license.
+Mochi 1 (Genmo) video generation skill for ArivuClaw. A 10B parameter open video model delivering high-fidelity motion with strong prompt adherence, released under the Apache 2.0 license.
 
 ## Usage
 

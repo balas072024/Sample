@@ -2,7 +2,7 @@
 name: jira-integration
 version: "1.0.0"
 description: Jira project management integration for managing issues, sprints, boards, and assignments.
-author: Arivumaiyam AI
+author: ArivuClaw
 tags: [jira, project-management, issues, sprints, agile]
 permissions: [network.fetch]
 tools:

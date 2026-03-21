@@ -2,7 +2,7 @@
 name: autopsy-disk
 version: "1.0.0"
 description: "Autopsy/Sleuth Kit disk forensics — file system analysis, keyword search, hash filtering, web artifacts."
-author: Arivumaiyam AI
+author: ArivuClaw
 tags:
   - autopsy
   - sleuthkit

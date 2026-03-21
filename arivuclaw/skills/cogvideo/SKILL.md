@@ -2,7 +2,7 @@
 name: cogvideo
 version: 1.0.0
 description: "CogVideoX-5B (Tsinghua/Zhipu) — lightweight video generation, 6-second clips, efficient on moderate GPUs."
-author: Arivumaiyam AI
+author: ArivuClaw
 tags:
   - cogvideo
   - video
@@ -72,7 +72,7 @@ triggers:
 
 # CogVideo
 
-CogVideoX-5B (Tsinghua/Zhipu) video generation skill for Arivumaiyam AI. A lightweight model for generating 6-second video clips, efficient enough to run on moderate GPUs.
+CogVideoX-5B (Tsinghua/Zhipu) video generation skill for ArivuClaw. A lightweight model for generating 6-second video clips, efficient enough to run on moderate GPUs.
 
 ## Usage
 

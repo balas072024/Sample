@@ -2,7 +2,7 @@
 name: amass-recon
 version: "1.0.0"
 description: "In-depth DNS enumeration, subdomain discovery, and attack surface mapping with OWASP Amass."
-author: Arivumaiyam AI
+author: ArivuClaw
 tags:
   - amass
   - dns

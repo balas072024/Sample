@@ -1,5 +1,5 @@
 /**
- * Arivumaiyam AI Onboarding Wizard — Full interactive setup.
+ * ArivuClaw Onboarding Wizard — Full interactive setup.
  */
 
 import * as fs from "fs";
@@ -32,8 +32,8 @@ export async function runOnboardWizard(): Promise<void> {
 
   console.log(`
 ╔══════════════════════════════════════════════════════════╗
-║          🦀 Arivumaiyam AI — Setup Wizard               ║
-║     அறிவுமையம் — Center of Knowledge                     ║
+║          🦀 ArivuClaw — Setup Wizard               ║
+║     ArivuClaw — The Wisdom Way                     ║
 ║     Configure your AI assistant step by step             ║
 ╚══════════════════════════════════════════════════════════╝
 `);
@@ -170,7 +170,7 @@ export async function runOnboardWizard(): Promise<void> {
       logging: { level: "info" },
     };
 
-    const configDir = path.resolve(".arivumaiyam");
+    const configDir = path.resolve(".arivuclaw");
     fs.mkdirSync(configDir, { recursive: true });
     const configPath = path.join(configDir, "config.json");
     fs.writeFileSync(configPath, JSON.stringify(config, null, 2));
@@ -191,7 +191,7 @@ export async function runOnboardWizard(): Promise<void> {
 ║  Config: ${configPath.padEnd(46)}║
 ║  Env:    .env                                            ║
 ║                                                          ║
-║  🚀 Start Arivumaiyam AI:                               ║
+║  🚀 Start ArivuClaw:                               ║
 ║     npx ts-node src/cli/index.ts chat    (CLI only)      ║
 ║     npx ts-node src/cli/index.ts start   (all channels)  ║
 ╚══════════════════════════════════════════════════════════╝
@@ -208,8 +208,8 @@ export async function runConfigCommand(args: string[]): Promise<void> {
   const ask = (q: string): Promise<string> => new Promise((r) => rl.question(q, r));
 
   const configPaths = [
-    path.resolve(".arivumaiyam/config.json"),
-    path.resolve("arivumaiyam.config.json"),
+    path.resolve(".arivuclaw/config.json"),
+    path.resolve("arivuclaw.config.json"),
   ];
 
   let configPath = configPaths.find((p) => fs.existsSync(p));
@@ -224,7 +224,7 @@ export async function runConfigCommand(args: string[]): Promise<void> {
   try {
     switch (subcommand) {
       case "show":
-        console.log("\n🦀 Arivumaiyam AI — Current Configuration\n");
+        console.log("\n🦀 ArivuClaw — Current Configuration\n");
         if (!configPath) {
           console.log("  No config file found. Run: npx ts-node src/cli/index.ts onboard\n");
           return;
@@ -254,7 +254,7 @@ export async function runConfigCommand(args: string[]): Promise<void> {
           return;
         }
         if (!configPath) {
-          configPath = path.resolve(".arivumaiyam/config.json");
+          configPath = path.resolve(".arivuclaw/config.json");
           fs.mkdirSync(path.dirname(configPath), { recursive: true });
         }
         if (key === "provider") config.defaultProvider = value;
@@ -274,7 +274,7 @@ export async function runConfigCommand(args: string[]): Promise<void> {
           return;
         }
         if (!configPath) {
-          configPath = path.resolve(".arivumaiyam/config.json");
+          configPath = path.resolve(".arivuclaw/config.json");
           fs.mkdirSync(path.dirname(configPath), { recursive: true });
         }
         const channels = (config.channels as unknown[]) || [];

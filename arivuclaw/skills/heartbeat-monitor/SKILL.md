@@ -2,7 +2,7 @@
 name: heartbeat-monitor
 version: "1.0.0"
 description: Background health checks and recurring monitoring for pinging URLs, checking services, and alerting on failures.
-author: Arivumaiyam AI
+author: ArivuClaw
 tags: [monitoring, health, heartbeat, uptime, alerts]
 permissions: [network.fetch, filesystem.write]
 tools:

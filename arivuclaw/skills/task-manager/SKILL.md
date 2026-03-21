@@ -2,7 +2,7 @@
 name: task-manager
 version: 1.0.0
 description: Manages todo lists, task tracking, and lightweight project management with priorities and deadlines.
-author: Arivumaiyam AI
+author: ArivuClaw
 tags:
   - productivity
   - tasks

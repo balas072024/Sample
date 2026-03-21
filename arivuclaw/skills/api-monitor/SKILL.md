@@ -2,7 +2,7 @@
 name: api-monitor
 version: 1.0.0
 description: Monitors API health, uptime, response times, and alerts on degradation or outages.
-author: Arivumaiyam AI
+author: ArivuClaw
 tags:
   - devops
   - monitoring

@@ -1,5 +1,5 @@
 /**
- * Arivumaiyam AI Guardrails — Owner-controlled approval system.
+ * ArivuClaw Guardrails — Owner-controlled approval system.
  * Gap #6: Human-in-the-loop when YOU want it, not forced.
  *
  * In unrestricted mode: ALL actions auto-approved (default).

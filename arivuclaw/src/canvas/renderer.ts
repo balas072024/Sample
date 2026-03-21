@@ -1,5 +1,5 @@
 /**
- * Arivumaiyam AI Canvas Renderer — Rich output: charts, tables, diagrams, code blocks.
+ * ArivuClaw Canvas Renderer — Rich output: charts, tables, diagrams, code blocks.
  * Gap #18: Render Mermaid diagrams, tables, charts in chat.
  */
 

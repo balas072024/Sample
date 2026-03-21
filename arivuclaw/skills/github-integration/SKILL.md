@@ -2,7 +2,7 @@
 name: github-integration
 version: "1.0.0"
 description: Full GitHub integration for managing repos, pull requests, issues, actions, releases, and code search.
-author: Arivumaiyam AI
+author: ArivuClaw
 tags: [github, git, repository, pr, issues, actions]
 permissions: [network.fetch, filesystem.read]
 tools:

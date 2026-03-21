@@ -1,5 +1,5 @@
 /**
- * Arivumaiyam AI System Tools — Direct system access for unrestricted/local-admin mode.
+ * ArivuClaw System Tools — Direct system access for unrestricted/local-admin mode.
  *
  * These tools provide full system control when running on your local laptop.
  */

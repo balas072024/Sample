@@ -2,7 +2,7 @@
 name: sora-video
 version: 1.0.0
 description: "OpenAI Sora 2 video generation — text-to-video, image-to-video, video editing, with synced audio."
-author: Arivumaiyam AI
+author: ArivuClaw
 tags:
   - sora
   - video
@@ -144,7 +144,7 @@ triggers:
 
 # Sora Video
 
-OpenAI Sora 2 video generation skill for Arivumaiyam AI. Supports text-to-video, image-to-video, video editing, and extension with synced audio generation.
+OpenAI Sora 2 video generation skill for ArivuClaw. Supports text-to-video, image-to-video, video editing, and extension with synced audio generation.
 
 ## Usage
 

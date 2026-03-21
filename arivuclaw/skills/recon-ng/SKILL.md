@@ -2,7 +2,7 @@
 name: recon-ng
 version: "1.0.0"
 description: "Full-featured reconnaissance framework. Modules for OSINT, DNS, contacts, credentials."
-author: Arivumaiyam AI
+author: ArivuClaw
 tags:
   - recon-ng
   - osint

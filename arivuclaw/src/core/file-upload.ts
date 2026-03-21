@@ -1,5 +1,5 @@
 /**
- * Arivumaiyam AI File Upload Handler — Process uploaded files from channels.
+ * ArivuClaw File Upload Handler — Process uploaded files from channels.
  * Gap #19: Images → vision, PDFs → extraction, code → analysis.
  */
 

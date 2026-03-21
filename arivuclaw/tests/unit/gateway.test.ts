@@ -4,7 +4,7 @@
 
 import { Gateway } from "../../src/core/gateway";
 import type {
-  ArivumaiyamConfig,
+  ArivuClawConfig,
   ChannelAdapter,
   ChannelConfig,
   ChannelStatus,
@@ -52,7 +52,7 @@ class MockChannel implements ChannelAdapter {
   }
 }
 
-const minimalConfig: ArivumaiyamConfig = {
+const minimalConfig: ArivuClawConfig = {
   mode: "unrestricted",
   gateway: { host: "0.0.0.0", port: 3000, corsOrigins: [] },
   providers: {},

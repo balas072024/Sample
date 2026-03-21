@@ -1,7 +1,7 @@
 {
-  "name": "arivumaiyam",
+  "name": "arivuclaw",
   "version": "1.0.0",
-  "description": "Arivumaiyam AI — Your intelligent AI assistant. Secure. Composable. Multi-platform. The wisdom way. 🦀",
+  "description": "ArivuClaw — Your intelligent AI assistant. Secure. Composable. Multi-platform. The wisdom way. 🦀",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
   "bin": {
@@ -34,7 +34,7 @@
     "rag",
     "memory"
   ],
-  "author": "Arivumaiyam AI Contributors",
+  "author": "ArivuClaw Contributors",
   "license": "MIT",
   "engines": {
     "node": ">=22.16.0"

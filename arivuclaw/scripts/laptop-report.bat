@@ -123,7 +123,7 @@ for %%L in ("%USERPROFILE%\Documents" "%USERPROFILE%\Projects" "%USERPROFILE%\re
 )
 
 echo.
-echo [11/12] Arivumaiyam AI config...
+echo [11/12] ArivuClaw config...
 echo. >> "%REPORT%"
 echo === ARIVUMAIYAM AI CONFIG === >> "%REPORT%"
 if exist "%USERPROFILE%\Desktop\Sample\arivuclaw\.env" (
@@ -131,9 +131,9 @@ if exist "%USERPROFILE%\Desktop\Sample\arivuclaw\.env" (
     powershell -Command "Get-Content '%USERPROFILE%\Desktop\Sample\arivuclaw\.env' | ForEach-Object { if($_ -match '=') { $parts = $_.Split('=',2); if($parts[1].Length -gt 8) { $parts[0] + '=' + $parts[1].Substring(0,4) + '***' + $parts[1].Substring($parts[1].Length-4) } else { $_ } } else { $_ } }" >> "%REPORT%" 2>nul
 )
 echo. >> "%REPORT%"
-if exist "%USERPROFILE%\Desktop\Sample\arivuclaw\.arivumaiyam\config.json" (
+if exist "%USERPROFILE%\Desktop\Sample\arivuclaw\.arivuclaw\config.json" (
     echo config.json: >> "%REPORT%"
-    powershell -Command "Get-Content '%USERPROFILE%\Desktop\Sample\arivuclaw\.arivumaiyam\config.json' | ForEach-Object { $_ -replace '(token|key|secret|password)([\"'':=\s]+)([^\s\"'']{4})([^\s\"'']+)([^\s\"'']{4})', '${1}${2}${3}***${5}' }" >> "%REPORT%" 2>nul
+    powershell -Command "Get-Content '%USERPROFILE%\Desktop\Sample\arivuclaw\.arivuclaw\config.json' | ForEach-Object { $_ -replace '(token|key|secret|password)([\"'':=\s]+)([^\s\"'']{4})([^\s\"'']+)([^\s\"'']{4})', '${1}${2}${3}***${5}' }" >> "%REPORT%" 2>nul
 )
 
 echo.

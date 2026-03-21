@@ -2,7 +2,7 @@
 name: code-exec
 version: "1.0.0"
 description: Execute code and shell commands in a sandboxed environment.
-author: Arivumaiyam AI
+author: ArivuClaw
 tags:
   - code
   - execute

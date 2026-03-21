@@ -2,7 +2,7 @@
 name: wireshark-capture
 version: "1.0.0"
 description: "Network packet capture and analysis with tshark/Wireshark. Protocol analysis, filtering, extraction."
-author: Arivumaiyam AI
+author: ArivuClaw
 tags:
   - wireshark
   - tshark

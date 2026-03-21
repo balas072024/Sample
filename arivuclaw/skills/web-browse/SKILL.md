@@ -2,7 +2,7 @@
 name: web-browse
 version: "1.0.0"
 description: Browse the web, fetch pages, and extract information from URLs.
-author: Arivumaiyam AI
+author: ArivuClaw
 tags:
   - web
   - browse

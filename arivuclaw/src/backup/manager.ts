@@ -1,5 +1,5 @@
 /**
- * Arivumaiyam AI Backup Manager — Export/import config, memory, skills.
+ * ArivuClaw Backup Manager — Export/import config, memory, skills.
  * Gap #22: Backup and restore everything.
  */
 

@@ -1,5 +1,5 @@
 /**
- * Arivumaiyam AI — Your Intelligent AI Assistant
+ * ArivuClaw — Your Intelligent AI Assistant
  * Secure. Composable. Multi-platform. Unrestricted.
  *
  * @module arivuclaw

@@ -1,5 +1,5 @@
 /**
- * Arivumaiyam AI Health Dashboard — Real-time metrics.
+ * ArivuClaw Health Dashboard — Real-time metrics.
  * Gap #21: Track uptime, response times, tokens, errors.
  */
 

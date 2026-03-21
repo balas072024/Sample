@@ -2,7 +2,7 @@
 name: news-digest
 version: "1.0.0"
 description: Fetch, summarize, and deliver personalized news digests from RSS feeds and news APIs.
-author: Arivumaiyam AI
+author: ArivuClaw
 tags: [news, rss, digest, feed]
 permissions: [network.http, memory.write, schedule.create]
 tools:

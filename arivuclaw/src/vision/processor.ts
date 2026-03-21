@@ -1,5 +1,5 @@
 /**
- * Arivumaiyam AI Vision Processor — Multimodal image/document analysis.
+ * ArivuClaw Vision Processor — Multimodal image/document analysis.
  *
  * Gap #2: Process images, screenshots, documents, PDFs via LLM vision APIs.
  */

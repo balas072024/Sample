@@ -1,16 +1,16 @@
-# 🦀 Arivumaiyam AI
+# 🦀 ArivuClaw
 
 **Your Intelligent AI Assistant. Unrestricted. Composable. Multi-platform.**
 
 > *"Arivu" (அறிவு) means wisdom/knowledge in Tamil*
 
-Arivumaiyam AI is an open-source AI agent framework that connects any LLM to your messaging platforms — WhatsApp, Telegram, Discord, Slack, and more. Inspired by [OpenClaw](https://github.com/openclaw/openclaw) but rebuilt with **unrestricted local access**, more skills, more providers, and better security architecture.
+ArivuClaw is an open-source AI agent framework that connects any LLM to your messaging platforms — WhatsApp, Telegram, Discord, Slack, and more. Inspired by [OpenClaw](https://github.com/openclaw/openclaw) but rebuilt with **unrestricted local access**, more skills, more providers, and better security architecture.
 
 ---
 
-## Why Arivumaiyam AI over OpenClaw?
+## Why ArivuClaw over OpenClaw?
 
-| Feature | OpenClaw | Arivumaiyam AI |
+| Feature | OpenClaw | ArivuClaw |
 |---------|----------|-----------|
 | **Execution Mode** | Single mode | 3 modes: Unrestricted / Local-Admin / Restricted |
 | **System Access** | Limited | Full elevated access (sudo, services, packages) |
@@ -29,7 +29,7 @@ Arivumaiyam AI is an open-source AI agent framework that connects any LLM to you
 
 ```
 ┌──────────────────────────────────────────────────────────────┐
-│                      Arivumaiyam AI Gateway                        │
+│                      ArivuClaw Gateway                        │
 │              Mode: UNRESTRICTED / LOCAL-ADMIN / RESTRICTED     │
 ├──────────┬──────────┬──────────┬──────────┬──────────────────┤
 │ WhatsApp │ Telegram │ Discord  │  Slack   │  Web / CLI       │
@@ -93,7 +93,7 @@ Set via environment variable:
 ARIVUCLAW_MODE=unrestricted  # Default
 ```
 
-In unrestricted mode, Arivumaiyam AI can:
+In unrestricted mode, ArivuClaw can:
 - Install/remove packages (`apt`, `brew`, `pacman`, etc.)
 - Manage system services (`systemctl start/stop/restart`)
 - Full filesystem access (read/write/delete anywhere)
@@ -223,14 +223,14 @@ DISCORD_BOT_TOKEN=...
 
 ### Free Setup (Zero Cost)
 
-For a completely free Arivumaiyam AI setup:
+For a completely free ArivuClaw setup:
 
 ```bash
 # 1. Install Ollama (free, local, private)
 curl -fsSL https://ollama.com/install.sh | sh
 ollama pull llama3.1
 
-# 2. Set Arivumaiyam AI to use Ollama
+# 2. Set ArivuClaw to use Ollama
 export ARIVUCLAW_PROVIDER=ollama
 export ARIVUCLAW_MODEL=llama3.1
 

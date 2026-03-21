@@ -2,7 +2,7 @@
 name: voice-clone
 version: "1.0.0"
 description: "Advanced voice cloning — clone any voice from a short audio sample. Zero-shot cloning with Fish Speech, Zonos, Chatterbox."
-author: Arivumaiyam AI
+author: ArivuClaw
 tags:
   - voice
   - clone
