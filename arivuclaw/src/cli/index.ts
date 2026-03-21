@@ -284,22 +284,22 @@ async function startGateway(): Promise<void> {
     const configRoutes = (config.gateway as any)?.proxyRoutes || {};
     const ROUTES: Record<string, number> = {
       // Arivumaiyam AI core services
-      "chat.arivumaiyam.com": 3000,           // Web chat channel
-      "dash.arivumaiyam.com": dashPort,       // Dashboard
-      "api.arivumaiyam.com": dashPort,        // API endpoints
+      "chat.arivumaiyam.com": 3000,           // Web chat (WebSocket + REST)
       "arivumaiyam.com": dashPort,            // Main site → dashboard
-      // Other published applications — mapped to detected/configured ports
-      "family.arivumaiyam.com": 8080,         // Family app (IIS/Windows)
-      "neuralbrain.arivumaiyam.com": 8200,    // Neural Brain
-      "kaasai.arivumaiyam.com": 9090,         // KaasAI
-      "valluvan.arivumaiyam.com": 8443,       // Valluvan
-      "opsshiftpro.arivumaiyam.com": 12000,   // OpsShiftPro
-      "opswatch.arivumaiyam.com": 18789,      // OpsWatch
+      // Other apps — mapped from actual running processes on laptop
+      "family.arivumaiyam.com": 8080,         // IIS (Windows System PID 4)
+      "neuralbrain.arivumaiyam.com": 8200,    // Python app (port 8200)
+      "kaasai.arivumaiyam.com": 18789,        // Node.js app (port 18789)
+      "valluvan.arivumaiyam.com": 18790,      // Node.js app (port 18790)
+      "opsshiftpro.arivumaiyam.com": 9090,    // ManageEngine AppManager
+      "opswatch.arivumaiyam.com": 12000,      // ManageEngine AppManager
+      "vault.arivumaiyam.com": 8443,          // ManageEngine AppManager (HTTPS)
+      "watch.arivumaiyam.com": 10099,         // ManageEngine AppManager
       // Override with config file routes
       ...configRoutes,
     };
-    // Default fallback for unknown subdomains → web chat
-    const DEFAULT_TARGET = 3000;
+    // Default fallback for unknown subdomains → dashboard
+    const DEFAULT_TARGET = dashPort;
 
     const proxy = http.createServer((req: any, res: any) => {
       const host = (req.headers.host || "").split(":")[0].toLowerCase();
