@@ -156,13 +156,47 @@ async function startGateway(): Promise<void> {
 
       if (url === "/api/skills") {
         res.writeHead(200, { "Content-Type": "application/json" });
-        res.end(JSON.stringify(skillRegistry.getAllSkills().map((s: any) => ({ name: s.name, description: s.manifest.description, tools: s.manifest.tools.length, loaded: s.loaded }))));
+        res.end(JSON.stringify(skillRegistry.getAllSkills().map((s: any) => ({
+          name: s.name || s.manifest?.name || "unknown",
+          version: s.manifest?.version || "1.0.0",
+          description: s.manifest?.description || "",
+          tools: s.manifest?.tools?.length || 0,
+          loaded: s.loaded,
+        }))));
         return;
       }
 
       if (url === "/api/channels") {
         res.writeHead(200, { "Content-Type": "application/json" });
-        res.end(JSON.stringify(gateway.getActiveChannels()));
+        const health = gateway.getHealth();
+        res.end(JSON.stringify(health.channels));
+        return;
+      }
+
+      if (url === "/api/sessions") {
+        res.writeHead(200, { "Content-Type": "application/json" });
+        res.end(JSON.stringify([]));
+        return;
+      }
+
+      if (url === "/api/memory/stats") {
+        res.writeHead(200, { "Content-Type": "application/json" });
+        res.end(JSON.stringify({
+          totalEntries: memoryStore.size?.() ?? 0,
+          totalFacts: 0,
+          vectorDimensions: 0,
+          storageSizeBytes: 0,
+        }));
+        return;
+      }
+
+      if (url === "/api/providers") {
+        res.writeHead(200, { "Content-Type": "application/json" });
+        res.end(JSON.stringify([{
+          type: config.defaultProvider,
+          name: config.defaultProvider,
+          model: config.defaultModel,
+        }]));
         return;
       }
 
