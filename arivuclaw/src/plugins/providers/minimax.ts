@@ -33,7 +33,7 @@ export class MiniMaxProvider implements LLMProvider {
   constructor(config: { apiKey: string; groupId?: string; baseUrl?: string }) {
     this.apiKey = config.apiKey;
     this.groupId = config.groupId || "";
-    this.baseUrl = config.baseUrl || "https://api.minimax.chat/v1";
+    this.baseUrl = config.baseUrl || "https://api.minimax.io/v1";
   }
 
   async chat(request: LLMRequest): Promise<LLMResponse> {
@@ -87,8 +87,37 @@ export class MiniMaxProvider implements LLMProvider {
     });
 
     if (!response.ok) {
-      // Fallback to legacy API
-      return this.chatLegacy(body);
+      const errorText = await response.text();
+      log.error(`MiniMax chatcompletion_v2 failed (${response.status}): ${errorText}`);
+      // Fallback to OpenAI-compatible endpoint
+      const fallbackResp = await fetch(`${this.baseUrl}/chat/completions`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${this.apiKey}`,
+        },
+        body: JSON.stringify({
+          model,
+          messages: [
+            { role: "system", content: request.systemPrompt },
+            ...request.messages.map((m) => ({
+              role: m.role,
+              content: typeof m.content === "string" ? m.content : JSON.stringify(m.content),
+            })),
+          ],
+          max_tokens: request.maxTokens || 4096,
+          temperature: request.temperature || 0.7,
+        }),
+      });
+
+      if (!fallbackResp.ok) {
+        const fbError = await fallbackResp.text();
+        log.error(`MiniMax chat/completions also failed (${fallbackResp.status}): ${fbError}`);
+        throw new Error(`MiniMax API error: ${fbError}`);
+      }
+
+      const fbData = (await fallbackResp.json()) as Record<string, unknown>;
+      return this.parseOpenAIResponse(fbData, model);
     }
 
     const data = (await response.json()) as Record<string, unknown>;
@@ -201,20 +230,40 @@ export class MiniMaxProvider implements LLMProvider {
   }
 
   private parseOpenAIResponse(data: Record<string, unknown>, model: string): LLMResponse {
+    // Handle MiniMax response — may have choices[] or reply field
     const choices = data.choices as Array<Record<string, unknown>>;
-    if (!choices || choices.length === 0) {
-      throw new Error("No choices in MiniMax response");
+
+    if (choices && choices.length > 0) {
+      const message = choices[0].message as Record<string, unknown>;
+      const usage = (data.usage as Record<string, number>) || {};
+      return {
+        content: (message?.content as string) || "",
+        usage: { inputTokens: usage.prompt_tokens || 0, outputTokens: usage.completion_tokens || 0 },
+        stopReason: "end",
+        model,
+      };
     }
 
-    const message = choices[0].message as Record<string, unknown>;
-    const usage = (data.usage as Record<string, number>) || {};
+    // MiniMax legacy format: { reply: "...", usage: {...} }
+    if (data.reply) {
+      const usage = (data.usage as Record<string, number>) || {};
+      return {
+        content: data.reply as string,
+        usage: { inputTokens: usage.prompt_tokens || 0, outputTokens: usage.completion_tokens || 0 },
+        stopReason: "end",
+        model,
+      };
+    }
 
+    // Last resort: stringify whatever came back
+    log.error(`Unexpected MiniMax response format: ${JSON.stringify(data).slice(0, 500)}`);
+    throw new Error(`Unexpected MiniMax response: ${JSON.stringify(data).slice(0, 200)}`);
+  }
+
+  private parseOpenAIResponseOld(data: Record<string, unknown>, model: string): LLMResponse {
     return {
-      content: (message.content as string) || "",
-      usage: {
-        inputTokens: usage.prompt_tokens || 0,
-        outputTokens: usage.completion_tokens || 0,
-      },
+      content: "",
+      usage: { inputTokens: 0, outputTokens: 0 },
       stopReason: "end",
       model,
     };
