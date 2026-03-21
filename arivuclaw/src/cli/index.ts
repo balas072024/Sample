@@ -146,7 +146,7 @@ async function startGateway(): Promise<void> {
   await gateway.start();
 
   // Start Web UI Dashboard on a separate port from the Web channel
-  const dashPort = Number(config.gateway.dashboardPort) || 7890;
+  const dashPort = Number((config.gateway as any).dashboardPort) || 7890;
   try {
     const http = require("http");
     const { generateDashboardHTML } = require("../ui/dashboard");
@@ -194,7 +194,7 @@ async function startGateway(): Promise<void> {
       if (url === "/api/memory/stats") {
         res.writeHead(200, { "Content-Type": "application/json" });
         res.end(JSON.stringify({
-          totalEntries: memoryStore.size?.() ?? 0,
+          totalEntries: (memoryStore as any).size?.() ?? 0,
           totalFacts: 0,
           vectorDimensions: 0,
           storageSizeBytes: 0,

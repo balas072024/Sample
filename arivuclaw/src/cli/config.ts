@@ -127,12 +127,14 @@ const DEFAULT_CONFIG: ArivuClawConfig = {
 };
 
 export function loadConfig(): ArivuClawConfig {
+  // Load .env first so all process.env references work
+  try { require("dotenv").config(); } catch { /* dotenv optional */ }
+
   // Try loading from multiple locations (precedence: local > user > default)
   const configPaths = [
     path.resolve("arivuclaw.config.json"),
     path.resolve(".arivuclaw/config.json"),
-    path.resolve("arivuclaw.config.json"),
-    path.resolve(".arivuclaw/config.json"),
+    path.resolve("config/default.json"),
     path.join(process.env.HOME || process.env.USERPROFILE || "~", ".arivuclaw", "config.json"),
   ];
 

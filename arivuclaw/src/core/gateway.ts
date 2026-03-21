@@ -406,7 +406,7 @@ export class Gateway extends EventEmitter<Record<string, (...args: unknown[]) =>
 
     await this.memoryStore.initialize();
     this.isRunning = true;
-    this.emitEvent({ type: "gateway.restarted", data: {} });
+    this.emitEvent({ type: "channel.connected", data: { type: "cli" as ChannelType } });
     log.info("ArivuClaw Gateway restarted successfully 🦀");
   }
 
