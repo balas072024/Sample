@@ -81,7 +81,7 @@ export class MiniMaxProvider implements LLMProvider {
             content: typeof m.content === "string" ? m.content : JSON.stringify(m.content),
           })),
         ],
-        max_tokens: request.maxTokens || 4096,
+        max_tokens: Math.min(request.maxTokens || 4096, 8192),
         temperature: request.temperature || 0.7,
       }),
     });
@@ -105,7 +105,7 @@ export class MiniMaxProvider implements LLMProvider {
               content: typeof m.content === "string" ? m.content : JSON.stringify(m.content),
             })),
           ],
-          max_tokens: request.maxTokens || 4096,
+          max_tokens: Math.min(request.maxTokens || 4096, 8192),
           temperature: request.temperature || 0.7,
         }),
       });
@@ -165,7 +165,7 @@ export class MiniMaxProvider implements LLMProvider {
             content: typeof m.content === "string" ? m.content : JSON.stringify(m.content),
           })),
         ],
-        max_tokens: request.maxTokens || 4096,
+        max_tokens: Math.min(request.maxTokens || 4096, 8192),
         temperature: request.temperature || 0.7,
         stream: true,
       }),

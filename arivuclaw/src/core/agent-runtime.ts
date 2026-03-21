@@ -104,7 +104,7 @@ export class AgentRuntime {
         messages: currentMessages,
         tools: tools.length > 0 ? tools : undefined,
         temperature: 0.7,
-        maxTokens: this.config.security.maxTokensPerTurn,
+        maxTokens: Math.min(this.config.security.maxTokensPerTurn, 8192),
       };
 
       const response = await this.provider.chat(request);
