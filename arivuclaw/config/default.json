@@ -1,0 +1,43 @@
+{
+  "gateway": {
+    "host": "0.0.0.0",
+    "port": 3000,
+    "corsOrigins": ["http://localhost:3000"]
+  },
+  "defaultProvider": "anthropic",
+  "defaultModel": "claude-sonnet-4-6",
+  "channels": [
+    {
+      "type": "cli",
+      "enabled": true,
+      "credentials": {}
+    }
+  ],
+  "security": {
+    "sandboxEnabled": true,
+    "maxTokensPerTurn": 8192,
+    "maxToolCallsPerTurn": 20,
+    "allowedDomains": [],
+    "blockedDomains": [],
+    "allowedPaths": [],
+    "blockedPaths": ["/etc", "/root", "/var/log"],
+    "requireApprovalFor": ["system.process", "system.env"],
+    "rateLimits": [
+      { "scope": "user", "maxRequests": 30, "windowMs": 60000 },
+      { "scope": "global", "maxRequests": 100, "windowMs": 60000 }
+    ]
+  },
+  "memory": {
+    "type": "hnswlib",
+    "embeddingProvider": "anthropic",
+    "embeddingModel": "voyage-3"
+  },
+  "skills": {
+    "directories": ["./skills"],
+    "autoload": true,
+    "hotReload": true
+  },
+  "logging": {
+    "level": "info"
+  }
+}
