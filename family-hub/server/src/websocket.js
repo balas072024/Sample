@@ -63,6 +63,35 @@ function setupWebSocket(server, db) {
         const user = db.prepare("SELECT display_name, emoji FROM users WHERE id = ?").get(userId);
         broadcast({ type: "typing", userId, name: user?.display_name, emoji: user?.emoji }, userId);
       }
+
+      // ── WebRTC Call Signaling ──────────────────────────────
+      // Forward call signals directly to the target user
+      if (msg.type === "call_offer" || msg.type === "call_answer" || msg.type === "call_ice" || msg.type === "call_hangup") {
+        const targetId = msg.targetUserId;
+        if (!targetId || !clients.has(targetId)) {
+          ws.send(JSON.stringify({ type: "call_error", error: "User is offline" }));
+          return;
+        }
+        const caller = db.prepare("SELECT display_name, emoji FROM users WHERE id = ?").get(userId);
+        const payload = { ...msg, fromUserId: userId, fromName: caller?.display_name, fromEmoji: caller?.emoji };
+        const targetSockets = clients.get(targetId);
+        const json = JSON.stringify(payload);
+        for (const s of targetSockets) {
+          if (s.readyState === 1) s.send(json);
+        }
+      }
+
+      // Broadcast call to all (for group call ring)
+      if (msg.type === "call_ring") {
+        const caller = db.prepare("SELECT display_name, emoji FROM users WHERE id = ?").get(userId);
+        broadcast({
+          type: "call_ring",
+          fromUserId: userId,
+          fromName: caller?.display_name,
+          fromEmoji: caller?.emoji,
+          callType: msg.callType || "voice"
+        }, userId);
+      }
     });
 
     ws.on("close", () => {

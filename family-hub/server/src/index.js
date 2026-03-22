@@ -25,11 +25,18 @@ app.use(helmet({
       defaultSrc: ["'self'"],
       scriptSrc: ["'self'", "'unsafe-inline'"],
       styleSrc: ["'self'", "'unsafe-inline'"],
-      connectSrc: ["'self'", "wss:", "ws:", "https://api.open-meteo.com"],
-      imgSrc: ["'self'", "data:"],
+      connectSrc: ["'self'", "wss:", "ws:", "https://api.open-meteo.com", "https://*.cloudflare.com"],
+      imgSrc: ["'self'", "data:", "blob:"],
+      mediaSrc: ["'self'", "blob:", "data:"],
+      workerSrc: ["'self'", "blob:"],
     },
   },
+  // Cloudflare compatibility: don't downgrade HTTPS
+  crossOriginEmbedderPolicy: false,
 }));
+
+// Trust Cloudflare proxy headers (1 = trust first proxy only)
+app.set("trust proxy", 1);
 
 app.use(cors());
 app.use(express.json({ limit: "1mb" }));
