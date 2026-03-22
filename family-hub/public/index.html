@@ -3,6 +3,11 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
+<link rel="manifest" href="/manifest.json">
+<meta name="theme-color" content="#7c6bff">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Family Hub">
 <title>Arivu Family Hub</title>
 <style>
 *{box-sizing:border-box;margin:0;padding:0}
@@ -468,7 +473,17 @@ function connectWS() {
 
   ws.onmessage = (e) => {
     const msg = JSON.parse(e.data);
-    if (msg.type === "new_message") { appendMessage(msg.message); }
+    if (msg.type === "new_message") {
+      appendMessage(msg.message);
+      // Push notification for messages from others
+      if (msg.message.user_id !== currentUser.id && document.hidden) {
+        showPushNotification(
+          msg.message.display_name || "Family Hub",
+          msg.message.content.startsWith("[voice:") ? "Sent a voice message" : msg.message.content,
+          "message"
+        );
+      }
+    }
     if (msg.type === "typing") { showTyping(msg.name, msg.emoji); }
     if (msg.type === "presence") {
       if (msg.status === "online") onlineUsers.add(msg.userId);
@@ -652,6 +667,84 @@ async function exportData() {
 function requestNotificationPermission() {
   if ("Notification" in window && Notification.permission === "default") {
     Notification.requestPermission();
+  }
+}
+
+// ── PWA Service Worker + Push ──────────────────────────
+let swRegistration = null;
+async function registerServiceWorker() {
+  if ("serviceWorker" in navigator) {
+    try {
+      swRegistration = await navigator.serviceWorker.register("/sw.js");
+      console.log("Service worker registered");
+      // Listen for notification click messages from SW
+      navigator.serviceWorker.addEventListener("message", (e) => {
+        if (e.data.type === "notification_click") {
+          if (e.data.action === "accept" && pendingOffer) acceptCall();
+          if (e.data.action === "decline" && pendingOffer) declineCall();
+        }
+      });
+    } catch (err) {
+      console.warn("SW registration failed:", err);
+    }
+  }
+}
+
+// ── Ringtone (generated via Web Audio API) ─────────────
+let ringtoneCtx = null;
+let ringtoneOsc = null;
+let ringtoneGain = null;
+let ringtoneInterval = null;
+let ringtoneVibrating = false;
+
+function startRingtone() {
+  stopRingtone();
+  try {
+    ringtoneCtx = new (window.AudioContext || window.webkitAudioContext)();
+    ringtoneGain = ringtoneCtx.createGain();
+    ringtoneGain.connect(ringtoneCtx.destination);
+    ringtoneGain.gain.value = 0;
+
+    let ringOn = false;
+    ringtoneInterval = setInterval(() => {
+      ringOn = !ringOn;
+      if (ringOn) {
+        ringtoneOsc = ringtoneCtx.createOscillator();
+        ringtoneOsc.type = "sine";
+        ringtoneOsc.frequency.setValueAtTime(440, ringtoneCtx.currentTime);
+        ringtoneOsc.frequency.setValueAtTime(480, ringtoneCtx.currentTime + 0.2);
+        ringtoneOsc.connect(ringtoneGain);
+        ringtoneGain.gain.setValueAtTime(0.3, ringtoneCtx.currentTime);
+        ringtoneOsc.start();
+        // Vibrate on mobile
+        if (navigator.vibrate) navigator.vibrate([300, 200, 300]);
+      } else {
+        ringtoneGain.gain.setValueAtTime(0, ringtoneCtx.currentTime);
+        if (ringtoneOsc) { ringtoneOsc.stop(); ringtoneOsc = null; }
+      }
+    }, 500);
+  } catch (e) {
+    console.warn("Ringtone failed:", e);
+  }
+}
+
+function stopRingtone() {
+  if (ringtoneInterval) { clearInterval(ringtoneInterval); ringtoneInterval = null; }
+  if (ringtoneOsc) { try { ringtoneOsc.stop(); } catch {} ringtoneOsc = null; }
+  if (ringtoneCtx) { ringtoneCtx.close().catch(() => {}); ringtoneCtx = null; }
+  if (navigator.vibrate) navigator.vibrate(0);
+}
+
+function showPushNotification(title, body, type) {
+  if ("Notification" in window && Notification.permission === "granted") {
+    const options = {
+      body,
+      icon: "data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><rect fill='%237c6bff' width='100' height='100' rx='20'/><text x='50' y='68' text-anchor='middle' font-size='55'>🏠</text></svg>",
+      tag: type || "family-hub",
+      vibrate: type === "call" ? [200, 100, 200, 100, 200, 100, 200] : [200],
+      requireInteraction: type === "call",
+    };
+    new Notification(title, options);
   }
 }
 
@@ -1083,6 +1176,7 @@ async function startCall(targetId, name, emoji) {
 }
 
 async function acceptCall() {
+  stopRingtone();
   document.getElementById("incoming-call").style.display = "none";
   if (!pendingOffer) return;
 
@@ -1135,6 +1229,7 @@ async function acceptCall() {
 }
 
 function declineCall() {
+  stopRingtone();
   if (pendingOffer) {
     ws.send(JSON.stringify({ type: "call_hangup", targetUserId: pendingOffer.fromUserId }));
   }
@@ -1143,6 +1238,7 @@ function declineCall() {
 }
 
 function endCall() {
+  stopRingtone();
   if (peerConnection) { peerConnection.close(); peerConnection = null; }
   if (localStream) { localStream.getTracks().forEach(t => t.stop()); localStream = null; }
   const remoteAudio = document.getElementById("remote-audio");
@@ -1268,6 +1364,8 @@ function handleCallSignal(msg) {
     document.getElementById("incoming-avatar").textContent = msg.fromEmoji || "📞";
     document.getElementById("incoming-name").textContent = `${msg.fromName || "Someone"} is calling...`;
     document.getElementById("incoming-call").style.display = "flex";
+    startRingtone();
+    showPushNotification("Incoming Call", `${msg.fromName || "Someone"} is calling...`, "call");
   }
 
   if (msg.type === "call_answer" && peerConnection) {
@@ -1479,6 +1577,12 @@ document.addEventListener("DOMContentLoaded", () => {
 
   // Auto-refresh health every 30s
   setInterval(loadHealth, 30000);
+
+  // Register PWA service worker
+  registerServiceWorker();
+
+  // Request notification permission
+  requestNotificationPermission();
 
   // Try auto-login
   tryAutoLogin();
