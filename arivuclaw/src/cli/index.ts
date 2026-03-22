@@ -230,16 +230,106 @@ async function startGateway(): Promise<void> {
         return;
       }
 
-      if (url === "/api/config") {
+      if (url === "/api/config" && req.method === "GET") {
+        // Return current config with masked API keys
+        const maskKey = (k: string | undefined) => {
+          if (!k || k.length < 10 || k.includes("your-")) return "";
+          return k.slice(0, 6) + "..." + k.slice(-4);
+        };
         res.writeHead(200, { "Content-Type": "application/json" });
-        res.end(JSON.stringify({ provider: config.defaultProvider, model: config.defaultModel, mode: config.mode }));
+        res.end(JSON.stringify({
+          provider: config.defaultProvider,
+          model: config.defaultModel,
+          mode: config.mode,
+          apiKeys: {
+            anthropic: maskKey(config.providers.anthropic?.apiKey || process.env.ANTHROPIC_API_KEY),
+            openai: maskKey(config.providers.openai?.apiKey || process.env.OPENAI_API_KEY),
+            groq: maskKey(config.providers.groq?.apiKey || process.env.GROQ_API_KEY),
+            deepseek: maskKey(config.providers.deepseek?.apiKey || process.env.DEEPSEEK_API_KEY),
+            google: maskKey(config.providers.google?.apiKey || process.env.GOOGLE_API_KEY),
+            minimax: maskKey(config.providers.minimax?.apiKey || process.env.MINIMAX_API_KEY),
+          },
+        }));
+        return;
+      }
+
+      if (url === "/api/config" && req.method === "POST") {
+        let body = "";
+        req.on("data", (chunk: any) => { body += chunk.toString(); });
+        req.on("end", () => {
+          try {
+            const patch = JSON.parse(body);
+            const fs = require("fs");
+            const path = require("path");
+            const envPath = path.resolve(process.cwd(), ".env");
+
+            // Update in-memory config
+            if (patch.provider) config.defaultProvider = patch.provider;
+            if (patch.model) config.defaultModel = patch.model;
+
+            // Build .env content — merge with existing
+            let envContent = "";
+            try { envContent = fs.readFileSync(envPath, "utf-8"); } catch { /* no .env yet */ }
+            const envLines = envContent.split("\n").filter((l: string) => l.trim());
+            const envMap = new Map<string, string>();
+            for (const line of envLines) {
+              const eqIdx = line.indexOf("=");
+              if (eqIdx > 0 && !line.startsWith("#")) {
+                envMap.set(line.slice(0, eqIdx).trim(), line.slice(eqIdx + 1).trim());
+              }
+            }
+
+            // Update provider and model
+            if (patch.provider) envMap.set("ARIVUCLAW_PROVIDER", patch.provider);
+            if (patch.model) envMap.set("ARIVUCLAW_MODEL", patch.model);
+
+            // Update API keys (only if non-empty and not a masked value)
+            if (patch.apiKeys) {
+              const keyEnvMap: Record<string, string> = {
+                anthropic: "ANTHROPIC_API_KEY",
+                openai: "OPENAI_API_KEY",
+                groq: "GROQ_API_KEY",
+                deepseek: "DEEPSEEK_API_KEY",
+                google: "GOOGLE_API_KEY",
+                minimax: "MINIMAX_API_KEY",
+              };
+              for (const [name, envVar] of Object.entries(keyEnvMap)) {
+                const val = patch.apiKeys[name];
+                if (val && !val.includes("...") && val.length >= 10) {
+                  envMap.set(envVar, val);
+                  process.env[envVar] = val;
+                  // Update in-memory provider config
+                  if (!config.providers[name]) config.providers[name] = {} as any;
+                  (config.providers[name] as any).apiKey = val;
+                }
+              }
+            }
+
+            // Write .env file
+            const newEnv = Array.from(envMap.entries()).map(([k, v]) => k + "=" + v).join("\n") + "\n";
+            fs.writeFileSync(envPath, newEnv, "utf-8");
+
+            res.writeHead(200, { "Content-Type": "application/json" });
+            res.end(JSON.stringify({ success: true }));
+            log.info("Configuration updated via dashboard");
+          } catch (err: any) {
+            res.writeHead(400, { "Content-Type": "application/json" });
+            res.end(JSON.stringify({ error: err.message || "Invalid request" }));
+          }
+        });
         return;
       }
 
       if (url === "/api/restart" && req.method === "POST") {
         res.writeHead(200, { "Content-Type": "application/json" });
         res.end(JSON.stringify({ status: "restarting" }));
-        gateway.restart().catch((err: any) => log.error(`Restart failed: ${err}`));
+
+        // Reload config from .env before restarting
+        try { require("dotenv").config({ override: true }); } catch { /* optional */ }
+
+        gateway.restart()
+          .then(() => log.info("Gateway restarted via dashboard"))
+          .catch((err: any) => log.error(`Dashboard restart failed: ${err}`));
         return;
       }
 

@@ -92,6 +92,25 @@ export function generateDashboardHTML(): string {
   .badge.red{background:#f8514930;color:#f85149}
   .badge.blue{background:#58a6ff30;color:#58a6ff}
   footer{text-align:center;padding:16px;color:#484f58;font-size:12px}
+  .card input[type=text],.card input[type=password],.card select{
+    width:100%;padding:8px 10px;margin:4px 0 8px;background:#0d1117;border:1px solid #30363d;
+    border-radius:6px;color:#c9d1d9;font-size:13px;outline:none}
+  .card input:focus,.card select:focus{border-color:#58a6ff}
+  .card label{font-size:12px;color:#8b949e;display:block;margin-top:6px}
+  .btn{padding:8px 16px;border:none;border-radius:6px;cursor:pointer;font-size:13px;font-weight:600;
+    margin-top:8px;margin-right:6px}
+  .btn-primary{background:#238636;color:#fff}
+  .btn-primary:hover{background:#2ea043}
+  .btn-danger{background:#da3633;color:#fff}
+  .btn-danger:hover{background:#f85149}
+  .btn-blue{background:#1f6feb;color:#fff}
+  .btn-blue:hover{background:#388bfd}
+  .btn:disabled{opacity:0.5;cursor:not-allowed}
+  .save-msg{font-size:12px;color:#3fb950;margin-left:8px;display:none}
+  .key-row{display:flex;align-items:center;gap:6px}
+  .key-row input{flex:1}
+  .toggle-btn{background:none;border:1px solid #30363d;color:#8b949e;padding:4px 8px;
+    border-radius:4px;cursor:pointer;font-size:11px;flex-shrink:0}
 </style>
 </head>
 <body>
@@ -121,6 +140,67 @@ export function generateDashboardHTML(): string {
   <div class="card">
     <h2>Providers</h2>
     <ul id="providerList"></ul>
+  </div>
+  <div class="card" style="grid-column:1/-1">
+    <h2>Settings &amp; API Keys</h2>
+    <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:16px">
+      <div>
+        <label>Provider</label>
+        <select id="cfgProvider">
+          <option value="anthropic">Anthropic (Claude)</option>
+          <option value="openai">OpenAI (GPT)</option>
+          <option value="groq">Groq (Free)</option>
+          <option value="deepseek">DeepSeek (Free)</option>
+          <option value="minimax">MiniMax</option>
+          <option value="google">Google AI</option>
+          <option value="ollama">Ollama (Local)</option>
+          <option value="custom">Neural Brain</option>
+        </select>
+        <label>Model</label>
+        <input type="text" id="cfgModel" placeholder="e.g. claude-sonnet-4-20250514"/>
+      </div>
+      <div>
+        <label>Anthropic API Key</label>
+        <div class="key-row">
+          <input type="password" id="keyAnthropic" placeholder="sk-ant-..."/>
+          <button class="toggle-btn" onclick="toggleKey('keyAnthropic')">Show</button>
+        </div>
+        <label>OpenAI API Key</label>
+        <div class="key-row">
+          <input type="password" id="keyOpenai" placeholder="sk-..."/>
+          <button class="toggle-btn" onclick="toggleKey('keyOpenai')">Show</button>
+        </div>
+      </div>
+      <div>
+        <label>Groq API Key</label>
+        <div class="key-row">
+          <input type="password" id="keyGroq" placeholder="gsk_..."/>
+          <button class="toggle-btn" onclick="toggleKey('keyGroq')">Show</button>
+        </div>
+        <label>DeepSeek API Key</label>
+        <div class="key-row">
+          <input type="password" id="keyDeepseek" placeholder="sk-..."/>
+          <button class="toggle-btn" onclick="toggleKey('keyDeepseek')">Show</button>
+        </div>
+      </div>
+      <div>
+        <label>Google API Key</label>
+        <div class="key-row">
+          <input type="password" id="keyGoogle" placeholder="AIza..."/>
+          <button class="toggle-btn" onclick="toggleKey('keyGoogle')">Show</button>
+        </div>
+        <label>MiniMax API Key</label>
+        <div class="key-row">
+          <input type="password" id="keyMinimax" placeholder="eyJ..."/>
+          <button class="toggle-btn" onclick="toggleKey('keyMinimax')">Show</button>
+        </div>
+      </div>
+    </div>
+    <div style="margin-top:16px">
+      <button class="btn btn-primary" id="btnSave" onclick="saveConfig()">Save Settings</button>
+      <button class="btn btn-blue" id="btnRestart" onclick="restartGateway()">Restart Gateway</button>
+      <span class="save-msg" id="saveMsg">Saved!</span>
+    </div>
   </div>
 </div>
 <footer>ArivuClaw &mdash; Refreshes every 5 seconds</footer>
@@ -168,7 +248,65 @@ async function refresh(){
       .map(p=>'<li><span>'+p.name+'</span><span class="badge blue">'+p.model+'</span></li>').join('');
   }
 }
+function toggleKey(id){
+  const inp=document.getElementById(id);
+  inp.type=inp.type==='password'?'text':'password';
+  inp.nextElementSibling&&(inp.parentElement.querySelector('.toggle-btn').textContent=inp.type==='password'?'Show':'Hide');
+}
+async function loadConfig(){
+  const cfg=await fetchJSON('/api/config');
+  if(!cfg) return;
+  document.getElementById('cfgProvider').value=cfg.provider||'';
+  document.getElementById('cfgModel').value=cfg.model||'';
+  if(cfg.apiKeys){
+    if(cfg.apiKeys.anthropic) document.getElementById('keyAnthropic').value=cfg.apiKeys.anthropic;
+    if(cfg.apiKeys.openai) document.getElementById('keyOpenai').value=cfg.apiKeys.openai;
+    if(cfg.apiKeys.groq) document.getElementById('keyGroq').value=cfg.apiKeys.groq;
+    if(cfg.apiKeys.deepseek) document.getElementById('keyDeepseek').value=cfg.apiKeys.deepseek;
+    if(cfg.apiKeys.google) document.getElementById('keyGoogle').value=cfg.apiKeys.google;
+    if(cfg.apiKeys.minimax) document.getElementById('keyMinimax').value=cfg.apiKeys.minimax;
+  }
+}
+async function saveConfig(){
+  const btn=document.getElementById('btnSave');
+  const msg=document.getElementById('saveMsg');
+  btn.disabled=true;btn.textContent='Saving...';
+  try{
+    const body={
+      provider:document.getElementById('cfgProvider').value,
+      model:document.getElementById('cfgModel').value,
+      apiKeys:{
+        anthropic:document.getElementById('keyAnthropic').value||undefined,
+        openai:document.getElementById('keyOpenai').value||undefined,
+        groq:document.getElementById('keyGroq').value||undefined,
+        deepseek:document.getElementById('keyDeepseek').value||undefined,
+        google:document.getElementById('keyGoogle').value||undefined,
+        minimax:document.getElementById('keyMinimax').value||undefined,
+      }
+    };
+    const r=await fetch('/api/config',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(body)});
+    const res=await r.json();
+    if(res.success){msg.style.display='inline';msg.textContent='Saved!';setTimeout(()=>msg.style.display='none',3000)}
+    else{msg.style.display='inline';msg.textContent='Error: '+(res.error||'unknown');msg.style.color='#f85149'}
+  }catch(e){msg.style.display='inline';msg.textContent='Failed to save';msg.style.color='#f85149'}
+  finally{btn.disabled=false;btn.textContent='Save Settings'}
+}
+async function restartGateway(){
+  const btn=document.getElementById('btnRestart');
+  btn.disabled=true;btn.textContent='Restarting...';
+  try{
+    await fetch('/api/restart',{method:'POST'});
+    const msg=document.getElementById('saveMsg');
+    msg.style.display='inline';msg.textContent='Gateway restarting...';msg.style.color='#58a6ff';
+    setTimeout(()=>{msg.style.display='none';msg.style.color='#3fb950';refresh()},3000);
+  }catch(e){
+    const msg=document.getElementById('saveMsg');
+    msg.style.display='inline';msg.textContent='Restart failed';msg.style.color='#f85149';
+  }
+  finally{btn.disabled=false;btn.textContent='Restart Gateway'}
+}
 refresh();
+loadConfig();
 setInterval(refresh,5000);
 </script>
 </body>
