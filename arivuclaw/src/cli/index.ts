@@ -305,6 +305,23 @@ async function startGateway(): Promise<void> {
               }
             }
 
+            // Update channel tokens
+            if (patch.channelTokens) {
+              const tokEnvMap: Record<string, string> = {
+                telegram: "TELEGRAM_BOT_TOKEN",
+                discord: "DISCORD_BOT_TOKEN",
+                slack: "SLACK_BOT_TOKEN",
+                whatsapp: "WHATSAPP_AUTH_TOKEN",
+              };
+              for (const [name, envVar] of Object.entries(tokEnvMap)) {
+                const val = patch.channelTokens[name];
+                if (val && !val.includes("...") && val.length >= 10) {
+                  envMap.set(envVar, val);
+                  process.env[envVar] = val;
+                }
+              }
+            }
+
             // Write .env file
             const newEnv = Array.from(envMap.entries()).map(([k, v]) => k + "=" + v).join("\n") + "\n";
             fs.writeFileSync(envPath, newEnv, "utf-8");
