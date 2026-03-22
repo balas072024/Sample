@@ -36,6 +36,63 @@ app.config["PROXY_TIMEOUT"] = int(os.environ.get("PROXY_TIMEOUT", "30"))
 PORT = int(os.environ.get("PORT", "5013"))
 
 # ---------------------------------------------------------------------------
+# Subdomain → local port routing (Cloudflare sends everything to 5013)
+# ---------------------------------------------------------------------------
+
+SUBDOMAIN_ROUTES = {
+    "family":      "http://localhost:3000",
+    "chat":        "http://localhost:3000",
+    "neuralbrain": "http://localhost:8200",
+    "valluvan":    "http://localhost:5000",
+    "opsshiftpro": "http://localhost:4000",
+    "opswatch":    "http://localhost:3001",
+    "vault":       "http://localhost:4100",
+    "watch":       "http://localhost:9000",
+}
+
+
+@app.before_request
+def subdomain_proxy():
+    """Transparently proxy requests to the correct backend based on subdomain."""
+    host = request.headers.get("Host", "").split(":")[0].lower()
+    # Extract subdomain: "family.arivumaiyam.com" → "family"
+    subdomain = host.split(".")[0] if "." in host else None
+
+    if subdomain and subdomain in SUBDOMAIN_ROUTES:
+        backend = SUBDOMAIN_ROUTES[subdomain]
+        target_url = f"{backend}{request.full_path}" if request.query_string else f"{backend}{request.path}"
+
+        try:
+            # Forward all headers except Host
+            headers = {k: v for k, v in request.headers if k.lower() not in ("host", "content-length")}
+            headers["X-Forwarded-Host"] = host
+            headers["X-Forwarded-Proto"] = request.headers.get("X-Forwarded-Proto", "https")
+
+            resp = http_requests.request(
+                method=request.method,
+                url=target_url,
+                headers=headers,
+                data=request.get_data(),
+                timeout=30,
+                allow_redirects=False,
+                stream=True,
+            )
+
+            # Build response, preserving headers
+            excluded = {"content-encoding", "transfer-encoding", "content-length", "connection"}
+            resp_headers = {k: v for k, v in resp.headers.items() if k.lower() not in excluded}
+            return Response(resp.content, status=resp.status_code, headers=resp_headers)
+
+        except http_requests.ConnectionError:
+            return jsonify({"error": f"Backend {subdomain} is not running ({backend})"}), 502
+        except http_requests.Timeout:
+            return jsonify({"error": f"Backend {subdomain} timed out"}), 504
+
+    # If no subdomain match, continue to gateway's own routes
+    return None
+
+
+# ---------------------------------------------------------------------------
 # Database helpers
 # ---------------------------------------------------------------------------
 
