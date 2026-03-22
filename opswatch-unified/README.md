@@ -40,6 +40,15 @@ npm start
 | `RATE_LIMIT_MAX_REQUESTS` | `100` | Max requests per window | Set as needed |
 | `HEALTH_CHECK_TIMEOUT_MS` | `5000` | Health check timeout (ms) | Set as needed |
 
+## Default Users
+
+After running `npm run seed`:
+
+| Username | Password | Role |
+|----------|----------|------|
+| `admin` | `OpsWatch@2024` | admin |
+| `viewer` | `OpsWatch@2024` | viewer |
+
 ## Default Monitored Services
 
 | Service | Port |

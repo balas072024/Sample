@@ -37,6 +37,15 @@ npm start
 | `MINIMAX_API_KEY` | - | MiniMax API key for AI features | [api.minimax.chat](https://api.minimax.chat) |
 | `DB_PATH` | `./data/arivuwatch.db` | SQLite database path | Local file path |
 
+## Default Users
+
+After running `npm run seed`:
+
+| Username | Password | Role |
+|----------|----------|------|
+| `admin` | `Watch@2024` | admin |
+| `viewer` | `Watch@2024` | viewer |
+
 ## Rate Limits
 
 - General API: 500 requests / 15 minutes
