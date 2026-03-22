@@ -206,9 +206,72 @@ async function startGateway() {
                     }]));
                 return;
             }
-            if (url === "/api/config") {
+            if (url === "/api/config" && req.method === "GET") {
                 res.writeHead(200, { "Content-Type": "application/json" });
-                res.end(JSON.stringify({ provider: config.defaultProvider, model: config.defaultModel, mode: config.mode }));
+                res.end(JSON.stringify({
+                    provider: config.defaultProvider,
+                    model: config.defaultModel,
+                    mode: config.mode,
+                    channels: config.channels,
+                    providers: config.providers,
+                }));
+                return;
+            }
+            if (url === "/api/config" && req.method === "POST") {
+                let body = "";
+                req.on("data", (chunk) => { body += chunk.toString(); });
+                req.on("end", () => {
+                    try {
+                        const patch = JSON.parse(body);
+                        // Apply changes to live config
+                        if (patch.defaultProvider) config.defaultProvider = patch.defaultProvider;
+                        if (patch.defaultModel) config.defaultModel = patch.defaultModel;
+                        if (patch.mode) config.mode = patch.mode;
+                        // Update channel credentials (e.g. telegram bot token)
+                        if (patch.channels) {
+                            for (const ch of patch.channels) {
+                                const existing = config.channels.find(c => c.type === ch.type);
+                                if (existing) {
+                                    if (ch.credentials) existing.credentials = { ...existing.credentials, ...ch.credentials };
+                                    if (ch.enabled !== undefined) existing.enabled = ch.enabled;
+                                }
+                            }
+                        }
+                        // Save to config file
+                        const fs = require("fs");
+                        const path = require("path");
+                        const configPath = path.resolve("arivuclaw.config.json");
+                        const saveData = {
+                            mode: config.mode,
+                            defaultProvider: config.defaultProvider,
+                            defaultModel: config.defaultModel,
+                            channels: config.channels,
+                        };
+                        fs.writeFileSync(configPath, JSON.stringify(saveData, null, 2));
+                        log.info("Config updated via dashboard: " + JSON.stringify(patch));
+                        res.writeHead(200, { "Content-Type": "application/json" });
+                        res.end(JSON.stringify({ success: true }));
+                    } catch (err) {
+                        res.writeHead(400, { "Content-Type": "application/json" });
+                        res.end(JSON.stringify({ error: "Invalid JSON" }));
+                    }
+                });
+                return;
+            }
+            if (url === "/api/metrics") {
+                res.writeHead(200, { "Content-Type": "application/json" });
+                const mem = process.memoryUsage();
+                res.end(JSON.stringify({
+                    uptime: process.uptime(),
+                    uptimeHuman: (() => { const s = process.uptime(); const h=Math.floor(s/3600); const m=Math.floor((s%3600)/60); const sec=Math.floor(s%60); return (h>0?h+'h ':'')+ m+'m '+sec+'s'; })(),
+                    memoryUsage: { rss: mem.rss, heapUsed: mem.heapUsed, heapTotal: mem.heapTotal, external: mem.external },
+                    nodeVersion: process.version,
+                    platform: process.platform,
+                    pid: process.pid,
+                    cpuUsage: process.cpuUsage(),
+                    activeSessions: gateway.getHealth().activeSessions || 0,
+                    totalUsers: gateway.getHealth().totalUsers || 0,
+                }));
                 return;
             }
             if (url === "/api/restart" && req.method === "POST") {

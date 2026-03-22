@@ -58,11 +58,15 @@ function generateDashboardHTML() {
 <head>
 <meta charset="utf-8"/>
 <meta name="viewport" content="width=device-width, initial-scale=1"/>
-<title>ArivuClaw Dashboard</title>
+<title>ArivuClaw — Command Center</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet"/>
 <style>
+  :root{--bg:#060a10;--bg2:#0c1017;--bg3:#121820;--border:#1a2030;--border2:#252d3d;
+    --text:#c9d1d9;--text2:#8b949e;--text3:#484f58;--accent:#ff6b35;--accent2:#ff8c5a;
+    --green:#3fb950;--red:#f85149;--blue:#58a6ff;--purple:#bc8cff;--yellow:#d29922;--cyan:#39d2c0}
   *{margin:0;padding:0;box-sizing:border-box}
-  body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;
-    background:#0a0e14;color:#c9d1d9;min-height:100vh;display:flex}
+  body{font-family:'Inter',-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;
+    background:var(--bg);color:var(--text);min-height:100vh;display:flex}
 
   /* Sidebar */
   .sidebar{width:240px;background:#0d1117;border-right:1px solid #1b2028;
@@ -441,21 +445,63 @@ async function refresh() {
 
   // Config
   const config = await api('/api/config');
-  if (config) {
+  if (config && !document.getElementById('cfgProvider')) {
+    const models = {
+      anthropic: ['claude-sonnet-4-6','claude-opus-4-6','claude-haiku-4-5-20251001'],
+      openai: ['gpt-4o','gpt-4o-mini','gpt-4-turbo','o1-preview'],
+      google: ['gemini-2.0-flash','gemini-2.5-pro','gemini-2.5-flash'],
+      ollama: ['llama3.1','llama3.2','mistral','codellama','deepseek-coder'],
+      groq: ['llama-3.3-70b-versatile','mixtral-8x7b-32768','gemma2-9b-it'],
+      deepseek: ['deepseek-chat','deepseek-coder','deepseek-reasoner'],
+      minimax: ['MiniMax-M2','MiniMax-M1'],
+      'neural-brain': ['neural-brain-hybrid'],
+    };
+    const providerOpts = Object.keys(models).map(p =>
+      '<option value="'+p+'"'+(p===config.provider?' selected':'')+'>'+p+'</option>'
+    ).join('');
+    const modelOpts = (models[config.provider]||[]).map(m =>
+      '<option value="'+m+'"'+(m===config.model?' selected':'')+'>'+m+'</option>'
+    ).join('');
+
+    // Find telegram channel
+    const tgCh = (config.channels||[]).find(c => c.type==='telegram');
+    const tgToken = tgCh?.credentials?.botToken || '';
+    const tgEnabled = tgCh?.enabled ? 'checked' : '';
+
+    // Find discord channel
+    const dcCh = (config.channels||[]).find(c => c.type==='discord');
+    const dcToken = dcCh?.credentials?.botToken || '';
+    const dcEnabled = dcCh?.enabled ? 'checked' : '';
+
     document.getElementById('configPanel').innerHTML =
-      '<div class="config-group"><h3>General</h3>' +
-      '<div class="config-row"><span class="key">Mode</span><span class="val badge orange">' + (config.mode||'unrestricted').toUpperCase() + '</span></div>' +
-      '<div class="config-row"><span class="key">Provider</span><span class="val">' + (config.provider||'-') + '</span></div>' +
-      '<div class="config-row"><span class="key">Model</span><span class="val">' + (config.model||'-') + '</span></div>' +
+      '<div class="config-group"><h3>AI Provider & Model</h3>' +
+      '<div class="config-row"><span class="key">Provider</span><select id="cfgProvider" onchange="onProviderChange()">'+providerOpts+'</select></div>' +
+      '<div class="config-row"><span class="key">Model</span><select id="cfgModel">'+modelOpts+'</select></div>' +
       '</div>' +
-      '<div class="config-group"><h3>Network</h3>' +
+
+      '<div class="config-group"><h3>Telegram</h3>' +
+      '<div class="config-row"><span class="key">Enabled</span><input type="checkbox" id="cfgTgEnabled" '+tgEnabled+' style="min-width:auto;width:18px;height:18px"/></div>' +
+      '<div class="config-row"><span class="key">Bot Token</span><input type="password" id="cfgTgToken" value="'+tgToken+'" placeholder="Enter Telegram Bot Token"/></div>' +
+      '</div>' +
+
+      '<div class="config-group"><h3>Discord</h3>' +
+      '<div class="config-row"><span class="key">Enabled</span><input type="checkbox" id="cfgDcEnabled" '+dcEnabled+' style="min-width:auto;width:18px;height:18px"/></div>' +
+      '<div class="config-row"><span class="key">Bot Token</span><input type="password" id="cfgDcToken" value="'+dcToken+'" placeholder="Enter Discord Bot Token"/></div>' +
+      '</div>' +
+
+      '<div class="config-group"><h3>System</h3>' +
+      '<div class="config-row"><span class="key">Mode</span><span class="val badge orange">' + (config.mode||'unrestricted').toUpperCase() + '</span></div>' +
       '<div class="config-row"><span class="key">Web Port</span><span class="val">6799</span></div>' +
       '<div class="config-row"><span class="key">Dashboard Port</span><span class="val">6800</span></div>' +
       '</div>' +
-      '<div class="config-group"><h3>Security</h3>' +
-      '<div class="config-row"><span class="key">Sandbox</span><span class="val badge ' + (config.mode==='unrestricted'?'red':'green') + '">' + (config.mode==='unrestricted'?'Disabled':'Enabled') + '</span></div>' +
-      '<div class="config-row"><span class="key">Auto-approve</span><span class="val badge ' + (config.mode==='unrestricted'?'green':'yellow') + '">' + (config.mode==='unrestricted'?'All':'Selective') + '</span></div>' +
+
+      '<div style="margin-top:20px;display:flex;gap:12px">' +
+      '<button onclick="saveConfig()" style="background:#ff6b35;border:1px solid #ff6b35;color:#fff;padding:10px 28px;border-radius:6px;cursor:pointer;font-size:14px;font-weight:600">Save Configuration</button>' +
+      '<button onclick="refresh()" style="background:#21262d;border:1px solid #30363d;color:#c9d1d9;padding:10px 20px;border-radius:6px;cursor:pointer;font-size:13px">Reset</button>' +
       '</div>';
+
+    // Store models map globally for provider change
+    window._models = models;
   }
 }
 
@@ -476,6 +522,50 @@ function filterSkills() {
   const q = document.getElementById('skillSearch').value.toLowerCase();
   const filtered = allSkills.filter(s => s.name.toLowerCase().includes(q) || (s.description||'').toLowerCase().includes(q));
   renderSkillGrid(filtered);
+}
+
+// Provider change — update model dropdown
+function onProviderChange() {
+  const provider = document.getElementById('cfgProvider').value;
+  const modelSelect = document.getElementById('cfgModel');
+  const models = window._models[provider] || [];
+  modelSelect.innerHTML = models.map(m => '<option value="'+m+'">'+m+'</option>').join('');
+}
+
+// Save config
+async function saveConfig() {
+  const provider = document.getElementById('cfgProvider')?.value;
+  const model = document.getElementById('cfgModel')?.value;
+  const tgEnabled = document.getElementById('cfgTgEnabled')?.checked;
+  const tgToken = document.getElementById('cfgTgToken')?.value;
+  const dcEnabled = document.getElementById('cfgDcEnabled')?.checked;
+  const dcToken = document.getElementById('cfgDcToken')?.value;
+
+  const payload = {
+    defaultProvider: provider,
+    defaultModel: model,
+    channels: [
+      { type: 'telegram', enabled: tgEnabled, credentials: { botToken: tgToken } },
+      { type: 'discord', enabled: dcEnabled, credentials: { botToken: dcToken } },
+    ]
+  };
+
+  try {
+    const r = await fetch('/api/config', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(payload)
+    });
+    const data = await r.json();
+    if (data.success) {
+      showToast('Configuration saved! Restart to apply changes.');
+      addLog('info', 'Config saved: provider=' + provider + ', model=' + model);
+    } else {
+      showToast('Save failed: ' + (data.error || 'Unknown error'), 'error');
+    }
+  } catch (err) {
+    showToast('Save failed: ' + err.message, 'error');
+  }
 }
 
 // Start
