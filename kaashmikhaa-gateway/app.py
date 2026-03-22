@@ -395,7 +395,7 @@ def gateway_proxy(path):
     start_time = time.time()
     try:
         headers = {k: v for k, v in request.headers if k.lower() not in ("host", "authorization", "content-length")}
-        headers["X-Forwarded-For"] = request.remote_addr or "unknown"
+        headers["X-Forwarded-For"] = request.headers.get('CF-Connecting-IP') or request.headers.get('X-Forwarded-For', '').split(',')[0].strip() or request.remote_addr or "unknown"
         headers["X-Gateway-User"] = str(user_id)
 
         resp = http_requests.request(
@@ -437,6 +437,7 @@ def gateway_proxy(path):
 # ---------------------------------------------------------------------------
 
 @app.route("/api/health", methods=["GET"])
+@app.route("/health", methods=["GET"])
 def health():
     """Health check for the gateway itself."""
     return jsonify({"status": "healthy", "service": "kaashmikhaa-gateway", "timestamp": datetime.datetime.utcnow().isoformat()}), 200
@@ -602,4 +603,4 @@ with app.app_context():
 
 if __name__ == "__main__":
     print(f"Kaashmikhaa Gateway starting on port {PORT}")
-    app.run(host="0.0.0.0", port=PORT, debug=True)
+    app.run(host="0.0.0.0", port=PORT, debug=os.environ.get('FLASK_DEBUG', 'false').lower() == 'true')

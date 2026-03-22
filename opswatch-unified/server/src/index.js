@@ -21,6 +21,7 @@ app.use(
         defaultSrc: ["'self'"],
         scriptSrc: ["'self'", "'unsafe-inline'"],
         styleSrc: ["'self'", "'unsafe-inline'"],
+        connectSrc: ["'self'", "wss:", "ws:"],
       },
     },
     crossOriginEmbedderPolicy: false,

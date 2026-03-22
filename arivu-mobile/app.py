@@ -95,6 +95,17 @@ with app.app_context():
     init_db()
 
 # ---------------------------------------------------------------------------
+# CORS
+# ---------------------------------------------------------------------------
+
+@app.after_request
+def add_cors_headers(response):
+    response.headers["Access-Control-Allow-Origin"] = os.getenv("CORS_ORIGIN", "*")
+    response.headers["Access-Control-Allow-Headers"] = "Content-Type, Authorization"
+    response.headers["Access-Control-Allow-Methods"] = "GET, POST, PUT, DELETE, OPTIONS"
+    return response
+
+# ---------------------------------------------------------------------------
 # JWT Authentication
 # ---------------------------------------------------------------------------
 
@@ -532,6 +543,7 @@ def manifest():
 
 
 @app.route("/api/health", methods=["GET"])
+@app.route("/health", methods=["GET"])
 def health():
     """Health check endpoint."""
     return jsonify({
@@ -561,4 +573,4 @@ def service_worker():
 # ---------------------------------------------------------------------------
 
 if __name__ == "__main__":
-    app.run(host="0.0.0.0", port=5050, debug=True)
+    app.run(host="0.0.0.0", port=5050, debug=os.environ.get('FLASK_DEBUG', 'false').lower() == 'true')

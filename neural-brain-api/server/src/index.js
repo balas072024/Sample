@@ -17,7 +17,7 @@ const PORT = process.env.PORT || 8200;
 // ---------------------------------------------------------------------------
 app.set('trust proxy', 1);
 
-app.use(helmet({ contentSecurityPolicy: false }));
+app.use(helmet({ contentSecurityPolicy: false, crossOriginEmbedderPolicy: false }));
 app.use(cors());
 app.use(express.json({ limit: '2mb' }));
 

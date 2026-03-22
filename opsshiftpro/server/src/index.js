@@ -33,6 +33,7 @@ function createApp(dbPath) {
         connectSrc: ["'self'"],
       },
     },
+    crossOriginEmbedderPolicy: false,
   }));
 
   // CORS

@@ -48,7 +48,7 @@ _rate_store: dict[str, list[float]] = defaultdict(list)
 def rate_limit():
     if request.path == "/api/health" or request.method == "OPTIONS":
         return None
-    client_ip = request.remote_addr or "unknown"
+    client_ip = request.headers.get('CF-Connecting-IP') or request.headers.get('X-Forwarded-For', '').split(',')[0].strip() or request.remote_addr or "unknown"
     now = time.time()
     window = 60.0
     limit = app.config["RATE_LIMIT_PER_MINUTE"]
