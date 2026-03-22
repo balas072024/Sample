@@ -13,7 +13,33 @@ function getDb() {
   return db;
 }
 
+function needsMigration(db) {
+  try {
+    const tables = db.prepare("SELECT name FROM sqlite_master WHERE type='table'").all().map(r => r.name);
+    const expected = {
+      vaults: ['id', 'name', 'master_hash', 'salt', 'created_at'],
+      entries: ['id', 'vault_id', 'title', 'username', 'password_enc', 'url', 'notes_enc', 'category', 'created_at', 'updated_at']
+    };
+    for (const [table, cols] of Object.entries(expected)) {
+      if (!tables.includes(table)) continue;
+      const actual = db.prepare(`PRAGMA table_info(${table})`).all().map(c => c.name);
+      for (const col of cols) {
+        if (!actual.includes(col)) return true;
+      }
+    }
+    return false;
+  } catch { return false; }
+}
+
 function initDb(db) {
+  if (needsMigration(db)) {
+    console.log('[db] Stale schema detected — dropping and recreating tables...');
+    db.exec(`
+      DROP TABLE IF EXISTS entries;
+      DROP TABLE IF EXISTS vaults;
+    `);
+  }
+
   db.exec(`
     CREATE TABLE IF NOT EXISTS vaults (
       id TEXT PRIMARY KEY,

@@ -19,7 +19,39 @@ function getDb(dbPath) {
   return db;
 }
 
+function needsMigration(db) {
+  try {
+    const tables = db.prepare("SELECT name FROM sqlite_master WHERE type='table'").all().map(r => r.name);
+    const expected = {
+      users: ['id', 'username', 'password', 'role', 'full_name', 'created_at', 'updated_at'],
+      shifts: ['id', 'operator_name', 'user_id', 'start_time', 'end_time', 'status', 'summary', 'created_at', 'updated_at'],
+      handover_items: ['id', 'shift_id', 'type', 'title', 'description', 'priority', 'resolved', 'created_at', 'updated_at'],
+      checklists: ['id', 'shift_id', 'type', 'title', 'completed', 'created_at', 'updated_at'],
+      checklist_items: ['id', 'checklist_id', 'label', 'checked', 'checked_at', 'created_at']
+    };
+    for (const [table, cols] of Object.entries(expected)) {
+      if (!tables.includes(table)) continue;
+      const actual = db.prepare(`PRAGMA table_info(${table})`).all().map(c => c.name);
+      for (const col of cols) {
+        if (!actual.includes(col)) return true;
+      }
+    }
+    return false;
+  } catch { return false; }
+}
+
 function initTables(db) {
+  if (needsMigration(db)) {
+    console.log('[db] Stale schema detected — dropping and recreating tables...');
+    db.exec(`
+      DROP TABLE IF EXISTS checklist_items;
+      DROP TABLE IF EXISTS checklists;
+      DROP TABLE IF EXISTS handover_items;
+      DROP TABLE IF EXISTS shifts;
+      DROP TABLE IF EXISTS users;
+    `);
+  }
+
   db.exec(`
     CREATE TABLE IF NOT EXISTS users (
       id INTEGER PRIMARY KEY AUTOINCREMENT,

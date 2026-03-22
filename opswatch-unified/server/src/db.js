@@ -22,7 +22,35 @@ function getDb() {
   return db;
 }
 
+function needsMigration(database) {
+  try {
+    const tables = database.prepare("SELECT name FROM sqlite_master WHERE type='table'").all().map(r => r.name);
+    const required = ['users', 'monitored_services', 'health_checks', 'alerts', 'incidents'];
+    for (const t of required) {
+      if (!tables.includes(t)) continue;
+      const cols = database.prepare(`PRAGMA table_info(${t})`).all().map(c => c.name);
+      if (t === 'health_checks' && !cols.includes('service_id')) return true;
+      if (t === 'alerts' && !cols.includes('service_id')) return true;
+      if (t === 'incidents' && !cols.includes('service_id')) return true;
+    }
+    return false;
+  } catch {
+    return false;
+  }
+}
+
 function initTables(database) {
+  if (needsMigration(database)) {
+    console.log('[db] Stale schema detected — dropping and recreating tables...');
+    database.exec(`
+      DROP TABLE IF EXISTS health_checks;
+      DROP TABLE IF EXISTS alerts;
+      DROP TABLE IF EXISTS incidents;
+      DROP TABLE IF EXISTS monitored_services;
+      DROP TABLE IF EXISTS users;
+    `);
+  }
+
   database.exec(`
     CREATE TABLE IF NOT EXISTS users (
       id INTEGER PRIMARY KEY AUTOINCREMENT,

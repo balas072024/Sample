@@ -20,7 +20,37 @@ function getDb() {
   return db;
 }
 
+function needsMigration(database) {
+  try {
+    const tables = database.prepare("SELECT name FROM sqlite_master WHERE type='table'").all().map(r => r.name);
+    const expected = {
+      users: ['id', 'username', 'email', 'password_hash', 'role', 'total_messages', 'total_tokens', 'created_at', 'updated_at'],
+      conversations: ['id', 'user_id', 'title', 'model', 'created_at', 'updated_at'],
+      messages: ['id', 'conversation_id', 'role', 'content', 'tokens_used', 'created_at'],
+      prompts_library: ['id', 'user_id', 'title', 'content', 'category', 'is_public', 'usage_count', 'created_at', 'updated_at']
+    };
+    for (const [table, cols] of Object.entries(expected)) {
+      if (!tables.includes(table)) continue;
+      const actual = database.prepare(`PRAGMA table_info(${table})`).all().map(c => c.name);
+      for (const col of cols) {
+        if (!actual.includes(col)) return true;
+      }
+    }
+    return false;
+  } catch { return false; }
+}
+
 function migrate(database) {
+  if (needsMigration(database)) {
+    console.log('[db] Stale schema detected — dropping and recreating tables...');
+    database.exec(`
+      DROP TABLE IF EXISTS prompts_library;
+      DROP TABLE IF EXISTS messages;
+      DROP TABLE IF EXISTS conversations;
+      DROP TABLE IF EXISTS users;
+    `);
+  }
+
   database.exec(`
     CREATE TABLE IF NOT EXISTS users (
       id            INTEGER PRIMARY KEY AUTOINCREMENT,

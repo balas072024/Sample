@@ -14,7 +14,45 @@ function getDb() {
   return db;
 }
 
+function needsMigration(db) {
+  try {
+    const tables = db.prepare("SELECT name FROM sqlite_master WHERE type='table'").all().map(r => r.name);
+    const expected = {
+      users: ['id', 'username', 'display_name', 'emoji', 'color', 'role', 'password_hash', 'last_seen', 'created_at'],
+      messages: ['id', 'user_id', 'content', 'type', 'created_at'],
+      todos: ['id', 'text', 'done', 'priority', 'due_date', 'created_by', 'assigned_to', 'completed_at', 'created_at'],
+      notes: ['id', 'title', 'content', 'created_by', 'updated_at', 'created_at'],
+      events: ['id', 'title', 'description', 'event_date', 'event_time', 'created_by', 'created_at'],
+      shopping_lists: ['id', 'name', 'created_by', 'created_at'],
+      shopping_items: ['id', 'list_id', 'name', 'quantity', 'checked', 'added_by', 'created_at'],
+      journal_entries: ['id', 'title', 'content', 'mood', 'created_by', 'created_at']
+    };
+    for (const [table, cols] of Object.entries(expected)) {
+      if (!tables.includes(table)) continue;
+      const actual = db.prepare(`PRAGMA table_info(${table})`).all().map(c => c.name);
+      for (const col of cols) {
+        if (!actual.includes(col)) return true;
+      }
+    }
+    return false;
+  } catch { return false; }
+}
+
 function initDb(db) {
+  if (needsMigration(db)) {
+    console.log('[db] Stale schema detected — dropping and recreating tables...');
+    db.exec(`
+      DROP TABLE IF EXISTS journal_entries;
+      DROP TABLE IF EXISTS shopping_items;
+      DROP TABLE IF EXISTS shopping_lists;
+      DROP TABLE IF EXISTS events;
+      DROP TABLE IF EXISTS notes;
+      DROP TABLE IF EXISTS todos;
+      DROP TABLE IF EXISTS messages;
+      DROP TABLE IF EXISTS users;
+    `);
+  }
+
   db.exec(`
     CREATE TABLE IF NOT EXISTS users (
       id TEXT PRIMARY KEY,
