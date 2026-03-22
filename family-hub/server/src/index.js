@@ -13,8 +13,31 @@ const { setupWebSocket } = require("./websocket");
 const PORT = parseInt(process.env.PORT) || 3000;
 
 // ── Database ──────────────────────────────────────────────
+const bcrypt = require("bcryptjs");
+const crypto = require("crypto");
+
 const db = getDb();
 initDb(db);
+
+// Auto-seed default users if DB is empty
+const userCount = db.prepare("SELECT COUNT(*) as c FROM users").get().c;
+if (userCount === 0) {
+  console.log("[seed] No users found, seeding defaults...");
+  const insert = db.prepare(
+    "INSERT OR IGNORE INTO users (id, username, display_name, emoji, color, role, password_hash) VALUES (?, ?, ?, ?, ?, ?, ?)"
+  );
+  const users = [
+    { username: "bala", display_name: "Bala", emoji: "\u{1F468}", color: "#7c6bff", role: "admin", password: "Family@2024" },
+    { username: "wife", display_name: "Wife", emoji: "\u{1F469}", color: "#00c9a7", role: "member", password: "Family@2024" },
+    { username: "child", display_name: "Child", emoji: "\u{1F466}", color: "#f59e0b", role: "member", password: "Family@2024" },
+    { username: "parent1", display_name: "Parent 1", emoji: "\u{1F474}", color: "#ff6b6b", role: "member", password: "Family@2024" },
+    { username: "parent2", display_name: "Parent 2", emoji: "\u{1F475}", color: "#3dd68c", role: "member", password: "Family@2024" },
+  ];
+  for (const u of users) {
+    insert.run(crypto.randomUUID(), u.username, u.display_name, u.emoji, u.color, u.role, bcrypt.hashSync(u.password, 10));
+  }
+  console.log("[seed] Done. All users password: Family@2024");
+}
 
 // ── Express App ───────────────────────────────────────────
 const app = express();

@@ -56,7 +56,19 @@ const loginLimiter = rateLimit({
 app.use('/api/auth/login', loginLimiter);
 
 // Database
+const bcrypt = require('bcryptjs');
 const db = getDb();
+
+// Auto-seed default users if DB is empty
+const userCount = db.prepare("SELECT COUNT(*) as c FROM users").get().c;
+if (userCount === 0) {
+  console.log("[seed] No users found, seeding defaults...");
+  const hash = bcrypt.hashSync('OpsWatch@2024', 10);
+  const insert = db.prepare('INSERT OR IGNORE INTO users (username, password_hash, role) VALUES (?, ?, ?)');
+  insert.run('admin', hash, 'admin');
+  insert.run('viewer', hash, 'viewer');
+  console.log("[seed] Done. Users: admin/OpsWatch@2024, viewer/OpsWatch@2024");
+}
 
 // Routes
 app.use('/api', createRoutes(db));

@@ -54,42 +54,49 @@ SUBDOMAIN_ROUTES = {
 @app.before_request
 def subdomain_proxy():
     """Transparently proxy requests to the correct backend based on subdomain."""
-    host = request.headers.get("Host", "").split(":")[0].lower()
-    # Extract subdomain: "family.arivumaiyam.com" → "family"
-    subdomain = host.split(".")[0] if "." in host else None
+    try:
+        host = request.headers.get("Host", "").split(":")[0].lower()
+        # Extract subdomain: "family.arivumaiyam.com" -> "family"
+        parts = host.split(".")
+        if len(parts) < 2:
+            return None
+        subdomain = parts[0]
 
-    if subdomain and subdomain in SUBDOMAIN_ROUTES:
+        if subdomain not in SUBDOMAIN_ROUTES:
+            return None
+
         backend = SUBDOMAIN_ROUTES[subdomain]
-        target_url = f"{backend}{request.full_path}" if request.query_string else f"{backend}{request.path}"
+        target_url = backend + request.full_path
 
-        try:
-            # Forward all headers except Host
-            headers = {k: v for k, v in request.headers if k.lower() not in ("host", "content-length")}
-            headers["X-Forwarded-Host"] = host
-            headers["X-Forwarded-Proto"] = request.headers.get("X-Forwarded-Proto", "https")
+        # Forward headers
+        fwd_headers = {}
+        skip = {"host", "content-length", "transfer-encoding"}
+        for key, value in request.headers:
+            if key.lower() not in skip:
+                fwd_headers[key] = value
+        fwd_headers["X-Forwarded-Host"] = host
+        fwd_headers["X-Forwarded-Proto"] = request.headers.get("X-Forwarded-Proto", "https")
 
-            resp = http_requests.request(
-                method=request.method,
-                url=target_url,
-                headers=headers,
-                data=request.get_data(),
-                timeout=30,
-                allow_redirects=False,
-                stream=True,
-            )
+        resp = http_requests.request(
+            method=request.method,
+            url=target_url,
+            headers=fwd_headers,
+            data=request.get_data(),
+            timeout=30,
+            allow_redirects=False,
+        )
 
-            # Build response, preserving headers
-            excluded = {"content-encoding", "transfer-encoding", "content-length", "connection"}
-            resp_headers = {k: v for k, v in resp.headers.items() if k.lower() not in excluded}
-            return Response(resp.content, status=resp.status_code, headers=resp_headers)
+        # Build response
+        excluded = {"content-encoding", "transfer-encoding", "content-length", "connection"}
+        resp_headers = [(k, v) for k, v in resp.headers.items() if k.lower() not in excluded]
+        return Response(resp.content, status=resp.status_code, headers=resp_headers)
 
-        except http_requests.ConnectionError:
-            return jsonify({"error": f"Backend {subdomain} is not running ({backend})"}), 502
-        except http_requests.Timeout:
-            return jsonify({"error": f"Backend {subdomain} timed out"}), 504
-
-    # If no subdomain match, continue to gateway's own routes
-    return None
+    except http_requests.ConnectionError:
+        return jsonify({"error": "Backend service is not running"}), 502
+    except http_requests.Timeout:
+        return jsonify({"error": "Backend service timed out"}), 504
+    except Exception as exc:
+        return jsonify({"error": f"Proxy error: {str(exc)}"}), 500
 
 
 # ---------------------------------------------------------------------------

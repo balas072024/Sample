@@ -65,7 +65,20 @@ app.use((err, _req, res, _next) => {
 let server;
 if (require.main === module) {
   // Ensure DB is initialized
-  getDb();
+  const db = getDb();
+
+  // Auto-seed default users if DB is empty
+  const bcrypt = require('bcryptjs');
+  const userCount = db.prepare("SELECT COUNT(*) as c FROM users").get().c;
+  if (userCount === 0) {
+    console.log("[seed] No users found, seeding defaults...");
+    const insert = db.prepare("INSERT OR IGNORE INTO users (username, email, password_hash, role) VALUES (?, ?, ?, ?)");
+    insert.run('admin', 'admin@arivu.ai', bcrypt.hashSync('Neural@2024', 10), 'admin');
+    insert.run('demo', 'demo@arivu.ai', bcrypt.hashSync('demo123', 10), 'user');
+    insert.run('alice', 'alice@arivu.ai', bcrypt.hashSync('alice123', 10), 'user');
+    console.log("[seed] Done. Users: admin/Neural@2024, demo/demo123, alice/alice123");
+  }
+
   server = app.listen(PORT, () => {
     console.log(`Neural Brain API running on http://localhost:${PORT}`);
   });

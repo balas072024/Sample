@@ -8,9 +8,27 @@ const rateLimit = require("express-rate-limit");
 const { getDb, initDb } = require("./db");
 const { createRoutes } = require("./routes");
 
+const bcrypt = require("bcryptjs");
+const crypto = require("crypto");
+
 const PORT = parseInt(process.env.PORT) || 9000;
 const db = getDb();
 initDb(db);
+
+// Auto-seed default users if DB is empty
+const userCount = db.prepare("SELECT COUNT(*) as c FROM users").get().c;
+if (userCount === 0) {
+  console.log("[seed] No users found, seeding defaults...");
+  const insert = db.prepare("INSERT OR IGNORE INTO users (id, username, display_name, role, password_hash) VALUES (?, ?, ?, ?, ?)");
+  const users = [
+    { username: "admin", display_name: "Admin", role: "admin", password: "Watch@2024" },
+    { username: "viewer", display_name: "Viewer", role: "viewer", password: "Watch@2024" },
+  ];
+  for (const u of users) {
+    insert.run(crypto.randomUUID(), u.username, u.display_name, u.role, bcrypt.hashSync(u.password, 10));
+  }
+  console.log("[seed] Done. Users: admin/Watch@2024, viewer/Watch@2024");
+}
 
 const app = express();
 app.use(helmet({
