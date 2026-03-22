@@ -121,13 +121,30 @@ async function startGateway(): Promise<void> {
   const runtime = new AgentRuntime(config, provider, memoryStore, skillRegistry);
   gateway.setAgentRuntime(runtime);
 
-  // Register configured channels
+  // Register configured channels — skip channels that need tokens but have none
+  const CHANNELS_REQUIRING_TOKEN: Record<string, string> = {
+    telegram: "TELEGRAM_BOT_TOKEN",
+    discord: "DISCORD_BOT_TOKEN",
+    slack: "SLACK_BOT_TOKEN",
+    whatsapp: "WHATSAPP_AUTH_TOKEN",
+  };
+
   log.info(`Configured channels: ${config.channels.map(c => `${c.type}(enabled=${c.enabled})`).join(", ")}`);
 
   for (const channelConfig of config.channels) {
     if (!channelConfig.enabled) {
       log.info(`Skipping channel ${channelConfig.type} (disabled)`);
       continue;
+    }
+
+    // Auto-skip channels that require a bot token when none is configured
+    const requiredEnv = CHANNELS_REQUIRING_TOKEN[channelConfig.type];
+    if (requiredEnv) {
+      const token = channelConfig.credentials?.botToken || process.env[requiredEnv] || "";
+      if (!token || token.includes("your-") || token.length < 10) {
+        log.info(`Skipping channel ${channelConfig.type} (no token — set ${requiredEnv} in .env to enable)`);
+        continue;
+      }
     }
 
     log.info(`Starting channel: ${channelConfig.type} (token=${channelConfig.credentials?.botToken ? "present" : "missing"})`);
@@ -302,6 +319,7 @@ async function startGateway(): Promise<void> {
     "Bad Request", "forbidden", "blocked by user", "chat not found",
     "Anthropic API error", "MiniMax API error", "OpenAI API error",
     "rate limit", "429", "quota",
+    "token required", "bot token", "api_key", "authentication",
   ];
 
   const scheduleAttemptReset = () => {
