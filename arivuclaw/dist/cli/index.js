@@ -149,7 +149,7 @@ async function startGateway() {
     // Start gateway
     await gateway.start();
     // Start Web UI Dashboard on a separate port from the Web channel
-    const dashPort = Number(config.gateway.dashboardPort) || 7890;
+    const dashPort = Number(config.gateway.dashboardPort) || 6800;
     try {
         const http = require("http");
         const { generateDashboardHTML } = require("../ui/dashboard");

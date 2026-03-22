@@ -27,7 +27,7 @@ export class WebChannel extends BaseChannel {
   private clients = new Map<string, WebClient>();
 
   protected async connect(): Promise<void> {
-    const port = Number(this.config.credentials.port || 3000);
+    const port = Number(this.config.credentials.port || 6799);
 
     this.log.info(`Starting web server on port ${port}...`);
 
@@ -127,7 +127,7 @@ export class WebChannel extends BaseChannel {
   }
 
   private isAllowedOrigin(origin: string): boolean {
-    const allowed = (this.config.options?.corsOrigins as string[]) || ["http://localhost:3000"];
+    const allowed = (this.config.options?.corsOrigins as string[]) || ["http://localhost:6799"];
     return allowed.some((a) => origin.startsWith(a));
   }
 }

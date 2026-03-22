@@ -44,8 +44,8 @@ const DEFAULT_CONFIG = {
     mode: "unrestricted", // Default to unrestricted for local laptop use
     gateway: {
         host: "0.0.0.0",
-        port: 3000,
-        corsOrigins: ["http://localhost:3000"],
+        port: 6799,
+        corsOrigins: ["http://localhost:6799"],
     },
     providers: {
         anthropic: {
@@ -100,7 +100,7 @@ const DEFAULT_CONFIG = {
         {
             type: "web",
             enabled: false,
-            credentials: { port: "3000" },
+            credentials: { port: "6799" },
         },
         {
             type: "whatsapp",

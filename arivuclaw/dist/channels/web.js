@@ -52,7 +52,7 @@ class WebChannel extends base_1.BaseChannel {
     wss = null;
     clients = new Map();
     async connect() {
-        const port = Number(this.config.credentials.port || 3000);
+        const port = Number(this.config.credentials.port || 6799);
         this.log.info(`Starting web server on port ${port}...`);
         const express = (await Promise.resolve().then(() => __importStar(require("express")))).default;
         const { WebSocketServer } = await Promise.resolve().then(() => __importStar(require("ws")));
@@ -135,7 +135,7 @@ class WebChannel extends base_1.BaseChannel {
         this.log.info(`Sent message to web client ${channelUserId}`);
     }
     isAllowedOrigin(origin) {
-        const allowed = this.config.options?.corsOrigins || ["http://localhost:3000"];
+        const allowed = this.config.options?.corsOrigins || ["http://localhost:6799"];
         return allowed.some((a) => origin.startsWith(a));
     }
 }
