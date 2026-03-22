@@ -33,12 +33,54 @@ if errorlevel 1 (
 )
 for /f "tokens=*" %%v in ('node --version') do echo   Node.js: %%v
 
+:: ── Kill any running ArivuClaw processes ──────────────
+echo   Checking for running ArivuClaw processes...
+for /f "tokens=5" %%p in ('netstat -ano ^| findstr ":6799" ^| findstr "LISTENING" 2^>nul') do (
+    echo   Stopping process %%p on port 6799...
+    taskkill /PID %%p /F >nul 2>nul
+)
+for /f "tokens=5" %%p in ('netstat -ano ^| findstr ":6800" ^| findstr "LISTENING" 2^>nul') do (
+    echo   Stopping process %%p on port 6800...
+    taskkill /PID %%p /F >nul 2>nul
+)
+for /f "tokens=5" %%p in ('netstat -ano ^| findstr ":3000" ^| findstr "LISTENING" 2^>nul') do (
+    echo   Stopping old process %%p on port 3000...
+    taskkill /PID %%p /F >nul 2>nul
+)
+for /f "tokens=5" %%p in ('netstat -ano ^| findstr ":7890" ^| findstr "LISTENING" 2^>nul') do (
+    echo   Stopping old process %%p on port 7890...
+    taskkill /PID %%p /F >nul 2>nul
+)
+
+:: ── Remove old npm global package if installed ────────
+echo   Checking for globally installed arivuclaw...
+call npm uninstall -g arivuclaw >nul 2>nul
+call npm uninstall -g @arivuclaw/cli >nul 2>nul
+
 :: ── Clean previous installation ───────────────────────
 if exist "%INSTALL_DIR%\Sample" (
     echo.
-    echo   Removing previous installation...
+    echo   Removing previous installation at %INSTALL_DIR%\Sample...
     rmdir /s /q "%INSTALL_DIR%\Sample"
+    echo   Previous installation removed.
 )
+
+:: ── Also check and remove old install locations ───────
+if exist "%USERPROFILE%\.arivuclaw" (
+    echo   Removing old config at %USERPROFILE%\.arivuclaw...
+    rmdir /s /q "%USERPROFILE%\.arivuclaw"
+)
+if exist "%APPDATA%\arivuclaw" (
+    echo   Removing old data at %APPDATA%\arivuclaw...
+    rmdir /s /q "%APPDATA%\arivuclaw"
+)
+
+:: ── Clean npm cache for arivuclaw ─────────────────────
+echo   Cleaning npm cache...
+call npm cache clean --force >nul 2>nul
+
+echo.
+echo   Old ArivuClaw fully uninstalled.
 
 :: ── Create install directory ──────────────────────────
 if not exist "%INSTALL_DIR%" mkdir "%INSTALL_DIR%"
