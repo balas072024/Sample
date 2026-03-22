@@ -215,6 +215,11 @@ function createRoutes(db) {
     }
   );
 
+  router.delete("/todos/completed", authMiddleware, (req, res) => {
+    const result = db.prepare("DELETE FROM todos WHERE done = 1").run();
+    res.json({ message: "Deleted", count: result.changes });
+  });
+
   router.delete("/todos/:id", authMiddleware, (req, res) => {
     const todo = db.prepare("SELECT created_by FROM todos WHERE id = ?").get(req.params.id);
     if (!todo) return res.status(404).json({ error: "Todo not found" });
@@ -444,6 +449,46 @@ function createRoutes(db) {
     }
     db.prepare("DELETE FROM journal_entries WHERE id = ?").run(req.params.id);
     res.json({ message: "Deleted" });
+  });
+
+  // ── Data Export ──────────────────────────────────────────
+
+  router.get("/export", authMiddleware, (req, res) => {
+    const userId = req.user.id;
+    const messages = db.prepare(
+      "SELECT m.id, m.content, m.type, m.created_at FROM messages m WHERE m.user_id = ? ORDER BY m.created_at DESC"
+    ).all(userId);
+    const todos = db.prepare(
+      "SELECT t.id, t.text, t.done, t.priority, t.due_date, t.created_at, t.completed_at FROM todos t WHERE t.created_by = ? ORDER BY t.created_at DESC"
+    ).all(userId);
+    const notes = db.prepare(
+      "SELECT n.id, n.title, n.content, n.created_at, n.updated_at FROM notes n WHERE n.created_by = ? ORDER BY n.updated_at DESC"
+    ).all(userId);
+    const events = db.prepare(
+      "SELECT e.id, e.title, e.description, e.event_date, e.event_time, e.created_at FROM events e WHERE e.created_by = ? ORDER BY e.event_date ASC"
+    ).all(userId);
+    const shoppingLists = db.prepare(
+      "SELECT s.id, s.name, s.created_at FROM shopping_lists s WHERE s.created_by = ? ORDER BY s.created_at DESC"
+    ).all(userId);
+    for (const list of shoppingLists) {
+      list.items = db.prepare(
+        "SELECT i.id, i.name, i.quantity, i.checked, i.created_at FROM shopping_items i WHERE i.list_id = ? ORDER BY i.created_at DESC"
+      ).all(list.id);
+    }
+    const journalEntries = db.prepare(
+      "SELECT j.id, j.title, j.content, j.mood, j.created_at FROM journal_entries j WHERE j.created_by = ? ORDER BY j.created_at DESC"
+    ).all(userId);
+
+    res.json({
+      exported_at: new Date().toISOString(),
+      user: { id: userId, username: req.user.username },
+      messages,
+      todos,
+      notes,
+      events,
+      shopping_lists: shoppingLists,
+      journal_entries: journalEntries
+    });
   });
 
   // ── Health ────────────────────────────────────────────────

@@ -500,6 +500,34 @@ def get_logs():
     return jsonify({"logs": logs, "count": len(logs)}), 200
 
 
+@app.route("/api/logs/export", methods=["GET"])
+@token_required
+def export_logs():
+    """Export all request logs as JSON for download."""
+    db = get_db()
+    rows = db.execute(
+        "SELECT * FROM request_logs ORDER BY request_timestamp DESC"
+    ).fetchall()
+    logs = [dict(r) for r in rows]
+    response = jsonify({"logs": logs, "count": len(logs), "exported_at": datetime.datetime.utcnow().isoformat()})
+    response.headers["Content-Disposition"] = "attachment; filename=request_logs.json"
+    return response, 200
+
+
+@app.route("/api/logs/clear", methods=["DELETE"])
+@admin_required
+def clear_old_logs():
+    """Clear request logs older than 7 days. Admin only."""
+    db = get_db()
+    cutoff = (datetime.datetime.utcnow() - datetime.timedelta(days=7)).strftime("%Y-%m-%d %H:%M:%S")
+    cursor = db.execute(
+        "DELETE FROM request_logs WHERE request_timestamp < ?", (cutoff,)
+    )
+    db.commit()
+    deleted_count = cursor.rowcount
+    return jsonify({"message": f"Cleared {deleted_count} old log entries", "deleted_count": deleted_count}), 200
+
+
 # ---------------------------------------------------------------------------
 # Analytics
 # ---------------------------------------------------------------------------

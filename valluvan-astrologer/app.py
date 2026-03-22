@@ -605,6 +605,39 @@ def get_charts():
     return jsonify({"charts": result})
 
 
+@app.route("/api/chart/<int:chart_id>", methods=["GET"])
+@token_required
+def get_chart(chart_id):
+    db = get_db()
+    chart = db.execute(
+        "SELECT * FROM birth_charts WHERE id = ? AND user_id = ?",
+        (chart_id, g.current_user_id),
+    ).fetchone()
+    if not chart:
+        return jsonify({"error": "Chart not found"}), 404
+
+    chart_data = json.loads(chart["chart_data"]) if chart["chart_data"] else {}
+    chart_data["id"] = chart["id"]
+    chart_data["created_at"] = chart["created_at"]
+    return jsonify({"chart": chart_data})
+
+
+@app.route("/api/chart/<int:chart_id>", methods=["DELETE"])
+@token_required
+def delete_chart(chart_id):
+    db = get_db()
+    chart = db.execute(
+        "SELECT id FROM birth_charts WHERE id = ? AND user_id = ?",
+        (chart_id, g.current_user_id),
+    ).fetchone()
+    if not chart:
+        return jsonify({"error": "Chart not found"}), 404
+
+    db.execute("DELETE FROM birth_charts WHERE id = ?", (chart_id,))
+    db.commit()
+    return jsonify({"message": "Chart deleted"})
+
+
 # ---------------------------------------------------------------------------
 # Routes - Horoscope
 # ---------------------------------------------------------------------------

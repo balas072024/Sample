@@ -214,6 +214,31 @@ router.delete(
   }
 );
 
+router.get(
+  '/conversations/:id/export',
+  authMiddleware,
+  param('id').isInt(),
+  validate,
+  (req, res) => {
+    const db = getDb();
+    const convo = db.prepare('SELECT * FROM conversations WHERE id = ? AND user_id = ?').get(req.params.id, req.user.id);
+    if (!convo) return res.status(404).json({ error: 'Conversation not found' });
+
+    const messages = db.prepare('SELECT * FROM messages WHERE conversation_id = ? ORDER BY id ASC').all(convo.id);
+
+    const exportData = {
+      conversation: convo,
+      messages,
+      exported_at: new Date().toISOString()
+    };
+
+    const filename = `conversation-${convo.id}-${Date.now()}.json`;
+    res.setHeader('Content-Type', 'application/json');
+    res.setHeader('Content-Disposition', `attachment; filename="${filename}"`);
+    res.json(exportData);
+  }
+);
+
 // ---------------------------------------------------------------------------
 // Analyze – summarize
 // ---------------------------------------------------------------------------

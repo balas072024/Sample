@@ -425,6 +425,48 @@ def get_conversation(conversation_id):
     }), 200
 
 
+@app.route("/api/conversations/<conversation_id>/messages", methods=["GET"])
+@token_required
+def get_conversation_messages(conversation_id):
+    """Get messages for a specific conversation."""
+    db = get_db()
+    conv = db.execute(
+        "SELECT id FROM conversations WHERE id = ? AND user_id = ?",
+        (conversation_id, g.current_user_id),
+    ).fetchone()
+    if not conv:
+        return jsonify({"error": "Conversation not found"}), 404
+
+    messages = db.execute(
+        "SELECT id, role, content, created_at FROM messages "
+        "WHERE conversation_id = ? ORDER BY created_at",
+        (conversation_id,),
+    ).fetchall()
+
+    return jsonify({"messages": [dict(m) for m in messages]}), 200
+
+
+@app.route("/api/chat/history", methods=["DELETE"])
+@token_required
+def clear_chat_history():
+    """Clear all conversations and messages for the current user."""
+    db = get_db()
+    # Get all conversation IDs for this user
+    conv_rows = db.execute(
+        "SELECT id FROM conversations WHERE user_id = ?",
+        (g.current_user_id,),
+    ).fetchall()
+    conv_ids = [r["id"] for r in conv_rows]
+
+    if conv_ids:
+        placeholders = ",".join("?" for _ in conv_ids)
+        db.execute(f"DELETE FROM messages WHERE conversation_id IN ({placeholders})", conv_ids)
+        db.execute("DELETE FROM conversations WHERE user_id = ?", (g.current_user_id,))
+        db.commit()
+
+    return jsonify({"message": "Chat history cleared", "conversations_deleted": len(conv_ids)}), 200
+
+
 @app.route("/api/conversations/<conversation_id>", methods=["DELETE"])
 @token_required
 def delete_conversation(conversation_id):

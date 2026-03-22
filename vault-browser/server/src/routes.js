@@ -121,6 +121,46 @@ function createRoutes(db) {
     res.json({ message: "Deleted" });
   });
 
+  // ── Export ──────────────────────────────────────────
+  router.get("/vault/export", authMiddleware, (req, res) => {
+    const entries = db.prepare("SELECT * FROM entries WHERE vault_id = ? ORDER BY updated_at DESC").all(req.vault.vaultId);
+    const vault = db.prepare("SELECT id, name, created_at FROM vaults WHERE id = ?").get(req.vault.vaultId);
+    res.json({
+      export_version: 1,
+      exported_at: new Date().toISOString(),
+      vault: { id: vault.id, name: vault.name },
+      entries: entries.map(e => ({
+        id: e.id, title: e.title, username: e.username,
+        password_enc: e.password_enc, url: e.url,
+        notes_enc: e.notes_enc, category: e.category,
+        created_at: e.created_at, updated_at: e.updated_at
+      }))
+    });
+  });
+
+  // ── Password Strength Check ────────────────────────────
+  router.post("/vault/check-strength", (req, res) => {
+    const { password } = req.body || {};
+    if (!password || typeof password !== "string") return res.status(400).json({ error: "Password string required" });
+
+    let score = 0;
+    if (password.length >= 8) score++;
+    if (password.length >= 12) score++;
+    if (password.length >= 16) score++;
+    if (/[a-z]/.test(password)) score++;
+    if (/[A-Z]/.test(password)) score++;
+    if (/[0-9]/.test(password)) score++;
+    if (/[^a-zA-Z0-9]/.test(password)) score++;
+
+    let strength;
+    if (score <= 2) strength = "weak";
+    else if (score <= 4) strength = "fair";
+    else if (score <= 5) strength = "strong";
+    else strength = "excellent";
+
+    res.json({ score, strength });
+  });
+
   // ── Password Generator ────────────────────────────────
   router.post("/vault/generate", (req, res) => {
     const { length = 20, symbols = true } = req.body || {};

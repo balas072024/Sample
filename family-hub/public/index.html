@@ -164,6 +164,7 @@ button:disabled{opacity:.5;cursor:not-allowed}
     <div class="user-bar">
       <div class="avatar" id="user-avatar">👤</div>
       <span id="user-name" style="font-size:14px;font-weight:600"></span>
+      <button class="btn-sm btn-ghost" id="btn-export" title="Export Data">📥</button>
       <button class="btn-sm btn-ghost" id="btn-settings">⚙️</button>
       <button class="btn-sm btn-ghost" id="btn-logout">Logout</button>
     </div>
@@ -200,6 +201,7 @@ button:disabled{opacity:.5;cursor:not-allowed}
           <button class="btn-sm" id="btn-add-todo">Add</button>
         </div>
         <div id="todos-list"></div>
+        <button class="btn-sm btn-ghost" id="btn-clear-completed" style="margin-top:10px;display:none">Clear completed tasks</button>
       </div>
 
       <!-- Members -->
@@ -402,6 +404,7 @@ async function login() {
     currentUser = data.user;
     localStorage.setItem("fh_token", token);
     showApp();
+    requestNotificationPermission();
   } catch (e) {
     errEl.textContent = e.message;
   }
@@ -583,6 +586,8 @@ function renderTodos() {
       </div>
     </div>
   `).join("");
+  const clearBtn = document.getElementById("btn-clear-completed");
+  clearBtn.style.display = allTodos.some(t => t.done) ? "inline-block" : "none";
 }
 
 async function addTodo() {
@@ -616,6 +621,38 @@ async function deleteTodo(id) {
     allTodos = allTodos.filter(t => t.id !== id);
     renderTodos();
   } catch (e) { toast(e.message, "error"); }
+}
+
+async function clearCompletedTodos() {
+  try {
+    await api("/todos/completed", { method: "DELETE" });
+    allTodos = allTodos.filter(t => !t.done);
+    renderTodos();
+    toast("Completed tasks cleared", "success");
+  } catch (e) { toast(e.message, "error"); }
+}
+
+async function exportData() {
+  try {
+    const data = await api("/export");
+    if (!data) return;
+    const blob = new Blob([JSON.stringify(data, null, 2)], { type: "application/json" });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = "family-hub-export-" + new Date().toISOString().slice(0, 10) + ".json";
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    URL.revokeObjectURL(url);
+    toast("Data exported successfully", "success");
+  } catch (e) { toast(e.message, "error"); }
+}
+
+function requestNotificationPermission() {
+  if ("Notification" in window && Notification.permission === "default") {
+    Notification.requestPermission();
+  }
 }
 
 // ── Members ────────────────────────────────────────────
@@ -1409,6 +1446,7 @@ document.addEventListener("DOMContentLoaded", () => {
   // Todos
   document.getElementById("btn-add-todo").addEventListener("click", addTodo);
   document.getElementById("todo-input").addEventListener("keydown", (e) => { if (e.key === "Enter") addTodo(); });
+  document.getElementById("btn-clear-completed").addEventListener("click", clearCompletedTodos);
 
   // Notes
   document.getElementById("btn-save-note").addEventListener("click", saveNote);
@@ -1424,6 +1462,9 @@ document.addEventListener("DOMContentLoaded", () => {
 
   // Journal
   document.getElementById("btn-save-journal").addEventListener("click", saveJournalEntry);
+
+  // Export
+  document.getElementById("btn-export").addEventListener("click", exportData);
 
   // Settings
   document.getElementById("btn-settings").addEventListener("click", openSettings);

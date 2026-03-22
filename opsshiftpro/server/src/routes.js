@@ -67,6 +67,32 @@ function createRouter(db) {
     res.json({ message: 'Password changed successfully' });
   });
 
+  // Shifts - export all shifts with items and checklists for reporting
+  router.get('/shifts/export', authenticate, function (_req, res) {
+    var shifts = db.prepare('SELECT * FROM shifts ORDER BY created_at DESC').all();
+    for (var i = 0; i < shifts.length; i++) {
+      shifts[i].handover_items = db.prepare('SELECT * FROM handover_items WHERE shift_id = ? ORDER BY created_at DESC').all(shifts[i].id);
+      var checklists = db.prepare('SELECT * FROM checklists WHERE shift_id = ?').all(shifts[i].id);
+      for (var j = 0; j < checklists.length; j++) {
+        checklists[j].items = db.prepare('SELECT * FROM checklist_items WHERE checklist_id = ?').all(checklists[j].id);
+      }
+      shifts[i].checklists = checklists;
+    }
+    res.json({ exported_at: new Date().toISOString(), total_shifts: shifts.length, shifts: shifts });
+  });
+
+  // Shifts - get currently active shift
+  router.get('/shifts/active', authenticate, function (_req, res) {
+    var shift = db.prepare("SELECT s.*, u.username, u.full_name FROM shifts s LEFT JOIN users u ON u.id = s.user_id WHERE s.status = 'active' ORDER BY s.created_at DESC LIMIT 1").get();
+    if (!shift) return res.status(404).json({ error: 'No active shift found' });
+    var handoverItems = db.prepare('SELECT * FROM handover_items WHERE shift_id = ? ORDER BY created_at DESC').all(shift.id);
+    var checklists = db.prepare('SELECT * FROM checklists WHERE shift_id = ?').all(shift.id);
+    for (var i = 0; i < checklists.length; i++) {
+      checklists[i].items = db.prepare('SELECT * FROM checklist_items WHERE checklist_id = ?').all(checklists[i].id);
+    }
+    res.json({ shift: shift, handover_items: handoverItems, checklists: checklists });
+  });
+
   // Shifts - list (with joined user data)
   router.get('/shifts', authenticate, function (req, res) {
     var status = req.query.status;

@@ -64,6 +64,11 @@
     .tabs button { background: var(--surface2); color: var(--text-dim); border-radius: 6px 6px 0 0; }
     .tabs button.active { background: var(--primary); color: #fff; }
     .hidden { display: none !important; }
+    .shift-active-highlight { border: 2px solid var(--success) !important; box-shadow: 0 0 8px rgba(46,204,113,.25); }
+    tr.shift-row-active { outline: 2px solid var(--success); outline-offset: -1px; }
+    .btn-export { background: #3498db; color: #fff; }
+    .btn-export:hover { background: #2980b9; }
+    .duration-display { font-size: 13px; color: var(--primary); font-weight: 600; margin-top: 4px; }
     .empty-state { text-align: center; padding: 30px; color: var(--text-dim); }
     .login-page { display: flex; align-items: center; justify-content: center; min-height: 100vh; }
     .login-box { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); padding: 40px; width: 400px; }
@@ -107,6 +112,7 @@
     <h1>OpsShiftPro</h1>
     <div class="user-info">
       <span id="userDisplay"></span>
+      <button class="btn-sm btn-export" onclick="exportReport()">Export Report</button>
       <button class="btn-sm btn-danger" onclick="doLogout()">Logout</button>
     </div>
   </header>
@@ -172,10 +178,10 @@
         <h2>Shift History</h2>
         <table>
           <thead>
-            <tr><th>ID</th><th>Operator</th><th>Start</th><th>End</th><th>Status</th><th>Actions</th></tr>
+            <tr><th>ID</th><th>Operator</th><th>Start</th><th>End</th><th>Duration</th><th>Status</th><th>Actions</th></tr>
           </thead>
           <tbody id="shiftHistoryBody">
-            <tr><td colspan="6" class="empty-state">Loading...</td></tr>
+            <tr><td colspan="7" class="empty-state">Loading...</td></tr>
           </tbody>
         </table>
       </div>
@@ -317,13 +323,14 @@ async function loadShifts() {
 
 function renderShiftHistory(shifts) {
   const tbody = document.getElementById('shiftHistoryBody');
-  if (!shifts.length) { tbody.innerHTML = '<tr><td colspan="6" class="empty-state">No shifts yet</td></tr>'; return; }
+  if (!shifts.length) { tbody.innerHTML = '<tr><td colspan="7" class="empty-state">No shifts yet</td></tr>'; return; }
   tbody.innerHTML = shifts.map(s => `
-    <tr>
+    <tr class="${s.status === 'active' ? 'shift-row-active' : ''}">
       <td>${s.id}</td>
       <td>${s.operator_name}</td>
       <td>${fmtDate(s.start_time)}</td>
       <td>${s.end_time ? fmtDate(s.end_time) : '-'}</td>
+      <td>${calcDuration(s.start_time, s.end_time)}</td>
       <td><span class="badge badge-${s.status}">${s.status}</span></td>
       <td>
         <button class="btn-sm btn-primary" onclick="selectShift(${s.id})">View</button>
@@ -360,6 +367,8 @@ async function selectShift(id) {
 }
 
 function renderActiveShift(shift) {
+  const card = document.getElementById('activeShiftPanel').closest('.card');
+  if (shift.status === 'active') { card.classList.add('shift-active-highlight'); } else { card.classList.remove('shift-active-highlight'); }
   document.getElementById('activeShiftPanel').innerHTML = `
     <div style="margin-bottom:12px">
       <strong style="font-size:18px">${shift.operator_name}</strong>
@@ -370,6 +379,9 @@ function renderActiveShift(shift) {
     </div>
     <div style="font-size:13px;color:var(--text-dim);margin-bottom:4px">
       <strong>End:</strong> ${shift.end_time ? fmtDate(shift.end_time) : 'Ongoing'}
+    </div>
+    <div class="duration-display">
+      <strong>Duration:</strong> ${calcDuration(shift.start_time, shift.end_time)}
     </div>
     ${shift.summary ? `<div style="font-size:13px;margin-top:8px;padding:8px;background:var(--surface2);border-radius:var(--radius)"><strong>Summary:</strong> ${esc(shift.summary)}</div>` : ''}
   `;
@@ -514,6 +526,38 @@ function resetPanels() {
 }
 function fmtDate(d) { if (!d) return '-'; try { return new Date(d).toLocaleString(); } catch { return d; } }
 function esc(s) { const d = document.createElement('div'); d.textContent = s; return d.innerHTML; }
+
+// ─── Export & Duration ──────────────────────────────────
+async function exportReport() {
+  try {
+    const data = await api('GET', '/shifts/export');
+    const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `opsshiftpro-export-${new Date().toISOString().slice(0,10)}.json`;
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    URL.revokeObjectURL(url);
+  } catch (e) { alert(e.error || 'Export failed'); }
+}
+
+function calcDuration(startTime, endTime) {
+  try {
+    const start = new Date(startTime);
+    const end = endTime ? new Date(endTime) : new Date();
+    let diff = Math.max(0, Math.floor((end - start) / 1000));
+    const days = Math.floor(diff / 86400); diff %= 86400;
+    const hours = Math.floor(diff / 3600); diff %= 3600;
+    const minutes = Math.floor(diff / 60);
+    let parts = [];
+    if (days > 0) parts.push(days + 'd');
+    if (hours > 0) parts.push(hours + 'h');
+    parts.push(minutes + 'm');
+    return parts.join(' ') + (!endTime ? ' (ongoing)' : '');
+  } catch { return '-'; }
+}
 
 // ─── Init ───────────────────────────────────────────────
 document.addEventListener('DOMContentLoaded', () => {

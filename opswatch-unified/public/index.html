@@ -172,7 +172,7 @@
       font-size: 0.75rem; font-weight: 600; text-transform: uppercase;
     }
     .badge.critical { background: rgba(239,68,68,0.15); color: var(--red); }
-    .badge.warning { background: rgba(245,158,11,0.15); color: var(--yellow); }
+    .badge.warning { background: rgba(249,115,22,0.15); color: var(--orange); }
     .badge.info { background: rgba(59,130,246,0.15); color: var(--accent); }
     .badge.major { background: rgba(249,115,22,0.15); color: var(--orange); }
     .badge.minor { background: rgba(168,85,247,0.15); color: var(--purple); }
@@ -232,7 +232,7 @@
       <h1>OpsWatch Unified</h1>
     </div>
     <div class="right">
-      <span class="refresh-tag">Auto-refresh 30s</span>
+      <span class="refresh-tag" id="refreshTag">Auto-refresh 30s</span>
       <span id="userDisplay"></span>
       <button class="btn btn-sm btn-outline" onclick="logout()">Logout</button>
     </div>
@@ -305,6 +305,8 @@ let currentUser = null;
 let refreshTimer = null;
 let servicesCache = [];
 let healthStatusMap = {};
+let lastRefreshTime = null;
+let refreshCountdown = 30;
 
 // Utility: escape HTML to prevent XSS
 function esc(s) {
@@ -365,6 +367,7 @@ function logout() {
   currentUser = null;
   localStorage.removeItem('opswatch_token');
   if (refreshTimer) clearInterval(refreshTimer);
+  if (countdownTimer) clearInterval(countdownTimer);
   document.getElementById('loginScreen').classList.remove('hidden');
   document.getElementById('app').classList.add('hidden');
 }
@@ -381,12 +384,26 @@ async function showApp() {
   document.getElementById('userDisplay').textContent = esc(currentUser.username) + ' (' + currentUser.role + ')';
   await refreshAll();
   refreshTimer = setInterval(refreshAll, 30000);
+  if (countdownTimer) clearInterval(countdownTimer);
+  countdownTimer = setInterval(updateRefreshTag, 1000);
 }
 
 // ---- Data Loading ----
 async function refreshAll() {
   await Promise.allSettled([loadStats(), loadServices(), loadAlerts(), loadIncidents()]);
+  lastRefreshTime = new Date();
+  refreshCountdown = 30;
+  updateRefreshTag();
 }
+
+function updateRefreshTag() {
+  const el = document.getElementById('refreshTag');
+  if (!el || !lastRefreshTime) return;
+  const ago = Math.floor((Date.now() - lastRefreshTime.getTime()) / 1000);
+  el.textContent = 'Updated ' + ago + 's ago · next in ' + Math.max(0, refreshCountdown - ago) + 's';
+}
+
+let countdownTimer = null;
 
 async function loadStats() {
   try {
@@ -448,6 +465,10 @@ async function loadServices() {
         ticks += '<div class="tick ' + (c ? c.status : 'empty') + '"></div>';
       }
 
+      const delBtn = currentUser && currentUser.role === 'admin'
+        ? '<button class="btn btn-sm btn-danger" style="padding:0.15rem 0.4rem;font-size:0.75rem;flex-shrink:0;align-self:flex-start" onclick="deleteService(' + svc.id + ')" title="Delete service">&times;</button>'
+        : '';
+
       return '<div class="service-item">' +
         '<div class="status-dot ' + status + '"></div>' +
         '<div class="service-info">' +
@@ -456,6 +477,7 @@ async function loadServices() {
           '<div class="meta"><span>Latency: ' + latency + '</span><span>Uptime: ' + uptimePct + '%</span></div>' +
           '<div class="uptime-bar">' + ticks + '</div>' +
         '</div>' +
+        delBtn +
       '</div>';
     }).join('');
   } catch {}
@@ -523,6 +545,14 @@ async function runHealthCheck() {
 async function ackAlert(id) {
   try {
     await api('/alerts/' + id + '/acknowledge', { method: 'PATCH' });
+    await refreshAll();
+  } catch (err) { alert(err.message); }
+}
+
+async function deleteService(id) {
+  if (!confirm('Delete this service? This cannot be undone.')) return;
+  try {
+    await api('/services/' + id, { method: 'DELETE' });
     await refreshAll();
   } catch (err) { alert(err.message); }
 }
