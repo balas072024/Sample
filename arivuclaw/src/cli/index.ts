@@ -96,7 +96,7 @@ async function startGateway(): Promise<void> {
   // Load .env file if present
   try { require("dotenv").config(); } catch { /* dotenv optional */ }
 
-  const config = loadConfig();
+  let config = loadConfig();
   Logger.setLevel(config.logging.level);
 
   // Initialize memory store
@@ -104,7 +104,7 @@ async function startGateway(): Promise<void> {
 
   // Initialize LLM provider — validate API key first
   validateProviderKey(config);
-  const provider = createProvider(config);
+  let provider = createProvider(config);
 
   // Initialize skill registry
   const skillRegistry = new SkillRegistry(config.skills.directories);
@@ -118,7 +118,7 @@ async function startGateway(): Promise<void> {
   const gateway = new Gateway(config, memoryStore);
 
   // Create agent runtime
-  const runtime = new AgentRuntime(config, provider, memoryStore, skillRegistry);
+  let runtime = new AgentRuntime(config, provider, memoryStore, skillRegistry);
   gateway.setAgentRuntime(runtime);
 
   // Register configured channels — skip channels that need tokens but have none
@@ -326,6 +326,15 @@ async function startGateway(): Promise<void> {
 
         // Reload config from .env before restarting
         try { require("dotenv").config({ override: true }); } catch { /* optional */ }
+
+        // Reload config and recreate provider + runtime so the gateway
+        // picks up any .env / config changes after restart.
+        config = loadConfig();
+        Logger.setLevel(config.logging.level);
+        validateProviderKey(config);
+        provider = createProvider(config);
+        runtime = new AgentRuntime(config, provider, memoryStore, skillRegistry);
+        gateway.setAgentRuntime(runtime);
 
         gateway.restart()
           .then(() => log.info("Gateway restarted via dashboard"))
