@@ -38,19 +38,27 @@ export class OllamaProvider implements LLMProvider {
       })),
     ];
 
-    const response = await fetch(`${this.baseUrl}/api/chat`, {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        model,
-        messages,
-        stream: false,
-        options: {
-          temperature: request.temperature || 0.7,
-          num_predict: request.maxTokens || 4096,
-        },
-      }),
-    });
+    let response: Response;
+    try {
+      response = await fetch(`${this.baseUrl}/api/chat`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          model,
+          messages,
+          stream: false,
+          options: {
+            temperature: request.temperature || 0.7,
+            num_predict: request.maxTokens || 4096,
+          },
+        }),
+      });
+    } catch (err: any) {
+      const hint = this.baseUrl.includes("localhost") || this.baseUrl.includes("127.0.0.1")
+        ? " — Make sure Ollama is running (run 'ollama serve' in a terminal)"
+        : ` — Cannot reach Ollama at ${this.baseUrl}`;
+      throw new Error(`Ollama connection failed${hint}: ${err.message || err}`);
+    }
 
     if (!response.ok) {
       throw new Error(`Ollama error: ${response.status}`);
@@ -81,11 +89,19 @@ export class OllamaProvider implements LLMProvider {
       })),
     ];
 
-    const response = await fetch(`${this.baseUrl}/api/chat`, {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ model, messages, stream: true }),
-    });
+    let response: Response;
+    try {
+      response = await fetch(`${this.baseUrl}/api/chat`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ model, messages, stream: true }),
+      });
+    } catch (err: any) {
+      const hint = this.baseUrl.includes("localhost") || this.baseUrl.includes("127.0.0.1")
+        ? " — Make sure Ollama is running (run 'ollama serve' in a terminal)"
+        : ` — Cannot reach Ollama at ${this.baseUrl}`;
+      throw new Error(`Ollama connection failed${hint}: ${err.message || err}`);
+    }
 
     if (!response.ok) {
       throw new Error(`Ollama error: ${response.status}`);

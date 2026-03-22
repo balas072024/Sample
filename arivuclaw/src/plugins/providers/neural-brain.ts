@@ -85,23 +85,29 @@ export class NeuralBrainProvider implements LLMProvider {
       return this.chatSimulated(request);
     }
 
-    const response = await fetch(`${this.config.baseUrl}/v1/neural/chat`, {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        Authorization: `Bearer ${this.config.apiKey}`,
-      },
-      body: JSON.stringify({
-        messages: request.messages.map((m) => ({
-          role: m.role,
-          content: formatMessageContent(m.content),
-        })),
-        neural_config: {
-          plasticity_rate: this.config.plasticityRate,
-          activation_history: Array.from(this.state.activationPatterns.entries()).slice(-10),
+    let response: Response;
+    try {
+      response = await fetch(`${this.config.baseUrl}/v1/neural/chat`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${this.config.apiKey}`,
         },
-      }),
-    });
+        body: JSON.stringify({
+          messages: request.messages.map((m) => ({
+            role: m.role,
+            content: formatMessageContent(m.content),
+          })),
+          neural_config: {
+            plasticity_rate: this.config.plasticityRate,
+            activation_history: Array.from(this.state.activationPatterns.entries()).slice(-10),
+          },
+        }),
+      });
+    } catch (err: any) {
+      log.warn(`Cortical API unreachable (${err.message}), falling back to simulation`);
+      return this.chatSimulated(request);
+    }
 
     if (!response.ok) {
       throw new Error(`Cortical API error: ${response.status}`);
@@ -141,7 +147,13 @@ export class NeuralBrainProvider implements LLMProvider {
     }
 
     // Step 3: Get response from backbone LLM
-    const response = await this.backboneProvider.chat(enhancedRequest);
+    let response: LLMResponse;
+    try {
+      response = await this.backboneProvider.chat(enhancedRequest);
+    } catch (err: any) {
+      log.error(`Backbone provider failed: ${err.message}`);
+      throw new Error(`Neural Brain backbone (${this.backboneProvider.name}) failed: ${err.message}. Check your API key and provider settings.`);
+    }
 
     // Step 4: Neural plasticity — learn from this interaction
     this.updateAssociativeMemory(queryText, response.content);
