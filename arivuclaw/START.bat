@@ -75,9 +75,22 @@ echo   Press Ctrl+C to stop.
 echo.
 
 set ARIVUCLAW_MODE=unrestricted
+
+:run_loop
 node dist/cli/index.js start
+set EXIT_CODE=%ERRORLEVEL%
+
+if %EXIT_CODE% EQU 0 (
+  echo.
+  echo   ArivuClaw has stopped gracefully.
+  echo.
+  pause
+  goto :eof
+)
 
 echo.
-echo   ArivuClaw has stopped.
+echo   ArivuClaw crashed with exit code %EXIT_CODE%. Auto-restarting in 5 seconds...
+echo   Press Ctrl+C to cancel restart.
 echo.
-pause
+timeout /t 5 /nobreak >nul
+goto :run_loop

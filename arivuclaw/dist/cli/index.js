@@ -259,6 +259,9 @@ async function startGateway() {
     // Auto-restart gateway on channel errors
     let restartAttempts = 0;
     const MAX_RESTART_ATTEMPTS = 5;
+    const ATTEMPT_RESET_INTERVAL = 120_000; // Reset attempt counter after 2 minutes of stability
+    let restartResetTimer = null;
+    let isRestarting = false;
     // Non-fatal error patterns — these should NOT trigger a gateway restart
     const NON_FATAL_PATTERNS = [
         "too long", "can't parse entities", "message is not modified",
@@ -267,6 +270,50 @@ async function startGateway() {
         "Anthropic API error", "MiniMax API error", "OpenAI API error",
         "rate limit", "429", "quota",
     ];
+    const scheduleAttemptReset = () => {
+        if (restartResetTimer)
+            clearTimeout(restartResetTimer);
+        restartResetTimer = setTimeout(() => {
+            if (restartAttempts > 0) {
+                log.info(`Resetting restart attempt counter (was ${restartAttempts}) after ${ATTEMPT_RESET_INTERVAL / 1000}s of stability`);
+                restartAttempts = 0;
+            }
+        }, ATTEMPT_RESET_INTERVAL);
+    };
+    const attemptRestart = async (source) => {
+        if (isRestarting) {
+            log.info(`Restart already in progress, skipping duplicate trigger from: ${source}`);
+            return;
+        }
+        if (restartAttempts < MAX_RESTART_ATTEMPTS) {
+            restartAttempts++;
+            isRestarting = true;
+            const delay = Math.min(2000 * Math.pow(2, restartAttempts - 1), 30000);
+            log.info(`Auto-restarting gateway in ${delay / 1000}s (attempt ${restartAttempts}/${MAX_RESTART_ATTEMPTS}) [${source}]...`);
+            setTimeout(async () => {
+                try {
+                    await gateway.restart();
+                    log.info("Gateway auto-restart successful");
+                    scheduleAttemptReset();
+                }
+                catch (err) {
+                    log.error(`Auto-restart failed: ${err}`);
+                }
+                finally {
+                    isRestarting = false;
+                }
+            }, delay);
+        }
+        else {
+            log.error(`Max restart attempts (${MAX_RESTART_ATTEMPTS}) reached. Performing full process restart...`);
+            try {
+                await gateway.shutdown();
+            }
+            catch { /* best effort */ }
+            // Exit with code 1 so process manager / wrapper script can restart
+            process.exit(1);
+        }
+    };
     gateway.on("error", async (data) => {
         const errStr = String(data?.message || data);
         log.error(`Gateway error: ${errStr}`);
@@ -276,38 +323,21 @@ async function startGateway() {
             log.info(`Non-fatal error, skipping restart: ${errStr.slice(0, 120)}`);
             return;
         }
-        if (restartAttempts < MAX_RESTART_ATTEMPTS) {
-            restartAttempts++;
-            const delay = Math.min(2000 * Math.pow(2, restartAttempts - 1), 30000);
-            log.info(`Auto-restarting gateway in ${delay / 1000}s (attempt ${restartAttempts}/${MAX_RESTART_ATTEMPTS})...`);
-            setTimeout(async () => {
-                try {
-                    await gateway.restart();
-                    restartAttempts = 0; // Reset on successful restart
-                    log.info("Gateway auto-restart successful");
-                }
-                catch (err) {
-                    log.error(`Auto-restart failed: ${err}`);
-                }
-            }, delay);
-        }
-        else {
-            log.error(`Max restart attempts (${MAX_RESTART_ATTEMPTS}) reached. Manual intervention required.`);
-        }
+        await attemptRestart("gateway error");
     });
     // Handle uncaught errors — restart instead of crashing
     process.on("uncaughtException", async (err) => {
         log.error(`Uncaught exception: ${err.message}`);
-        if (restartAttempts < MAX_RESTART_ATTEMPTS) {
-            restartAttempts++;
-            log.info(`Attempting gateway restart after uncaught exception...`);
-            try {
-                await gateway.restart();
-                restartAttempts = 0;
-            }
-            catch (restartErr) {
-                log.error(`Restart after exception failed: ${restartErr}`);
-            }
+        await attemptRestart("uncaughtException");
+    });
+    // Handle unhandled promise rejections — prevents silent crashes
+    process.on("unhandledRejection", async (reason) => {
+        const errStr = reason instanceof Error ? reason.message : String(reason);
+        log.error(`Unhandled rejection: ${errStr}`);
+        // Only restart for connection/fatal errors, not API errors
+        const isNonFatal = NON_FATAL_PATTERNS.some(p => errStr.toLowerCase().includes(p.toLowerCase()));
+        if (!isNonFatal) {
+            await attemptRestart("unhandledRejection");
         }
     });
     // Graceful shutdown

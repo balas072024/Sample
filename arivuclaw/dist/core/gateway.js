@@ -342,7 +342,12 @@ class Gateway extends eventemitter3_1.EventEmitter {
                 log.error(`  Failed to restart channel ${type}: ${error}`);
             }
         }
-        await this.memoryStore.initialize();
+        try {
+            await this.memoryStore.initialize();
+        }
+        catch (error) {
+            log.warn(`Memory store re-init failed (non-critical): ${error}`);
+        }
         this.isRunning = true;
         this.emitEvent({ type: "channel.connected", data: { type: "cli" } });
         log.info("ArivuClaw Gateway restarted successfully 🦀");
