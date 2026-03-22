@@ -20,10 +20,6 @@ for /f "tokens=5" %%p in ('netstat -ano ^| findstr ":6800" ^| findstr "LISTENING
     echo   Stopping process %%p on port 6800...
     taskkill /PID %%p /F >nul 2>nul
 )
-for /f "tokens=5" %%p in ('netstat -ano ^| findstr ":3000" ^| findstr "LISTENING" 2^>nul') do (
-    echo   Stopping old process %%p on port 3000...
-    taskkill /PID %%p /F >nul 2>nul
-)
 for /f "tokens=5" %%p in ('netstat -ano ^| findstr ":7890" ^| findstr "LISTENING" 2^>nul') do (
     echo   Stopping old process %%p on port 7890...
     taskkill /PID %%p /F >nul 2>nul
