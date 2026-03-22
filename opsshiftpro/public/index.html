@@ -1,0 +1,525 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>OpsShiftPro - Shift Handover SaaS</title>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    :root {
+      --bg: #0f1117;
+      --surface: #1a1d27;
+      --surface2: #242736;
+      --border: #2e3245;
+      --primary: #6c63ff;
+      --primary-hover: #5a52e0;
+      --success: #2ecc71;
+      --warning: #f39c12;
+      --danger: #e74c3c;
+      --text: #e8e8f0;
+      --text-dim: #8b8da3;
+      --radius: 8px;
+    }
+    body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; background: var(--bg); color: var(--text); line-height: 1.6; }
+    a { color: var(--primary); text-decoration: none; }
+    button { cursor: pointer; border: none; border-radius: var(--radius); padding: 10px 20px; font-size: 14px; font-weight: 600; transition: background .2s; }
+    .btn-primary { background: var(--primary); color: #fff; }
+    .btn-primary:hover { background: var(--primary-hover); }
+    .btn-danger { background: var(--danger); color: #fff; }
+    .btn-sm { padding: 6px 12px; font-size: 12px; }
+    .btn-success { background: var(--success); color: #fff; }
+    input, select, textarea {
+      background: var(--surface2); border: 1px solid var(--border); color: var(--text);
+      border-radius: var(--radius); padding: 10px 14px; font-size: 14px; width: 100%;
+    }
+    input:focus, select:focus, textarea:focus { outline: none; border-color: var(--primary); }
+    textarea { resize: vertical; min-height: 60px; }
+
+    /* Layout */
+    .app-header { background: var(--surface); border-bottom: 1px solid var(--border); padding: 14px 24px; display: flex; justify-content: space-between; align-items: center; }
+    .app-header h1 { font-size: 20px; color: var(--primary); }
+    .app-header .user-info { display: flex; align-items: center; gap: 12px; }
+    .container { max-width: 1200px; margin: 0 auto; padding: 24px; }
+    .grid { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
+    .card { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); padding: 20px; }
+    .card h2 { font-size: 16px; margin-bottom: 16px; color: var(--text-dim); text-transform: uppercase; letter-spacing: 1px; font-weight: 600; }
+    .full-width { grid-column: 1 / -1; }
+    .badge { display: inline-block; padding: 3px 10px; border-radius: 12px; font-size: 11px; font-weight: 700; text-transform: uppercase; }
+    .badge-active { background: rgba(46,204,113,.15); color: var(--success); }
+    .badge-completed { background: rgba(139,141,163,.15); color: var(--text-dim); }
+    .badge-high, .badge-critical { background: rgba(231,76,60,.15); color: var(--danger); }
+    .badge-medium { background: rgba(243,156,18,.15); color: var(--warning); }
+    .badge-low { background: rgba(46,204,113,.15); color: var(--success); }
+    .form-group { margin-bottom: 14px; }
+    .form-group label { display: block; font-size: 12px; color: var(--text-dim); margin-bottom: 4px; font-weight: 600; }
+    .form-row { display: flex; gap: 12px; }
+    .form-row > * { flex: 1; }
+    table { width: 100%; border-collapse: collapse; }
+    th, td { text-align: left; padding: 10px 12px; border-bottom: 1px solid var(--border); font-size: 13px; }
+    th { color: var(--text-dim); font-weight: 600; text-transform: uppercase; font-size: 11px; letter-spacing: .5px; }
+    .checklist-item { display: flex; align-items: center; gap: 10px; padding: 8px 0; border-bottom: 1px solid var(--border); }
+    .checklist-item input[type="checkbox"] { width: 18px; height: 18px; accent-color: var(--primary); }
+    .checklist-item.checked label { text-decoration: line-through; color: var(--text-dim); }
+    .tabs { display: flex; gap: 4px; margin-bottom: 16px; }
+    .tabs button { background: var(--surface2); color: var(--text-dim); border-radius: 6px 6px 0 0; }
+    .tabs button.active { background: var(--primary); color: #fff; }
+    .hidden { display: none !important; }
+    .empty-state { text-align: center; padding: 30px; color: var(--text-dim); }
+    .login-page { display: flex; align-items: center; justify-content: center; min-height: 100vh; }
+    .login-box { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); padding: 40px; width: 400px; }
+    .login-box h1 { text-align: center; color: var(--primary); margin-bottom: 8px; }
+    .login-box p { text-align: center; color: var(--text-dim); margin-bottom: 24px; font-size: 14px; }
+    .error-msg { color: var(--danger); font-size: 13px; margin-top: 8px; text-align: center; }
+    .report-section { margin-bottom: 16px; }
+    .report-stats { display: grid; grid-template-columns: repeat(auto-fit, minmax(120px,1fr)); gap: 12px; margin-bottom: 16px; }
+    .stat-card { background: var(--surface2); border-radius: var(--radius); padding: 14px; text-align: center; }
+    .stat-card .value { font-size: 28px; font-weight: 700; color: var(--primary); }
+    .stat-card .label { font-size: 11px; color: var(--text-dim); text-transform: uppercase; }
+    .modal-overlay { position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,.6); display: flex; align-items: center; justify-content: center; z-index: 1000; }
+    .modal { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); padding: 24px; width: 500px; max-height: 80vh; overflow-y: auto; }
+    .modal h2 { margin-bottom: 16px; }
+    .modal-actions { display: flex; justify-content: flex-end; gap: 8px; margin-top: 16px; }
+  </style>
+</head>
+<body>
+
+<!-- Login Page -->
+<div id="loginPage" class="login-page">
+  <div class="login-box">
+    <h1>OpsShiftPro</h1>
+    <p>Shift Handover Management</p>
+    <div class="form-group">
+      <label>Username</label>
+      <input type="text" id="loginUsername" placeholder="operator1">
+    </div>
+    <div class="form-group">
+      <label>Password</label>
+      <input type="password" id="loginPassword" placeholder="Password">
+    </div>
+    <button class="btn-primary" style="width:100%;margin-top:8px" onclick="doLogin()">Sign In</button>
+    <div id="loginError" class="error-msg hidden"></div>
+  </div>
+</div>
+
+<!-- App -->
+<div id="appPage" class="hidden">
+  <header class="app-header">
+    <h1>OpsShiftPro</h1>
+    <div class="user-info">
+      <span id="userDisplay"></span>
+      <button class="btn-sm btn-danger" onclick="doLogout()">Logout</button>
+    </div>
+  </header>
+
+  <div class="container">
+    <!-- Create Shift -->
+    <div class="card full-width" style="margin-bottom:20px">
+      <h2>Create New Shift</h2>
+      <div class="form-row">
+        <div class="form-group">
+          <label>Operator Name</label>
+          <input type="text" id="newShiftOperator" placeholder="Operator name">
+        </div>
+        <div class="form-group">
+          <label>Start Time</label>
+          <input type="datetime-local" id="newShiftStart">
+        </div>
+        <div class="form-group">
+          <label>End Time (optional)</label>
+          <input type="datetime-local" id="newShiftEnd">
+        </div>
+        <div class="form-group" style="display:flex;align-items:flex-end">
+          <button class="btn-primary" onclick="createShift()">Start Shift</button>
+        </div>
+      </div>
+    </div>
+
+    <div class="grid">
+      <!-- Active Shift Panel -->
+      <div class="card">
+        <h2>Active Shift</h2>
+        <div id="activeShiftPanel">
+          <div class="empty-state">No active shift selected</div>
+        </div>
+      </div>
+
+      <!-- Handover Items -->
+      <div class="card">
+        <h2>Handover Items</h2>
+        <div id="handoverItemsPanel">
+          <div class="empty-state">Select an active shift to view items</div>
+        </div>
+      </div>
+
+      <!-- Checklist -->
+      <div class="card">
+        <h2>Checklists</h2>
+        <div id="checklistPanel">
+          <div class="empty-state">Select a shift to view checklists</div>
+        </div>
+      </div>
+
+      <!-- Shift Report -->
+      <div class="card">
+        <h2>Shift Report</h2>
+        <div id="reportPanel">
+          <div class="empty-state">Select a shift to generate report</div>
+        </div>
+      </div>
+
+      <!-- Shift History -->
+      <div class="card full-width">
+        <h2>Shift History</h2>
+        <table>
+          <thead>
+            <tr><th>ID</th><th>Operator</th><th>Start</th><th>End</th><th>Status</th><th>Actions</th></tr>
+          </thead>
+          <tbody id="shiftHistoryBody">
+            <tr><td colspan="6" class="empty-state">Loading...</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Add Handover Item Modal -->
+<div id="addItemModal" class="modal-overlay hidden">
+  <div class="modal">
+    <h2>Add Handover Item</h2>
+    <div class="form-group">
+      <label>Type</label>
+      <select id="itemType">
+        <option value="issue">Issue</option>
+        <option value="note">Note</option>
+        <option value="pending_task">Pending Task</option>
+      </select>
+    </div>
+    <div class="form-group">
+      <label>Title</label>
+      <input type="text" id="itemTitle" placeholder="Brief description">
+    </div>
+    <div class="form-group">
+      <label>Description</label>
+      <textarea id="itemDesc" placeholder="Detailed description"></textarea>
+    </div>
+    <div class="form-group">
+      <label>Priority</label>
+      <select id="itemPriority">
+        <option value="low">Low</option>
+        <option value="medium" selected>Medium</option>
+        <option value="high">High</option>
+        <option value="critical">Critical</option>
+      </select>
+    </div>
+    <div class="modal-actions">
+      <button class="btn-sm" style="background:var(--surface2)" onclick="closeModal('addItemModal')">Cancel</button>
+      <button class="btn-sm btn-primary" onclick="addHandoverItem()">Add Item</button>
+    </div>
+  </div>
+</div>
+
+<!-- Add Checklist Modal -->
+<div id="addChecklistModal" class="modal-overlay hidden">
+  <div class="modal">
+    <h2>Create Checklist</h2>
+    <div class="form-group">
+      <label>Type</label>
+      <select id="clType">
+        <option value="pre_shift">Pre-Shift</option>
+        <option value="post_shift">Post-Shift</option>
+      </select>
+    </div>
+    <div class="form-group">
+      <label>Title</label>
+      <input type="text" id="clTitle" placeholder="Checklist title">
+    </div>
+    <div class="form-group">
+      <label>Items (one per line)</label>
+      <textarea id="clItems" rows="5" placeholder="Check PPE&#10;Review logs&#10;Inspect equipment"></textarea>
+    </div>
+    <div class="modal-actions">
+      <button class="btn-sm" style="background:var(--surface2)" onclick="closeModal('addChecklistModal')">Cancel</button>
+      <button class="btn-sm btn-primary" onclick="addChecklist()">Create</button>
+    </div>
+  </div>
+</div>
+
+<script>
+const API = '/api';
+let authToken = localStorage.getItem('opsshift_token');
+let currentUser = null;
+let selectedShiftId = null;
+
+// ─── API Helper ─────────────────────────────────────────
+async function api(method, path, body) {
+  const opts = { method, headers: { 'Content-Type': 'application/json' } };
+  if (authToken) opts.headers['Authorization'] = `Bearer ${authToken}`;
+  if (body) opts.body = JSON.stringify(body);
+  const res = await fetch(API + path, opts);
+  const data = await res.json();
+  if (!res.ok) throw { status: res.status, ...data };
+  return data;
+}
+
+// ─── Auth ───────────────────────────────────────────────
+async function doLogin() {
+  const username = document.getElementById('loginUsername').value.trim();
+  const password = document.getElementById('loginPassword').value;
+  const errEl = document.getElementById('loginError');
+  errEl.classList.add('hidden');
+  try {
+    const data = await api('POST', '/auth/login', { username, password });
+    authToken = data.token;
+    currentUser = data.user;
+    localStorage.setItem('opsshift_token', authToken);
+    showApp();
+  } catch (e) {
+    errEl.textContent = e.error || 'Login failed';
+    errEl.classList.remove('hidden');
+  }
+}
+
+function doLogout() {
+  authToken = null;
+  currentUser = null;
+  localStorage.removeItem('opsshift_token');
+  document.getElementById('appPage').classList.add('hidden');
+  document.getElementById('loginPage').classList.remove('hidden');
+}
+
+async function showApp() {
+  document.getElementById('loginPage').classList.add('hidden');
+  document.getElementById('appPage').classList.remove('hidden');
+  if (!currentUser) {
+    try {
+      const data = await api('GET', '/auth/me');
+      currentUser = data.user;
+    } catch {
+      doLogout();
+      return;
+    }
+  }
+  document.getElementById('userDisplay').textContent = `${currentUser.full_name || currentUser.username} (${currentUser.role})`;
+  loadShifts();
+}
+
+// ─── Shifts ─────────────────────────────────────────────
+async function loadShifts() {
+  try {
+    const data = await api('GET', '/shifts?limit=50');
+    renderShiftHistory(data.shifts);
+    const active = data.shifts.find(s => s.status === 'active');
+    if (active && !selectedShiftId) selectShift(active.id);
+    else if (selectedShiftId) selectShift(selectedShiftId);
+  } catch (e) { console.error(e); }
+}
+
+function renderShiftHistory(shifts) {
+  const tbody = document.getElementById('shiftHistoryBody');
+  if (!shifts.length) { tbody.innerHTML = '<tr><td colspan="6" class="empty-state">No shifts yet</td></tr>'; return; }
+  tbody.innerHTML = shifts.map(s => `
+    <tr>
+      <td>${s.id}</td>
+      <td>${s.operator_name}</td>
+      <td>${fmtDate(s.start_time)}</td>
+      <td>${s.end_time ? fmtDate(s.end_time) : '-'}</td>
+      <td><span class="badge badge-${s.status}">${s.status}</span></td>
+      <td>
+        <button class="btn-sm btn-primary" onclick="selectShift(${s.id})">View</button>
+        ${s.status === 'active' ? `<button class="btn-sm btn-success" onclick="completeShift(${s.id})">Complete</button>` : ''}
+        <button class="btn-sm btn-danger" onclick="deleteShift(${s.id})">Del</button>
+      </td>
+    </tr>
+  `).join('');
+}
+
+async function createShift() {
+  const operator_name = document.getElementById('newShiftOperator').value.trim();
+  const start_time = document.getElementById('newShiftStart').value;
+  if (!operator_name || !start_time) return alert('Operator name and start time are required');
+  const end_time = document.getElementById('newShiftEnd').value || undefined;
+  try {
+    await api('POST', '/shifts', { operator_name, start_time, end_time });
+    document.getElementById('newShiftOperator').value = '';
+    document.getElementById('newShiftStart').value = '';
+    document.getElementById('newShiftEnd').value = '';
+    loadShifts();
+  } catch (e) { alert(e.error || 'Failed to create shift'); }
+}
+
+async function selectShift(id) {
+  selectedShiftId = id;
+  try {
+    const data = await api('GET', `/shifts/${id}`);
+    renderActiveShift(data.shift);
+    renderHandoverItems(data.handover_items);
+    renderChecklists(data.checklists);
+    loadReport(id);
+  } catch (e) { console.error(e); }
+}
+
+function renderActiveShift(shift) {
+  document.getElementById('activeShiftPanel').innerHTML = `
+    <div style="margin-bottom:12px">
+      <strong style="font-size:18px">${shift.operator_name}</strong>
+      <span class="badge badge-${shift.status}" style="margin-left:8px">${shift.status}</span>
+    </div>
+    <div style="font-size:13px;color:var(--text-dim);margin-bottom:4px">
+      <strong>Start:</strong> ${fmtDate(shift.start_time)}
+    </div>
+    <div style="font-size:13px;color:var(--text-dim);margin-bottom:4px">
+      <strong>End:</strong> ${shift.end_time ? fmtDate(shift.end_time) : 'Ongoing'}
+    </div>
+    ${shift.summary ? `<div style="font-size:13px;margin-top:8px;padding:8px;background:var(--surface2);border-radius:var(--radius)"><strong>Summary:</strong> ${esc(shift.summary)}</div>` : ''}
+  `;
+}
+
+async function completeShift(id) {
+  const summary = prompt('Shift summary (optional):');
+  try {
+    await api('PUT', `/shifts/${id}`, { status: 'completed', end_time: new Date().toISOString(), summary: summary || undefined });
+    if (selectedShiftId === id) selectedShiftId = null;
+    loadShifts();
+  } catch (e) { alert(e.error || 'Failed'); }
+}
+
+async function deleteShift(id) {
+  if (!confirm('Delete this shift and all associated data?')) return;
+  try {
+    await api('DELETE', `/shifts/${id}`);
+    if (selectedShiftId === id) { selectedShiftId = null; resetPanels(); }
+    loadShifts();
+  } catch (e) { alert(e.error || 'Failed'); }
+}
+
+// ─── Handover Items ─────────────────────────────────────
+function renderHandoverItems(items) {
+  const panel = document.getElementById('handoverItemsPanel');
+  let html = `<button class="btn-sm btn-primary" style="margin-bottom:12px" onclick="openModal('addItemModal')">+ Add Item</button>`;
+  if (!items.length) { html += '<div class="empty-state">No handover items</div>'; panel.innerHTML = html; return; }
+  html += '<table><thead><tr><th>Type</th><th>Title</th><th>Priority</th><th>Status</th><th></th></tr></thead><tbody>';
+  for (const i of items) {
+    html += `<tr>
+      <td>${i.type.replace('_',' ')}</td>
+      <td>${esc(i.title)}</td>
+      <td><span class="badge badge-${i.priority}">${i.priority}</span></td>
+      <td>${i.resolved ? '<span style="color:var(--success)">Resolved</span>' : 'Open'}</td>
+      <td>
+        ${!i.resolved ? `<button class="btn-sm btn-success" onclick="resolveItem(${i.id})">Resolve</button>` : ''}
+        <button class="btn-sm btn-danger" onclick="deleteItem(${i.id})">Del</button>
+      </td>
+    </tr>`;
+  }
+  html += '</tbody></table>';
+  panel.innerHTML = html;
+}
+
+async function addHandoverItem() {
+  const type = document.getElementById('itemType').value;
+  const title = document.getElementById('itemTitle').value.trim();
+  const description = document.getElementById('itemDesc').value.trim();
+  const priority = document.getElementById('itemPriority').value;
+  if (!title) return alert('Title is required');
+  try {
+    await api('POST', `/shifts/${selectedShiftId}/handover-items`, { type, title, description, priority });
+    closeModal('addItemModal');
+    document.getElementById('itemTitle').value = '';
+    document.getElementById('itemDesc').value = '';
+    selectShift(selectedShiftId);
+  } catch (e) { alert(e.error || 'Failed'); }
+}
+
+async function resolveItem(id) {
+  try { await api('PUT', `/handover-items/${id}`, { resolved: true }); selectShift(selectedShiftId); } catch (e) { alert('Failed'); }
+}
+
+async function deleteItem(id) {
+  try { await api('DELETE', `/handover-items/${id}`); selectShift(selectedShiftId); } catch (e) { alert('Failed'); }
+}
+
+// ─── Checklists ─────────────────────────────────────────
+function renderChecklists(checklists) {
+  const panel = document.getElementById('checklistPanel');
+  let html = `<button class="btn-sm btn-primary" style="margin-bottom:12px" onclick="openModal('addChecklistModal')">+ Add Checklist</button>`;
+  if (!checklists.length) { html += '<div class="empty-state">No checklists</div>'; panel.innerHTML = html; return; }
+  for (const cl of checklists) {
+    const done = cl.items ? cl.items.filter(i => i.checked).length : 0;
+    const total = cl.items ? cl.items.length : 0;
+    html += `<div style="margin-bottom:16px;padding:12px;background:var(--surface2);border-radius:var(--radius)">
+      <div style="display:flex;justify-content:space-between;margin-bottom:8px">
+        <strong>${esc(cl.title)}</strong>
+        <span class="badge badge-${cl.type === 'pre_shift' ? 'active' : 'completed'}">${cl.type.replace('_',' ')}</span>
+      </div>
+      <div style="font-size:12px;color:var(--text-dim);margin-bottom:8px">${done}/${total} completed</div>`;
+    if (cl.items) {
+      for (const item of cl.items) {
+        html += `<div class="checklist-item ${item.checked ? 'checked' : ''}">
+          <input type="checkbox" ${item.checked ? 'checked' : ''} onchange="toggleChecklistItem(${item.id}, this.checked)">
+          <label>${esc(item.label)}</label>
+        </div>`;
+      }
+    }
+    html += '</div>';
+  }
+  panel.innerHTML = html;
+}
+
+async function addChecklist() {
+  const type = document.getElementById('clType').value;
+  const title = document.getElementById('clTitle').value.trim();
+  const itemsText = document.getElementById('clItems').value.trim();
+  if (!title) return alert('Title required');
+  const items = itemsText.split('\n').filter(l => l.trim()).map(l => ({ label: l.trim() }));
+  try {
+    await api('POST', `/shifts/${selectedShiftId}/checklists`, { type, title, items });
+    closeModal('addChecklistModal');
+    document.getElementById('clTitle').value = '';
+    document.getElementById('clItems').value = '';
+    selectShift(selectedShiftId);
+  } catch (e) { alert(e.error || 'Failed'); }
+}
+
+async function toggleChecklistItem(id, checked) {
+  try { await api('PUT', `/checklist-items/${id}`, { checked }); selectShift(selectedShiftId); } catch (e) { alert('Failed'); }
+}
+
+// ─── Report ─────────────────────────────────────────────
+async function loadReport(shiftId) {
+  try {
+    const data = await api('GET', `/shifts/${shiftId}/report`);
+    const r = data.report;
+    const s = r.summary;
+    document.getElementById('reportPanel').innerHTML = `
+      <div class="report-stats">
+        <div class="stat-card"><div class="value">${s.total_handover_items}</div><div class="label">Total Items</div></div>
+        <div class="stat-card"><div class="value">${s.issues_count}</div><div class="label">Issues</div></div>
+        <div class="stat-card"><div class="value">${s.pending_tasks_count}</div><div class="label">Pending Tasks</div></div>
+        <div class="stat-card"><div class="value">${s.unresolved_count}</div><div class="label">Unresolved</div></div>
+        <div class="stat-card"><div class="value">${s.checklist_completion_pct}%</div><div class="label">Checklist Done</div></div>
+        <div class="stat-card"><div class="value">${s.checklist_progress}</div><div class="label">Checked Items</div></div>
+      </div>
+    `;
+  } catch (e) { console.error(e); }
+}
+
+// ─── Helpers ────────────────────────────────────────────
+function openModal(id) { document.getElementById(id).classList.remove('hidden'); }
+function closeModal(id) { document.getElementById(id).classList.add('hidden'); }
+function resetPanels() {
+  document.getElementById('activeShiftPanel').innerHTML = '<div class="empty-state">No active shift selected</div>';
+  document.getElementById('handoverItemsPanel').innerHTML = '<div class="empty-state">Select an active shift to view items</div>';
+  document.getElementById('checklistPanel').innerHTML = '<div class="empty-state">Select a shift to view checklists</div>';
+  document.getElementById('reportPanel').innerHTML = '<div class="empty-state">Select a shift to generate report</div>';
+}
+function fmtDate(d) { if (!d) return '-'; try { return new Date(d).toLocaleString(); } catch { return d; } }
+function esc(s) { const d = document.createElement('div'); d.textContent = s; return d.innerHTML; }
+
+// ─── Init ───────────────────────────────────────────────
+document.addEventListener('DOMContentLoaded', () => {
+  if (authToken) showApp();
+});
+document.getElementById('loginPassword').addEventListener('keydown', e => { if (e.key === 'Enter') doLogin(); });
+</script>
+</body>
+</html>
