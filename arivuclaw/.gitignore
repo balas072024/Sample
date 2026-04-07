@@ -1,0 +1,28 @@
+# Dependencies
+node_modules/
+
+# Build output (dist/ is committed so users don't need to build)
+
+# Environment
+.env
+.env.local
+
+# ArivuClaw data
+.arivuclaw/memory/
+.arivuclaw/auth/
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Logs
+*.log
+
+# Coverage
+coverage/

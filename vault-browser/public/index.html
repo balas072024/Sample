@@ -1,0 +1,260 @@
+<!DOCTYPE html>
+<html lang="en"><head>
+<meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Vault Browser</title>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+:root{--bg:#04050a;--bg2:#0a0e18;--bdr:rgba(59,130,246,.18);--acc:#3b82f6;--txt:#e2e8f0;--txt2:#94a3b8;--green:#22c55e;--red:#ef4444}
+body{background:var(--bg);color:var(--txt);font-family:"Segoe UI",system-ui,sans-serif;min-height:100vh}
+.screen{display:flex;align-items:center;justify-content:center;min-height:100vh}
+.card{background:var(--bg2);border:1px solid var(--bdr);border-radius:16px;padding:32px;width:100%;max-width:400px;text-align:center}
+.card h2{font-size:20px;color:#93c5fd;margin-bottom:16px}
+header{background:var(--bg2);border-bottom:1px solid var(--bdr);padding:12px 24px;display:flex;align-items:center;gap:12px}
+header h1{font-size:18px;color:#93c5fd}
+.main{padding:20px;max-width:900px;margin:0 auto}
+.section{background:var(--bg2);border:1px solid var(--bdr);border-radius:12px;padding:20px;margin-bottom:16px}
+.section h2{font-size:15px;color:#93c5fd;margin-bottom:14px}
+input,select{width:100%;padding:10px 14px;background:var(--bg);border:1px solid var(--bdr);border-radius:8px;color:var(--txt);font-size:14px;outline:none;margin-bottom:8px}
+input:focus{border-color:var(--acc)}
+button{padding:8px 16px;background:var(--acc);color:#fff;border:none;border-radius:8px;cursor:pointer;font-size:13px;font-weight:600}
+button:hover{opacity:.85}
+.btn-sm{padding:6px 12px;font-size:12px}
+.btn-ghost{background:rgba(255,255,255,.08);color:var(--txt)}
+.btn-red{background:var(--red)}
+.entry{padding:14px 0;border-bottom:1px solid rgba(255,255,255,.05)}
+.entry:last-child{border:none}
+.entry-title{font-weight:600;font-size:15px}
+.entry-url{font-size:12px;color:var(--acc)}
+.entry-meta{font-size:12px;color:var(--txt2);margin-top:2px}
+.pwd-field{display:flex;align-items:center;gap:6px;background:var(--bg);padding:6px 10px;border-radius:6px;font-family:monospace;font-size:13px;margin-top:4px}
+.pwd-field span{flex:1;overflow:hidden;text-overflow:ellipsis}
+.toast{position:fixed;bottom:24px;right:24px;padding:12px 20px;background:var(--bg2);border:1px solid var(--bdr);border-radius:10px;font-size:13px;z-index:99;animation:fadeIn .3s}
+@keyframes fadeIn{from{opacity:0}to{opacity:1}}
+.strength-bar{height:6px;border-radius:3px;margin-top:4px;margin-bottom:8px;background:rgba(255,255,255,.08);overflow:hidden}
+.strength-bar-fill{height:100%;border-radius:3px;transition:width .3s,background .3s}
+.strength-label{font-size:11px;margin-bottom:6px}
+</style></head><body>
+
+<div class="screen" id="vault-screen">
+  <div class="card">
+    <div style="font-size:48px;margin-bottom:12px">🔐</div>
+    <h2>Vault Browser</h2>
+    <div id="vault-list"></div>
+    <div style="margin-top:16px;border-top:1px solid var(--bdr);padding-top:16px">
+      <input type="text" id="new-vault-name" placeholder="New vault name">
+      <input type="password" id="new-vault-pwd" placeholder="Master password (8+ chars)">
+      <button id="btn-create-vault" style="width:100%">Create Vault</button>
+    </div>
+  </div>
+</div>
+
+<div id="unlock-screen" class="screen" style="display:none">
+  <div class="card">
+    <div style="font-size:48px;margin-bottom:12px">🔑</div>
+    <h2 id="unlock-vault-name">Unlock Vault</h2>
+    <input type="password" id="unlock-pwd" placeholder="Master password">
+    <button id="btn-unlock" style="width:100%">Unlock</button>
+    <button class="btn-ghost" id="btn-back" style="width:100%;margin-top:8px">Back</button>
+    <div id="unlock-error" style="color:var(--red);font-size:13px;margin-top:8px"></div>
+  </div>
+</div>
+
+<div id="app" style="display:none">
+  <header>
+    <span style="font-size:20px">🔐</span><h1>Vault Browser</h1>
+    <div style="margin-left:auto;display:flex;gap:8px">
+      <span style="font-size:14px" id="vault-name-header"></span>
+      <button class="btn-sm btn-ghost" id="btn-export">Export Vault</button>
+      <button class="btn-sm btn-ghost" id="btn-lock">Lock 🔒</button>
+    </div>
+  </header>
+  <div class="main">
+    <div class="section">
+      <h2>➕ Add Entry</h2>
+      <input type="text" id="e-title" placeholder="Title (e.g., GitHub)" maxlength="200">
+      <input type="text" id="e-username" placeholder="Username / Email">
+      <div style="display:flex;gap:8px">
+        <input type="password" id="e-password" placeholder="Password" style="flex:1">
+        <button class="btn-sm" id="btn-gen-pwd">Generate</button>
+      </div>
+      <div class="strength-bar" id="strength-bar"><div class="strength-bar-fill" id="strength-bar-fill"></div></div>
+      <div class="strength-label" id="strength-label" style="color:var(--txt2)"></div>
+      <input type="text" id="e-url" placeholder="URL (e.g., https://github.com)">
+      <input type="text" id="e-notes" placeholder="Notes (optional)">
+      <select id="e-category"><option value="general">General</option><option value="social">Social</option><option value="finance">Finance</option><option value="dev">Development</option><option value="work">Work</option><option value="email">Email</option></select>
+      <button id="btn-add-entry" style="width:100%">Save Entry</button>
+    </div>
+    <div class="section">
+      <h2>🗂️ Saved Entries</h2>
+      <input type="text" id="search-entries" placeholder="Search..." style="margin-bottom:12px">
+      <div id="entries-list"></div>
+    </div>
+  </div>
+</div>
+
+<script>
+let token = null, masterKey = null, vaultId = null, allEntries = [];
+
+function esc(s){const d=document.createElement("div");d.textContent=s;return d.innerHTML;}
+function toast(m,t="info"){const e=document.createElement("div");e.className="toast";e.style.borderColor=t==="error"?"var(--red)":"var(--green)";e.style.color=t==="error"?"var(--red)":"var(--green)";e.textContent=m;document.body.appendChild(e);setTimeout(()=>e.remove(),3000);}
+
+async function api(path,opts={}){
+  const h={"Content-Type":"application/json"};
+  if(token)h["Authorization"]=`Bearer ${token}`;
+  if(masterKey)h["x-master-key"]=masterKey;
+  const r=await fetch(`/api${path}`,{...opts,headers:{...h,...(opts.headers||{})}});
+  const d=await r.json();
+  if(!r.ok)throw new Error(d.error||"Request failed");
+  return d;
+}
+
+async function loadVaults(){
+  const data=await api("/vault/list");
+  const el=document.getElementById("vault-list");
+  if(data.vaults.length===0){el.innerHTML='<p style="color:var(--txt2);font-size:13px">No vaults yet. Create one below.</p>';return;}
+  el.innerHTML=data.vaults.map(v=>`<button style="width:100%;margin-bottom:8px;text-align:left;padding:14px" onclick="selectVault('${v.id}','${esc(v.name)}')">${esc(v.name)}</button>`).join("");
+}
+
+function selectVault(id,name){
+  vaultId=id;
+  document.getElementById("vault-screen").style.display="none";
+  document.getElementById("unlock-screen").style.display="flex";
+  document.getElementById("unlock-vault-name").textContent=name;
+  document.getElementById("unlock-pwd").value="";
+  document.getElementById("unlock-error").textContent="";
+}
+
+async function unlockVault(){
+  const pwd=document.getElementById("unlock-pwd").value;
+  if(!pwd){document.getElementById("unlock-error").textContent="Enter master password";return;}
+  try{
+    const data=await api("/vault/unlock",{method:"POST",body:JSON.stringify({vault_id:vaultId,master_password:pwd})});
+    token=data.token;masterKey=pwd;
+    document.getElementById("unlock-screen").style.display="none";
+    document.getElementById("app").style.display="block";
+    document.getElementById("vault-name-header").textContent=data.vault.name;
+    loadEntries();
+  }catch(e){document.getElementById("unlock-error").textContent=e.message;}
+}
+
+function lockVault(){
+  token=null;masterKey=null;vaultId=null;allEntries=[];
+  document.getElementById("app").style.display="none";
+  document.getElementById("vault-screen").style.display="flex";
+  loadVaults();
+}
+
+async function createVault(){
+  const name=document.getElementById("new-vault-name").value.trim();
+  const pwd=document.getElementById("new-vault-pwd").value;
+  if(!name||!pwd){toast("Name and password required","error");return;}
+  try{
+    await api("/vault/create",{method:"POST",body:JSON.stringify({name,master_password:pwd})});
+    document.getElementById("new-vault-name").value="";document.getElementById("new-vault-pwd").value="";
+    toast("Vault created!","success");loadVaults();
+  }catch(e){toast(e.message,"error");}
+}
+
+async function loadEntries(){
+  try{
+    const data=await api("/vault/entries");
+    allEntries=data.entries;renderEntries();
+  }catch(e){console.error(e);}
+}
+
+function renderEntries(filter=""){
+  const filtered=filter?allEntries.filter(e=>e.title.toLowerCase().includes(filter)||e.username.toLowerCase().includes(filter)):allEntries;
+  const el=document.getElementById("entries-list");
+  if(filtered.length===0){el.innerHTML='<div style="color:var(--txt2);font-size:13px">No entries</div>';return;}
+  el.innerHTML=filtered.map(e=>`
+    <div class="entry">
+      <div style="display:flex;align-items:center;gap:8px">
+        <span class="entry-title">${esc(e.title)}</span>
+        <span style="font-size:11px;padding:2px 6px;background:rgba(59,130,246,.15);color:var(--acc);border-radius:4px">${esc(e.category)}</span>
+        <button class="btn-sm btn-red" onclick="deleteEntry('${e.id}')" style="margin-left:auto">Delete</button>
+      </div>
+      ${e.url?`<div class="entry-url">${esc(e.url)}</div>`:""}
+      <div class="entry-meta">User: ${esc(e.username||"—")}</div>
+      <div class="pwd-field">
+        <span id="pwd-${e.id}">••••••••</span>
+        <button class="btn-sm btn-ghost" onclick="togglePwd('${e.id}','${esc(e.password)}')">👁</button>
+        <button class="btn-sm btn-ghost" onclick="copyPwd('${esc(e.password)}')">📋</button>
+      </div>
+      ${e.notes?`<div class="entry-meta" style="margin-top:4px">${esc(e.notes)}</div>`:""}
+    </div>`).join("");
+}
+
+function togglePwd(id,pwd){
+  const el=document.getElementById("pwd-"+id);
+  el.textContent=el.textContent==="••••••••"?pwd:"••••••••";
+}
+
+function copyPwd(pwd){
+  navigator.clipboard.writeText(pwd).then(()=>toast("Copied!","success")).catch(()=>toast("Copy failed","error"));
+}
+
+async function addEntry(){
+  const title=document.getElementById("e-title").value.trim();
+  const password=document.getElementById("e-password").value;
+  if(!title||!password){toast("Title and password required","error");return;}
+  try{
+    await api("/vault/entries",{method:"POST",body:JSON.stringify({
+      title,username:document.getElementById("e-username").value.trim(),
+      password,url:document.getElementById("e-url").value.trim(),
+      notes:document.getElementById("e-notes").value.trim(),
+      category:document.getElementById("e-category").value
+    })});
+    ["e-title","e-username","e-password","e-url","e-notes"].forEach(id=>document.getElementById(id).value="");
+    loadEntries();toast("Entry saved","success");
+  }catch(e){toast(e.message,"error");}
+}
+
+async function deleteEntry(id){
+  try{await api(`/vault/entries/${id}`,{method:"DELETE"});loadEntries();}catch(e){toast(e.message,"error");}
+}
+
+async function genPassword(){
+  try{const data=await api("/vault/generate",{method:"POST",body:JSON.stringify({length:24})});document.getElementById("e-password").value=data.password;document.getElementById("e-password").type="text";updateStrengthIndicator(data.password);}catch(e){toast(e.message,"error");}
+}
+
+async function updateStrengthIndicator(pwd){
+  const fill=document.getElementById("strength-bar-fill");
+  const label=document.getElementById("strength-label");
+  if(!pwd){fill.style.width="0%";label.textContent="";return;}
+  try{
+    const data=await api("/vault/check-strength",{method:"POST",body:JSON.stringify({password:pwd})});
+    const colors={weak:"#ef4444",fair:"#f97316",strong:"#22c55e",excellent:"#22c55e"};
+    const widths={weak:"25%",fair:"50%",strong:"75%",excellent:"100%"};
+    fill.style.width=widths[data.strength];
+    fill.style.background=colors[data.strength];
+    label.textContent="Strength: "+data.strength;
+    label.style.color=colors[data.strength];
+  }catch(e){/* ignore */}
+}
+
+async function exportVault(){
+  try{
+    const data=await api("/vault/export");
+    const blob=new Blob([JSON.stringify(data,null,2)],{type:"application/json"});
+    const url=URL.createObjectURL(blob);
+    const a=document.createElement("a");
+    a.href=url;a.download="vault-backup-"+new Date().toISOString().slice(0,10)+".json";
+    document.body.appendChild(a);a.click();a.remove();URL.revokeObjectURL(url);
+    toast("Vault exported","success");
+  }catch(e){toast(e.message,"error");}
+}
+
+document.addEventListener("DOMContentLoaded",()=>{
+  document.getElementById("btn-create-vault").addEventListener("click",createVault);
+  document.getElementById("btn-unlock").addEventListener("click",unlockVault);
+  document.getElementById("unlock-pwd").addEventListener("keydown",e=>{if(e.key==="Enter")unlockVault();});
+  document.getElementById("btn-back").addEventListener("click",()=>{document.getElementById("unlock-screen").style.display="none";document.getElementById("vault-screen").style.display="flex";});
+  document.getElementById("btn-lock").addEventListener("click",lockVault);
+  document.getElementById("btn-add-entry").addEventListener("click",addEntry);
+  document.getElementById("btn-gen-pwd").addEventListener("click",genPassword);
+  document.getElementById("btn-export").addEventListener("click",exportVault);
+  document.getElementById("e-password").addEventListener("input",e=>updateStrengthIndicator(e.target.value));
+  document.getElementById("search-entries").addEventListener("input",e=>renderEntries(e.target.value.toLowerCase()));
+  loadVaults();
+});
+</script></body></html>
